@@ -1252,7 +1252,7 @@ VIE.prototype.StanbolConnector.prototype = {
 	           dataType: "application/json"
 	       });
 	   },
-	
+// TODO: comment	
 	   _queryFactNode: function(url, args, success, error) {
 	       var request = require('request');
 	       var r = request({
