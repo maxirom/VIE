@@ -1,3 +1,6 @@
+var stanbolRootUrl = (window.STANBOL_URLS) ? window.STANBOL_URLS : [
+"http://dev.iks-project.eu:8081",
+"http://dev.iks-project.eu/stanbolfull" ];
 
 test(
   "VIE.js StanbolService - ContentHub: Upload of content / Retrieval of enhancements",
@@ -11,7 +14,7 @@ test(
     ok(z.StanbolService);
     equal(typeof z.StanbolService, "function");
     var stanbol = new z.StanbolService( {
-        url : stanbolRootUrl
+        url : stanbolRootUrl[0]
     });
     z.use(stanbol);
 
@@ -41,7 +44,7 @@ test(
      equal(typeof z.StanbolService, "function");
 
      var stanbol = new z.StanbolService( {
-        url : stanbolRootUrl
+        url : stanbolRootUrl[0]
     });
      z.use(stanbol);
 
@@ -131,7 +134,7 @@ test(
      equal(typeof z.StanbolService, "function");
 
      var stanbol = new z.StanbolService( {
-        url : stanbolRootUrl
+        url : stanbolRootUrl[0]
     });
      z.use(stanbol);
 
@@ -140,7 +143,7 @@ test(
 
             // first we have to store that item to the contenthub -> to the
             // default index
-            var url = stanbolRootUrl + "/contenthub/contenthub/store/" + id;
+            var url = stanbolRootUrl[0] + "/contenthub/contenthub/store/" + id;
             stop();
             $
            .ajax( {
@@ -210,7 +213,7 @@ test("VIE.js StanbolConnector - CRD on contenthub indices", function() {
         ok(z.StanbolService);
         equal(typeof z.StanbolService, "function");
         var stanbol = new z.StanbolService( {
-            url : stanbolRootUrl
+            url : stanbolRootUrl[0]
         });
         z.use(stanbol);
 
@@ -306,7 +309,7 @@ stop();
                             ok(z.StanbolService);
                             equal(typeof z.StanbolService, "function");
                             var stanbol = new z.StanbolService( {
-                                url : stanbolRootUrl
+                                url : stanbolRootUrl[0]
                             });
                             z.use(stanbol);
                             stop();

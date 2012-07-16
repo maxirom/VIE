@@ -1,4 +1,6 @@
-
+var stanbolRootUrl = (window.STANBOL_URLS) ? window.STANBOL_URLS : [
+"http://dev.iks-project.eu:8081",
+"http://dev.iks-project.eu/stanbolfull" ];
 
 test("VIE.js StanbolConnector - Get all referenced sites", function() {
     if (navigator.userAgent === 'Zombie') {
@@ -9,7 +11,7 @@ test("VIE.js StanbolConnector - Get all referenced sites", function() {
   ok(z.StanbolService);
   equal(typeof z.StanbolService, "function");
   var stanbol = new z.StanbolService( {
-     url : stanbolRootUrl
+     url : stanbolRootUrl[0]
  });
   z.use(stanbol);
   stop();
@@ -35,7 +37,7 @@ test(
     ok(z.StanbolService);
     equal(typeof z.StanbolService, "function");
     z.use(new z.StanbolService( {
-        url : stanbolRootUrl
+        url : stanbolRootUrl[0]
     }));
     stop();
 
@@ -191,7 +193,7 @@ test(
     ok(z.StanbolService);
     equal(typeof z.StanbolService, "function");
     z.use(new z.StanbolService( {
-        url : stanbolRootUrl
+        url : stanbolRootUrl[0]
     }));
     stop();
     z
@@ -350,7 +352,7 @@ test(
     ok(z.StanbolService);
     equal(typeof z.StanbolService, "function");
     var stanbol = new z.StanbolService( {
-        url : stanbolRootUrl
+        url : stanbolRootUrl[0]
     });
     z.use(stanbol);
 
@@ -408,7 +410,7 @@ test(
     equal(typeof z.StanbolService, "function");
 
     var stanbol = new z.StanbolService( {
-        url : stanbolRootUrl
+        url : stanbolRootUrl[0]
     });
     z.use(stanbol);
 
@@ -520,7 +522,7 @@ test(
     equal(typeof z.StanbolService, "function");
 
     var stanbol = new z.StanbolService( {
-        url : stanbolRootUrl
+        url : stanbolRootUrl[0]
     });
     z.use(stanbol);
 
@@ -777,7 +779,7 @@ test("VIE.js StanbolConnector - entityhub/mapping", function() {
         ok(z.StanbolService);
         equal(typeof z.StanbolService, "function");
         var stanbol = new z.StanbolService( {
-            url : stanbolRootUrl
+            url : stanbolRootUrl[0]
         });
         z.use(stanbol);
 
@@ -1223,7 +1225,7 @@ test(
 
 var z = new VIE();
 z.use(new z.StanbolService( {
-    url : stanbolRootUrl
+    url : stanbolRootUrl[0]
 }));
 stop();
             // query all referenced sites (entityhub/sites/query)
@@ -1299,7 +1301,7 @@ test(
 
     var z = new VIE();
     z.use(new z.StanbolService( {
-        url : stanbolRootUrl
+        url : stanbolRootUrl[0]
     }));
     stop();
     z
@@ -1340,7 +1342,7 @@ test(
    ok(z.StanbolService);
    equal(typeof z.StanbolService, "function");
    var stanbol = new z.StanbolService( {
-    url : stanbolRootUrl
+    url : stanbolRootUrl[0]
 });
    z.use(stanbol);
 

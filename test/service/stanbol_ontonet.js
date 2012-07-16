@@ -1,3 +1,7 @@
+var stanbolRootUrl = (window.STANBOL_URLS) ? window.STANBOL_URLS : [
+"http://dev.iks-project.eu:8081",
+"http://dev.iks-project.eu/stanbolfull" ];
+
 // ### test for the ontonet/ontology endpoint, the component to manage scopes.
 // An Ontology
 // Scope is a 'logical realm' for all ontologies that encompass a certain
@@ -14,7 +18,7 @@ test("VIE.js StanbolConnector - OntoNet Scope Manager", function() {
     ok(z.StanbolService);
     equal(typeof z.StanbolService, "function");
     var stanbol = new z.StanbolService({
-        url: stanbolRootUrl
+        url: stanbolRootUrl[0]
     });
     z.use(stanbol);
 
@@ -170,7 +174,7 @@ test("VIE.js StanbolConnector - OntoNet Session Manager", function() {
     ok(z.StanbolService);
     equal(typeof z.StanbolService, "function");
     var stanbol = new z.StanbolService({
-        url: stanbolRootUrl
+        url: stanbolRootUrl[0]
     });
     z.use(stanbol);
 
