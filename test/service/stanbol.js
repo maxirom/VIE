@@ -2189,6 +2189,138 @@ test("VIE.js StanbolConnector - OntoNet Session Manager", function() {
 
 	}); // end of test for Session Manager
 
+
+//### test for the rules/ endpoint, the component to manage rules and recipes.
+//@author mere01
+test("VIE.js StanbolConnector - Rules Manager", function() {
+
+	var recipe = "http://www.dfki.de/mere01/recipe/r2";
+	var ruleURI = "http://www.dfki.de/mere01/rules/has";
+	var ruleName = "has";
+	// the rule itself must be in KRES syntax
+		var rule = "[has(?r, ?x, ?z) . has(?r, ?z, ?y) -> has(?r, ?x, ?y)]";
+		var description = "Expresses transitivity of the 'has' relation";
+		var ont = "http://ontologydesignpatterns.org/ont/iks/kres/omv.owl";
+
+		var z = new VIE();
+		ok(z.StanbolService);
+		equal(typeof z.StanbolService, "function");
+		var stanbol = new z.StanbolService( {
+			url : stanbolRootUrl
+		});
+		z.use(stanbol);
+
+		stop();
+		stanbol.connector.getRecipe(recipe, function(success) {
+			console.log("Recipe " + recipe + " exists.")
+			ok(true, "Recipe " + recipe + " exists.");
+			start();
+
+			stop();
+			stanbol.connector.deleteRecipe(recipe, function(success) {
+				console.log("Recipe " + recipe + " was deleted.")
+				ok(true, "Recipe " + recipe + " was deleted.");
+				start();
+			}, function(error) {
+				console.log("Recipe " + recipe + " could not be deleted.")
+				ok(false, "Recipe " + recipe + " could not deleted.");
+				start();
+			}, {});
+
+		}, function(error) {
+			console.log("Recipe " + recipe
+					+ " does not exists. Will be created.")
+			ok(true, "Recipe " + recipe + " does not exist. Will be created.");
+			start();
+
+		}, function(complete) {
+//			start();
+			console.log("entering complete case")
+			// create the recipe
+				stop();
+				stanbol.connector.createRecipe(recipe, function(success) {
+					console.log("Created recipe " + recipe)
+					ok(true, "Created recipe " + recipe);
+					start();
+				}, function(error) {
+					console.log("Could not create recipe " + recipe)
+					ok(false, "Could not create recipe " + recipe);
+					start();
+				}, {});
+			}, {});
+
+		// load a new rule into the recipe
+		stop();
+		// curl -X POST
+		// -F "rules=transitivity[has(?r, ?x, ?z) . has(?r, ?z, ?y) -> has(?r,
+		// ?x, ?y)]"
+		// -F "description=Test rule"
+		// http://[stanbol]/rules/recipe/<recipeURI>
+		stanbol.connector.createRule(
+				ruleName,
+				rule,
+				recipe,
+				function(success) {
+					console.log("created rule " + ruleName + " on " + recipe)
+					ok(true, "created rule " + ruleName + " on " + recipe);
+					start();
+
+					// so we should now be able to query the rules/find endpoint
+					// for our rule and our recipe
+					// curl -H "Accept: application/rdf+xml"
+					// <stanbol>/rules/find/rules?name=transitivity
+					var term = "has";
+					var termType = "name";
+					stop();
+					stanbol.connector.findRule(term, termType,
+							function(success) {
+								console.log("Found a rule using search term "
+										+ termType + "=" + term)
+								console.log(success)
+								ok(true, "Found a rule using search term "
+										+ termType + "=" + term)
+								start();
+							}, function(error) {
+								console.log("Found no rule for search term "
+										+ termType + "=" + term)
+								ok(false, "Found no rule for search term "
+										+ termType + "=" + term)
+								start();
+							});
+
+					term = "transitivity";
+					var termType = "description";
+					stop();
+					stanbol.connector.findRule(term, termType,
+							function(success) {
+								console.log("Found a rule using search term "
+										+ termType + "=" + term)
+								console.log(success)
+								ok(true, "Found a rule using search term "
+										+ termType + "=" + term)
+								start();
+							}, function(error) {
+								console.log("Found no rule for search term "
+										+ termType + "=" + term)
+								ok(false, "Found no rule for search term "
+										+ termType + "=" + term)
+								start();
+							});
+
+				},
+				function(error) {
+					console.log("could not create rule " + ruleName + " on "
+							+ recipe)
+					console.log(error)
+					ok(false, "could not create rule " + ruleName + " on "
+							+ recipe);
+					start();
+				}, {
+					desc : description
+				});
+
+	});		// end of test for the rules/ endpoint
+
 // ### test for the /entityhub/mapping endpoint, checking the retrieval of
 // entity mappings
 // (the entityhub/mapping looks up mappings from local Entities to Entities
