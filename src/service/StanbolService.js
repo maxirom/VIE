@@ -148,8 +148,6 @@ VIE.prototype.StanbolService.prototype = {
 //      new vie.Analyzable({element : jQuery("#foo")})
 //      );
         analyze: function(analyzable) {
-        	console.log("analyzable passed to me:")
-        	console.log(analyzable)
             var service = this;
 
             var correct = analyzable instanceof this.vie.Analyzable;
