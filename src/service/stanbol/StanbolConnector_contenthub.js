@@ -15,6 +15,9 @@
 	jQuery.extend(true, VIE.prototype.StanbolConnector.prototype, {
 
 		// ### uploadContent(content, success, error, options)
+		// Stores a content item to an index on the contenthub. If no index is
+		// specified, the default index (contenthub) will be used. It is possible
+		// to specify the ID under which the item will be stored.
 		// **Parameters**:
 		// *{string}* **content** The text content to be uploaded upon the
 		//		contenthub.
@@ -143,7 +146,6 @@
 				},
 				args : {
 					id : id,
-					// format : "application/json",
 					format : "text/plain",
 					options : options
 				},
@@ -172,7 +174,6 @@
 			var r = request( {
 				method : "GET",
 				uri : url + "/" + args.id,
-				// body: args.text,
 				headers : {
 					Accept : args.format,
 					'Content-Type' : args.format
@@ -192,16 +193,14 @@
 		// ### getMetadataByID(id, success, error, options)
 		// @author mere01
 		// This method queries the Apache Stanbol contenthub for the metadata,
-		// i.e. enhancements of a
-		// specific entity.
+		// i.e. enhancements of a specific entity. The result is an RDF graph.
 		// **Parameters**:
 		// *{string}* **id** The id of the content item to be retrieved.
 		// *{function}* **success** The success callback.
 		// *{function}* **error** The error callback.
 		// *{object}* **options** The Options, specify e.g. "index:
-		// '<indexName>'" if the content item you want to
-		// retrieve is stored on some contenthub index other than the default
-		// index.
+		// '<indexName>'" if the content item you want to retrieve is stored on 
+		// some contenthub index other than the default index.
 		// **Throws**:
 		// *nothing*
 		// **Returns**:
@@ -213,7 +212,7 @@
 		// function (res) { ... },
 		// function (err) { ... },
 		// {
-		// index: 'myIndex'
+		//   index: 'myIndex'
 		// } );
 		getMetadataByID : function(id, success, error, options) {
 
@@ -288,7 +287,6 @@
 		}, // end of _getMetadataByIDNode
 
 		// ### createIndex(ldpathProgram, success, error)
-		// TODO access problem for unknown reason
 		// @author mere01
 		// This method creates a new index on the contenthub, using the
 		// specified ldpath program.
@@ -296,8 +294,10 @@
 		// and click "Delete this
 		// program" next to your LD Path Program.
 		// **Parameters**:
-		// *{string}* **ldpathProgram** The specification of the new index in
-		// ldpath Syntax
+		// *{object}* **ldpath** The specification of the new index in
+		// ldpath Syntax. This requires an object that holds two keys, 'name' 
+		// and 'program', where 'name' is the name of the index to be created,
+		// and 'program' is the ldpath program representing the index.
 		// (see
 		// http://incubator.apache.org/stanbol/docs/trunk/contenthub/contenthub5min)
 		// *{function}* **success** The success callback.
@@ -316,9 +316,14 @@
 
 			var connector = this;
 			
-			var data = new FormData();
-			data.append('name', ldpath.name.replace(/\/$/, ''));
-			data.append('program', ldpath.program.replace(/\/$/, ''));
+			var msg = "Must specify both, name ('name') and ldpath program ('program') of the index to be created.";
+			if (!(ldpath.name) || !(ldpath.program)) {
+				console.log(msg);
+			}
+			var submit = "name=";
+			submit += ldpath.name.replace(/\/$/, '');
+			submit += "&program=";
+			submit += ldpath.program.replace(/\/$/, '');
 
 			connector._iterate( {
 				method : connector._createIndex,
@@ -333,7 +338,7 @@
 					return u;
 				},
 				args : {
-					data : data
+					data : submit
 				},
 				urlIndex : 0
 			});
@@ -347,11 +352,7 @@
 				error : error,
 				url : url,
 				type : "POST",
-				data : args.data,
-				
-				contentType : false,
-				processData : false,
-				cache : false
+				data : args.data
 			});
 
 		}, // end of _createIndex
@@ -361,7 +362,7 @@
 			var r = request( {
 				method : "POST",
 				uri : url,
-				body : args.content,
+				body : args.data,
 				headers : {
 					Accept : args.format
 				}
@@ -378,7 +379,6 @@
 		}, // end of _createIndexNode
 
 		// ### deleteIndex(index, success, error)
-		// TODO access problems for method DELETE
 		// @author mere01
 		// This method deletes the specified index from the contenthub, using
 		// contenthub/ldpath/program/<indexID>
@@ -452,7 +452,7 @@
 			r.end();
 		}, // end of _deleteIndexNode
 
-		// ### contenthubIndices(success, error, options)
+		// ### contenthubIndices(success, error, options, complete)
 		// @author mere01
 		// This method returns a list of all indices that are currently being
 		// managed on the contenthub.
@@ -460,6 +460,7 @@
 		// *{function}* **success** The success callback.
 		// *{function}* **error** The error callback.
 		// *{object}* **options** Options, unused here.
+		// *{function}* **complete** The complete callback.
 		// **Throws**:
 		// *nothing*
 		// **Returns**:
@@ -470,12 +471,12 @@
 		// stnblConn.contenthubIndices(
 		// function (res) { ... },
 		// function (err) { ... });
-		contenthubIndices : function(success, error, options) {
+		contenthubIndices : function(success, error, options, complete) {
 			options = (options) ? options : {};
 			var connector = this;
 
 			var successCB = function(indices) {
-				var array = []
+				var array = [];
 				for ( var program in indices) {
 					var ldpath = "name=";
 					console.log(program);
@@ -494,6 +495,7 @@
 				methodNode : connector._contenthubIndicesNode,
 				success : successCB,
 				error : error,
+				complete : complete,
 				url : function(idx, opts) {
 					var u = this.options.url[idx].replace(/\/$/, '');
 					u += this.options.contenthub.urlPostfix + "/ldpath";
@@ -507,10 +509,11 @@
 			});
 		},
 
-		_contenthubIndices : function(url, args, success, error) {
+		_contenthubIndices : function(url, args, success, error, complete) {
 			jQuery.ajax( {
 				success : success,
 				error : error,
+				complete : complete,
 				url : url,
 				type : "GET",
 				accepts : {
@@ -519,7 +522,7 @@
 			});
 		}, // end of _contenthubIndices
 
-		_contenthubIndicesNode : function(url, args, success, error) {
+		_contenthubIndicesNode : function(url, args, success, error, complete) {
 			var request = require('request');
 			var r = request( {
 				method : "GET",
@@ -541,7 +544,6 @@
 
 
 		// ### deleteContent(itemURI, success, error, options)
-		// TODO access problems for method DELETE
 		// @author mere01
 		// This method deletes the specified content item from the contenthub, implementing
 		// curl -i -X DELETE http://<server>/contenthub/<index>/store/<item-urn>
@@ -550,8 +552,8 @@
 		// 		from the contenthub.
 		// *{function}* **success** The success callback.
 		// *{function}* **error** The error callback.
-		// *{object}* **options** The options. If deleting a content item on a specific index,
-		//		specify 'index' : '<indexURI>'
+		// *{object}* **options** The options. If deleting a content item on some 
+		//		index, other than the default index, specify 'index' : '<indexURI>'.
 		// **Throws**:
 		// *nothing*
 		// **Returns**:
