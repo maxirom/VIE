@@ -196,7 +196,7 @@ test(
 // ### test for the /contenthub endpoint, checking the ldpath functionality and
 // options in working with own indices on the contenthub
 // @author mere01
-test("VIE.js StanbolConnector - CRD on contenthub indices", function() {
+test("VIE.js StanbolConnector - ContentHub CRD access on indices", function() {
 
     if (navigator.userAgent === 'Zombie') {
         return;

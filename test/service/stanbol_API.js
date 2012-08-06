@@ -32,12 +32,15 @@ test("VIE.js StanbolConnector - API", function() {
     z.use(stanbol);
 
     // API
+    
     // enhancer
     ok(stanbol.connector.analyze);
     equal(typeof stanbol.connector.analyze, "function");
+    
     // sparql
     ok(stanbol.connector.sparql);
     equal(typeof stanbol.connector.sparql, "function");
+    
     // entityhub
     ok(stanbol.connector.createEntity);
     equal(typeof stanbol.connector.createEntity, "function");
@@ -63,6 +66,7 @@ test("VIE.js StanbolConnector - API", function() {
     equal(typeof stanbol.connector.query, "function");
     ok(stanbol.connector.getMapping);
     equal(typeof stanbol.connector.getMapping, "function");
+    
     // contenthub
     ok(stanbol.connector.uploadContent);
     equal(typeof stanbol.connector.uploadContent, "function");
@@ -76,6 +80,9 @@ test("VIE.js StanbolConnector - API", function() {
     equal(typeof stanbol.connector.contenthubIndices, "function");
     ok(stanbol.connector.deleteIndex);
     equal(typeof stanbol.connector.deleteIndex, "function");
+    ok(stanbol.connector.deleteContent);
+    equal(typeof stanbol.connector.deleteContent, "function");
+    
     // factstore
     ok(stanbol.connector.createFactSchema);
     equal(typeof stanbol.connector.createFactSchema, "function");
@@ -83,6 +90,7 @@ test("VIE.js StanbolConnector - API", function() {
     equal(typeof stanbol.connector.createFact, "function");
     ok(stanbol.connector.queryFact);
     equal(typeof stanbol.connector.queryFact, "function");
+    
     // ontonet
     ok(stanbol.connector.loadScope);
     equal(typeof stanbol.connector.loadScope, "function");
@@ -106,6 +114,7 @@ test("VIE.js StanbolConnector - API", function() {
     equal(typeof stanbol.connector.appendToSession, "function");
     ok(stanbol.connector.undockFromSession);
     equal(typeof stanbol.connector.undockFromSession, "function");
+    
     // rules
     ok(stanbol.connector.getRecipe);
     equal(typeof stanbol.connector.getRecipe, "function");
@@ -117,6 +126,13 @@ test("VIE.js StanbolConnector - API", function() {
     equal(typeof stanbol.connector.findRule, "function");
     ok(stanbol.connector.createRule);
     equal(typeof stanbol.connector.createRule, "function");
+    ok(stanbol.connector.deleteRule);
+    equal(typeof stanbol.connector.deleteRule, "function");
+    ok(stanbol.connector.findRecipe);
+    equal(typeof stanbol.connector.findRecipe, "function");
+//    ok(stanbol.connector.getRule);
+//    equal(typeof stanbol.connector.getRule, "function");
+    
     // cmsadapter
 
 });

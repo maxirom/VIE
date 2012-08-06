@@ -8,9 +8,24 @@
 
 // ## VIE - Ontonet service
 // VIE OntoNet Service implements the interface to the ontonet endpoint; 
-// the API for managinging OWL/OWL2 ontologieswithin stanbol.
-// Once loaded internally from their remote or local resources, ontologies live and are known 
-// within the realm (=scope) they were loaded in.
+// the API for managinging OWL/OWL2 ontologies within stanbol.
+// Once loaded internally from their remote or local resources, ontologies live 
+// and are known within the realm (=scope) they were loaded in.
+//
+// available functions:
+//
+// loadScope
+// loadOntology
+// getScope
+// getOntology
+// deleteScope
+// ontoScopes
+// createSession
+// deleteSession
+// appendToSession
+// undockFromSession
+// getSession
+
 (function() {
 
 	jQuery
@@ -22,13 +37,13 @@
 						// ### loadScope(scopeID, success, error, options)
 						// @author mere01
 						// creates a scope with the specified name. Optionally,
-						// an ontology
-						// library can be loaded on creation. A library is a
-						// collection of references to ontologies, which can be
-						// located anywhere
-						// on the web. For other options, see description of the
-						// **options**
-						// parameter
+						// an ontology library (or even a list of libraries), or
+						// an ontology (or even a list of ontologies) can 
+						// be loaded on creation into the core space of the scope. 
+						// A library is a collection of references to ontologies, 
+						// which can be located anywhere on the web. 
+						// For other options, see the description of the 
+						// **options** parameter.
 						// Already existing scopes cannot be overridden by this
 						// function.
 						// **Parameters**:
@@ -36,37 +51,34 @@
 						// created
 						// *{function}* **success** The success callback.
 						// *{function}* **error** The error callback.
-						// *{object}* **options** Options. Specify e.g. 'lib:
-						// <libID>' in order
-						// to load a specific ontology library on creating the
-						// scope. The range
-						// of options:
-						// corereg: the physical URL of the registry that points
-						// to the
-						// ontologies to be loaded into the core space.
+						// *{object}* **options** Options. 
+						// The range of options:
+						// * corereg: the physical URL of the registry 
+						// ( = ontology library) that points
+						// to the ontologies to be loaded into the core space.
 						// This parameter overrides coreont if both are
-						// specified.
-						// coreont: the physical URL of the top ontology to be
-						// loaded into the
-						// core space.
-						// This parameter is ignored if corereg is specified.
-						// customreg: the physical URL of the registry that
-						// points to the
-						// ontologies to be loaded into the custom space.
+						// specified. Might be a single string value or an array
+						// of string values.
+						// * coreont: the physical URL of the top ontology to be
+						// loaded into the core space.
+						// This parameter is ignored if corereg is specified.			????
+						// Might be a single string value or an array
+						// of string values.
+						// * customreg: the physical URL of the registry that
+						// points to the ontologies to be loaded into the custom space.
 						// This parameter is optional. Overrides customont if
-						// both are
-						// specified.
-						// customont: the physical URL of the top ontology to be
-						// loaded into the
-						// custom space.
+						// both are specified.
+						// * customont: the physical URL of the top ontology to be
+						// loaded into the custom space.
 						// This parameter is optional. Ignored if customreg is
 						// specified.
-						// activate: If true, the ontology scope will be set as
-						// active upon
-						// creation.
-						// This parameter is optional, default is false.< /td>
-						// **Throws**:
-						// *nothing*
+						// * activate: If true, the ontology scope will be set as
+						// active upon creation.
+						// This parameter is optional, default is false.
+						// Note that parameters **customont** and **customreg** are
+						// deprecated and will be removed in the near future
+						// (Alessandro Amadou).
+						// **Throws**: *nothing*
 						// **Returns**:
 						// *{VIE.StanbolConnector}* : The VIE.StanbolConnector
 						// instance itself.
@@ -76,13 +88,16 @@
 							console.log("entering function loadScope for "
 									+ scopeID)
 
-							var params = [ "corereg", "coreont", "customreg",
-									"customont", "activate" ];
+							var params = [ "corereg", "coreont", //"customreg",	"customont", 
+							               "activate" ];
 							options = (options) ? options : {};
 
 							var connector = this;
 							// "http://<myserver>/ontonet/ontology/<scopeID>?corereg=http://stanbol.apache.org/ontologies/registries/stanbol_network/SocialNetworks"
 
+							// passing multiple libraries for the core space:
+							// curl -i -X PUT  
+							// 	http://lnv-89012.dfki.uni-sb.de:9001/ontonet/ontology/<scope>?corereg=http://stanbol.apache.org/ontologies/registries/stanbol_network/SocialNetworks\&corereg=http://stanbol.apache.org/ontologies/registries/stanbol_network/Alignments
 							connector
 									._iterate( {
 										method : connector._loadScope,
@@ -91,7 +106,6 @@
 										error : error,
 										url : function(idx, opts) {
 
-											var lib = options.lib;
 
 											var u = this.options.url[idx]
 													.replace(/\/$/, '');
@@ -106,23 +120,51 @@
 											}
 											// build up our list of parameters
 											var counter = 0;
-											for ( var key in options) {
+											for (var key in options) {
 												console
 														.log("iterating over keys in options, key: "
 																+ key)
 
-												if (lib) {
-													u += "corereg=" + lib + "&";
+												if (key === "corereg") {
+													// this might be a list
+													
+													var value = options[key];
+													if (Object.prototype.toString.apply(value) === '[object Array]') {
+													// if we got a list of registries / libraries:
+														for(var i=0, len=value.length; i < len; i++){
+															u += key + "=" + value[i] + "&";	// TODO do we need to escape the & ?
+														}
+														
+													} else {
+														u += key + "=" + value + "&";
+													}
+													
+												} else if (key === "coreont"){
+													// this might be a list
+													
+													var value = options[key];
+													
+													if (Object.prototype.toString.apply(value) === '[object Array]') {
+														// if we got a list of registries / libraries:
+															for(var i=0, len=value.length; i < len; i++){
+																u += key + "=" + value[i] + "&";	// TODO do we need to escape the & ?
+															}
+															
+														} else {
+															u += key + "=" + value + "&";
+														}
+													
+													
 												} else if (($.inArray(key,
 														params)) != -1) {
 
 													if (counter != 0) {
-														u += "&";
+														u += "&";	// TODO is this necessary?
 													}
-													console
-															.log("key "
-																	+ key
-																	+ " is contained in list of admissible params")
+//													console
+//															.log("key "
+//																	+ key
+//																	+ " is contained in list of admissible params")
 													u += key + "="
 															+ options[key];
 												} else {
@@ -208,14 +250,13 @@
 							// )
 							// curl -X POST -F
 							// "url=http://ontologydesignpatterns.org/ont/iks/kres/omv.owl"
-							// http://localhost:8080/ontonet/ontology/myScope
+							// http://lnv-89012.dfki.uni-sb.de:9001/ontonet/ontology/myScope
 
 							// we want to send multipart form (option -F for
-							// curl), so we need a
-							// form data object
+							// curl), so we need a form data object
 							var data = new FormData();
 							data.append('url', ontologyURI);
-							console.log("the FormData object:")
+							console.log("the FormData object:");
 							console.log(data)
 
 							connector._iterate( {
@@ -250,7 +291,10 @@
 								error : error,
 								url : url,
 								type : "POST",
-								data : args.data,
+								data : args.data,	
+								accepts : {// XXX
+									"application/rdf+xml" : "application/rdf+xml"
+								},
 								contentType : false,
 								processData : false,
 								cache : false
@@ -278,9 +322,10 @@
 							});
 							r.end();
 						}, // end of _loadOntologyNode
+						
+						
 
-						// ### getScope(scopeID, success, error, complete,
-						// options)
+						// ### getScope(scopeID, success, error, options)
 						// @author mere01
 						// retrieves the specified scope from the
 						// ontonet/ontology endpoint. The
@@ -295,8 +340,7 @@
 						// **Returns**:
 						// *{VIE.StanbolConnector}* : The VIE.StanbolConnector
 						// instance itself.
-						getScope : function(scopeID, success, error, complete,
-								options) {
+						getScope : function(scopeID, success, error, options) {
 
 							options = (options) ? options : {};
 							var connector = this;
@@ -308,7 +352,6 @@
 								methodNode : connector._getScopeNode,
 								success : success,
 								error : error,
-								complete : complete,
 								url : function(idx, opts) {
 									var u = this.options.url[idx].replace(
 											/\/$/, '');
@@ -327,12 +370,10 @@
 							});
 						}, // end of getScope
 
-						_getScope : function(url, args, success, error,
-								complete) {
+						_getScope : function(url, args, success, error) {
 							jQuery.ajax( {
 								success : success,
 								error : error,
-								complete : complete,
 								url : url,
 								type : "GET",
 								accepts : {
@@ -366,9 +407,9 @@
 						// ### getOntology(scopeID, ontologyID, success, errror,
 						// options)
 						// @author mere01
-						// retrieves the specified scope from the
-						// ontonet/ontology endpoint. The
-						// scope must be existing.
+						// retrieves the specified ontology from the
+						// ontonet/ontology endpoint, i.e. from the specifig
+						// scope it was appended to. The scope must be existing.
 						// **Parameters**:
 						// *{string}* **scopeID** the ID of the scope
 						// *{string}* **ontologyID** the ID of the ontology to
@@ -797,7 +838,8 @@
 						// options)
 						// @author mere01
 						// appends an ontology and/or a scope to the specified
-						// session. The session must be existing.
+						// session. The session must be existing. It is possible
+						// to specify multiple scopes at once.
 						// **Parameters**:
 						// *{string}* **sessionID** the ID of the session
 						// *{string}* **ontologyURI** the URI of the ontology to
@@ -812,7 +854,8 @@
 						// web, or the name of an ontology in stanbol.
 						// Specify 'scope : <scopeID>' to append a specific
 						// scope to the session. (Both can be combined within
-						// the option object).
+						// the option object). To pass several scopes at once,
+						// specify 'scope : [ <scopeID_1>, <scopeID_2>, ... ]'
 						// **Throws**:
 						// *nothing*
 						// **Returns**:
@@ -822,11 +865,18 @@
 						// an error message as a string.
 						appendToSession : function(sessionID, success, error,
 								options) {
-
-							// curl -i -X POST -F scope=<scope>
-							// http://lnv-89012.dfki.uni-sb.de:9001/ontonet/session/<id>
+							
 							// curl -i -X POST -F url=<ontology>
 							// http://lnv-89012.dfki.uni-sb.de:9001/ontonet/session/<id>
+							
+							// curl -i -X POST -F scope=<scope>
+							// http://lnv-89012.dfki.uni-sb.de:9001/ontonet/session/<id>
+							
+							// submit several scopes at once:
+							// curl -i -X POST 
+							// 		-F scope=<scope1> 
+							// 		-F scope=<scope2> 
+							//	 	http://lnv-89012.dfki.uni-sb.de:9001/ontonet/session/<sessionID>
 
 							options = (options) ? options : {};
 							var scope = (options.scope) ? options.scope : false;
@@ -852,7 +902,18 @@
 								data.append('url', ont);
 							}
 							if (scope) {
-								data.append('scope', scope);
+								
+								
+								if (Object.prototype.toString.apply(scope) === '[object Array]') { 
+									// in case we got a list of scopes:
+									for(var i=0, len=scope.length; i < len; i++){
+										data.append('scope', scope[i]);	
+									}
+									
+								}
+								else {
+									data.append('scope', scope);
+								}
 							}
 
 							connector._iterate( {
@@ -892,6 +953,15 @@
 								contentType : false,
 								processData : false,
 								cache : false
+								
+//								// in order to avoid redirect to GET request:
+//								statusCode: {
+//							        303: function (data) {
+//							            console.log('303: Occurred');
+//							            // Bind the JSON data to the UI
+//							        }
+//							    }
+								
 							});
 						}, // end of _appendToSession
 
@@ -918,6 +988,8 @@
 							});
 							r.end();
 						}, // end of _appendToSessionNode
+						
+						
 						// ### undockFromSession(sessionID, success, error,
 						// options)
 						// @author mere01
@@ -1032,8 +1104,7 @@
 							r.end();
 						}, // end of _undockFromSessionNode
 
-						// ### getSession(sessionID, success, error, complete,
-						// options)
+						// ### getSession(sessionID, success, error, options)
 						// @author mere01
 						// retrieves the specified session from the
 						// ontonet/session endpoint. The
@@ -1049,7 +1120,7 @@
 						// *{VIE.StanbolConnector}* : The VIE.StanbolConnector
 						// instance itself.
 						getSession : function(sessionID, success, error,
-								complete, options) {
+								options) {
 
 							options = (options) ? options : {};
 							var connector = this;
@@ -1061,7 +1132,6 @@
 								methodNode : connector._getSessionNode,
 								success : success,
 								error : error,
-								complete : complete,
 								url : function(idx, opts) {
 									var u = this.options.url[idx].replace(
 											/\/$/, '');
@@ -1080,12 +1150,10 @@
 							});
 						}, // end of getSession
 
-						_getSession : function(url, args, success, error,
-								complete) {
+						_getSession : function(url, args, success, error) {
 							jQuery.ajax( {
 								success : success,
 								error : error,
-								complete : complete,
 								url : url,
 								type : "GET",
 								accepts : {
