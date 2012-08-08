@@ -92,16 +92,20 @@ test("VIE.js StanbolConnector - API", function() {
     equal(typeof stanbol.connector.queryFact, "function");
     
     // ontonet
-    ok(stanbol.connector.loadScope);
-    equal(typeof stanbol.connector.loadScope, "function");
+    ok(stanbol.connector.createScope);
+    equal(typeof stanbol.connector.createScope, "function");
     ok(stanbol.connector.deleteScope);
     equal(typeof stanbol.connector.deleteScope, "function");
     ok(stanbol.connector.getScope);
     equal(typeof stanbol.connector.getScope, "function");
-    ok(stanbol.connector.loadOntology);
-    equal(typeof stanbol.connector.loadOntology, "function");
+    ok(stanbol.connector.appendOntology);
+    equal(typeof stanbol.connector.appendOntology, "function");
     ok(stanbol.connector.getOntology);
     equal(typeof stanbol.connector.getOntology, "function");
+    ok(stanbol.connector.appendLibrary);
+    equal(typeof stanbol.connector.appendLibrary, "function");
+    ok(stanbol.connector.getLibrary);
+    equal(typeof stanbol.connector.getLibrary, "function");
     ok(stanbol.connector.ontoScopes);
     equal(typeof stanbol.connector.ontoScopes, "function");
     ok(stanbol.connector.createSession);
@@ -110,10 +114,12 @@ test("VIE.js StanbolConnector - API", function() {
     equal(typeof stanbol.connector.deleteSession, "function");
     ok(stanbol.connector.getSession);
     equal(typeof stanbol.connector.getSession, "function");
-    ok(stanbol.connector.appendToSession);
-    equal(typeof stanbol.connector.appendToSession, "function");
-    ok(stanbol.connector.undockFromSession);
-    equal(typeof stanbol.connector.undockFromSession, "function");
+    ok(stanbol.connector.appendOntology);
+    equal(typeof stanbol.connector.appendOntology, "function");
+    ok(stanbol.connector.updateScopes);
+    equal(typeof stanbol.connector.updateScopes, "function");
+    ok(stanbol.connector.detachOntology);
+    equal(typeof stanbol.connector.detachOntology, "function");
     
     // rules
     ok(stanbol.connector.getRecipe);
