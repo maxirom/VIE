@@ -69,11 +69,6 @@ var VIE = root.VIE = function(config) {
     this.Entity.prototype.entityCollection = this.Collection;
     this.Entity.prototype.vie = this;
     
-    this.Literal.prototype.vie = this;
-    this.BooleanLiteral.prototype.vie = this;
-    this.NumberLiteral.prototype.vie = this;
-    this.StringLiteral.prototype.vie = this;
-    
     this.Namespaces.prototype.vie = this;
 // ### Namespaces in VIE
 // VIE supports different ontologies and an easy use of them.
