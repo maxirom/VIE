@@ -989,9 +989,11 @@ VIE.Util = {
             'DataType': 'xsd:anyType',
             'Boolean' : 'xsd:boolean',
             'Date'    : 'xsd:date',
+            'DateTime': 'xsd:dateTime', 
             'Float'   : 'xsd:float',
             'Integer' : 'xsd:integer',
             'Number'  : 'xsd:anySimpleType',
+            'Time'    : 'xsd:Time', 
             'Text'    : 'xsd:string',
             'URL'     : 'xsd:anyURI'
         };
