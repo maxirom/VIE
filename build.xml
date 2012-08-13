@@ -191,8 +191,6 @@
             <fileset dir="${SRC_DIR}" includes="VIE.js"/>
             <fileset dir="${SRC_DIR}" includes="Able.js"/>
             <fileset dir="${SRC_DIR}" includes="Util.js"/>
-            <fileset dir="${SRC_DIR}" includes="Literal.js"/>
-            <fileset dir="${SRC_DIR}" includes="LiteralCollection.js"/>
             <fileset dir="${SRC_DIR}" includes="Entity.js"/>
             <fileset dir="${SRC_DIR}" includes="Collection.js"/>
             <fileset dir="${SRC_DIR}" includes="Type.js"/>
