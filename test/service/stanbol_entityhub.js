@@ -397,6 +397,7 @@ test(
 // endpoint,
 // the service to create Entities managed on the Entityhub.
 // @author mere01
+/* TODO: wait for dev-iks server to be updated to new API
 test(
   "VIE.js StanbolService - save (create) local entities",
   function() {
@@ -752,6 +753,7 @@ stanbol.connector.createEntity(entity, function(response) {
 
         }); // end of test for CRUD entityhub/entity
 
+*/
 
 // ### test for the /entityhub/mapping endpoint, checking the retrieval of
 // entity mappings
@@ -1289,6 +1291,8 @@ stop();
             /**/
         });
 
+/* TODO: wait for dev-iks server to be updated to new API
+
 test(
   "VIE.js StanbolService - Query (local)",
   function() {
@@ -1322,7 +1326,7 @@ test(
         start();
     });
 
-    /** mere01 * */
+    // mere01 
     var query = {
         "selected" : [ "http:\/\/www.w3.org\/2000\/01\/rdf-schema#label" ],
         "offset" : "0",
@@ -1366,5 +1370,5 @@ function(entities) {
     start();
 });
 
-/**/
 });
+*/

@@ -440,6 +440,8 @@ VIE.Util = {
         vie.namespaces.base("http://schema.org/");
         
         var datatypeMapping = {
+            'Time': 'xsd:dateTime',
+            'DateTime': 'xsd:dateTime',
             'DataType': 'xsd:anyType',
             'Boolean' : 'xsd:boolean',
             'Date'    : 'xsd:date',
