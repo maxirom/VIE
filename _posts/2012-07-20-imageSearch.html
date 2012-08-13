@@ -1,0 +1,156 @@
+---
+layout: widget
+title: "ImageSearch"
+category: widgets
+js_extras:
+  - /lib/vie.widget.image_search.js
+  - /lib/tiptip/jquery.tipTip.js
+github: "https://github.com/neogermi/VIEwidgets/tree/master/widgets/image_search"
+---
+<p>
+VIE Image Search uses the semantics in the page for getting paramethers to configure search in image search services like <a href="http://www.flickr.com/services/api/">Flickr API</a>, <a href="http://code.google.com/apis/imagesearch/">Google Image API</a> and <a href="http://about.ookaboo.com/a/about/what_is_ookaboo">Ookaboo Semantic API</a>.
+</p>
+
+
+<div id="warning"></div>
+<div id="wrapper">
+   <article class="well">
+   <section>
+        <span about="http://dbpedia.org/resource/Washington,_D.C._metropolitan_area" typeof="Place"><span property="name">WASHINGTON, D.C.</span>
+        <span rel="geo"><span about="http://dbpedia.org/resource/Washington,_D.C._metropolitan_area_GEO" typeof="GeoCoordinates"><span property="latitude" content="38.886757"></span><span property="longitude" content="-77.041626"></span></span></span></span>
+        The House has passed a short-term spending bill that keeps the government 
+        running for six weeks and buys time for future budget negotiations. The 352-66 vote sends 
+        the measure to President <span about="http://dbpedia.org/resource/Barack_Obama" typeof="Person"><span property="name">Barack Obama</span></span> 
+        in time to avert a government shutdown at midnight. 
+        The legislation gives Congress and the White House more time to iron out their differences 
+        on a pile of unfinished budget work totaling more than $1 trillion. It also ends a fight 
+        over whether some aid for victims of Hurricane Irene and other natural disasters should 
+        have been offset by cuts elsewhere.
+    </section>
+    <br />
+    <section>
+        <span about="http://dbpedia.org/resource/Cupertino,_California" typeof="City"><span property="name">CUPERTINO, California</span>
+        <span rel="geo"><span about="http://dbpedia.org/resource/Cupertino,_California_GEO" typeof="GeoCoordinates"><span property="latitude" content="37.317501"></span><span property="longitude" content="-122.041946"></span></span></span></span>
+        It's the first time in years that Apple has unveiled a major new product
+        without <span about="http://dbpedia.org/resource/Steve_Jobs" typeof="Person"><span property="name">Steve Jobs</span></span> presiding over 
+        the announcement. The company's new CEO, <span about="http://dbpedia.org/resource/Tim_Cook" typeof="Person"><span property="name">Tim Cook</span></span>, was the one introducing the company's new iPhone 
+        today -- faster and more powerful than the previous version. Cook took over as CEO after Jobs, 
+        who has been battling health problems, resigned in August.
+    </section>
+    <br />
+     <div id="image_container" style="min-height:100px;"></div>
+    </article>
+    
+   
+  <div id="legend" style="margin-top: 20px; margin-bottom:20px; font-size: 90%;">
+    The shadow of each image decodes what service the images has been retrieved from:
+    <span class="legend ookaboo">Ookaboo (Stanbol)</span>
+    <span class="legend flickr">Flickr</span>
+    <span class="legend gimage">Google Images</span>
+  </div>
+    
+
+<div class="example">
+<script type="text/javascript">
+          var error = window.error = function (msg) {
+            $('#warning').html($('#warning').html() + msg + "<br />")
+            .slideDown(300)
+            .click(function () {
+              $(this).slideUp(300).html("");
+            });
+          };
+</script>
+  <textarea>                    
+            // initialize a global VIE object
+            var myVIE = window.myVIE = new VIE();
+            myVIE.loadSchema("http://schema.rdfs.org/all.json", {
+                baseNS : "http://schema.org/",
+                success : function () {
+                    // read RDFa from the text below
+                    myVIE.use(new myVIE.RdfaService);
+                    myVIE.load({element: $('[about]')})
+                    .using('rdfa').execute();
+                    
+                    finishSetUp();
+                },
+                error : function (e) {
+                    error("could not init schema.org ontology!");
+                }
+            });
+            
+
+            $('#servicestouse').click(function () {
+              var services = [];
+              var widget = $('#image_container').data("vieImageSearch");
+              for (var serviceId in widget.options.services) {
+                $('#image_container').vieImageSearch("useService", serviceId, false);
+              }
+              $(" option:selected", this).each (function () {
+                var serviceId = $(this).val();
+                $('#image_container').vieImageSearch("useService", serviceId, true);
+              });
+            });
+
+            
+            function finishSetUp () {
+                // set-up of the Image-widget
+                $('#image_container')
+                .vieImageSearch({
+                    vie         : myVIE,
+                    max_objects : 8,
+                    services    : {
+                        flickr : {
+                            api_key : "ffd6f2fc41249feeddd8e62a531dc83e",
+                            use: true,
+                            weight: 1.0
+                        },
+                        gimage : {
+                            use: true,
+                            weight: 1.0
+                        },
+                        ookaboo : {
+                            use: true,
+                            weight: 1.0,
+                            base_url : "http://dev.iks-project.eu:8081"
+                        }
+                    }
+                })
+                .bind('vieimagesearcherror',
+            function (ev, da) {
+                    error("There is no information about the entity &lt;" + da.id + "&gt; in VIE.");
+            }
+        );
+                
+                $('[about]')
+                .click(function (ev) {
+                  $('[about].selected').removeClass("selected");
+                  $(this).addClass("selected");
+                    var uri = $(this).attr('about');
+                    $('#image_container')
+                    .vieImageSearch({
+                        entity: uri
+                    });
+                })
+                .attr("title", "Click on an entity to trigger a type-specific photo search.")
+                .tipTip();
+            };
+  </textarea>
+</div>
+<div style="margin-top:20px;">
+     <span style="text-align:center;" class="tellmemore finalMenuItem">
+      <h3>Tutorial</h3>
+      Click <a style="color:#31e;" href="http://neogermi.github.com/VIEwidgets/widgets/image_search/explain.html">here</a> for the tutorial.
+    </span>
+    <span class="copyright finalMenuItem">
+      <h3 style="text-align:center;">Disclaimer</h3>
+        This site uses the <a href="http://www.flickr.com/services/api/">Flickr API</a>, <a href="http://code.google.com/apis/imagesearch/">Google Image API</a> and <a href="http://about.ookaboo.com/a/about/what_is_ookaboo">Ookaboo Semantic API</a>! <br />However it is not associated or endorsed by <a href="http://www.flickr.com/">Flickr</a>, <a href="http://www.google.com">Google</a> or <a href="http://ookaboo.com">Ookaboo</a>.
+    </span>
+    <span class="download finalMenuItem">
+      <h3 style="text-align:center;">Download</h3>
+      <a href="http://github.com/neogermi/VIEwidgets/zipball/master">
+        <img border="0" width="60" src="http://github.com/images/modules/download/zip.png"></a>
+      <a href="http://github.com/neogermi/VIEwidgets/tarball/master">
+        <img border="0" width="60" src="http://github.com/images/modules/download/tar.png"></a>
+    </span>
+    </div>
+    </div>
