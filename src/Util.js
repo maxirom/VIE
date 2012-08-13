@@ -509,6 +509,142 @@ VIE.Util = {
             vie.namespaces.add("schema", "http://schema.org/");
     },
 
+// ### VIE.Util.getEntityTypeUnion(entity)
+// This generates a entity-specific VIE type that is a subtype of all the
+// types of the entity. This makes it easier to deal with attribute definitions
+// specific to an entity because they're merged to a single list. This custom
+// type is transient, meaning that it won't be automatilly added to the entity
+// or the VIE type registry.
+    getEntityTypeUnion : function(entity) {
+      var vie = entity.vie;
+      return new vie.Type('Union').inherit(entity.get('@type'));
+    },
+
+// ### VIE.Util.getFormSchemaForType(type)
+// This creates a [Backbone Forms](https://github.com/powmedia/backbone-forms)
+// -compatible form schema for any VIE Type.
+    getFormSchemaForType : function(type, allowNested) {
+      var schema = {};
+
+      // Generate a schema
+      _.each(type.attributes.toArray(), function (attribute) {
+        var key = VIE.Util.toCurie(attribute.id, false, attribute.vie.namespaces);
+        schema[key] = VIE.Util.getFormSchemaForAttribute(attribute);
+      });
+
+      // Clean up unknown attribute types
+      _.each(schema, function (field, id) {
+        if (!field.type) {
+          delete schema[id];
+        }
+
+        if (field.type === 'URL') {
+          field.type = 'Text';
+          field.dataType = 'url';
+        }
+
+        if (field.type === 'List' && !field.listType) {
+          delete schema[id];
+        }
+
+        if (!allowNested) {
+          if (field.type === 'NestedModel' || field.listType === 'NestedModel') {
+            delete schema[id];
+          }
+        }
+      });
+
+      return schema;
+    },
+
+/// ### VIE.Util.getFormSchemaForAttribute(attribute)
+    getFormSchemaForAttribute : function(attribute) {
+      var primaryType = attribute.range[0];
+      var schema = {};
+
+      var getWidgetForType = function (type) {
+        switch (type) {
+          case 'xsd:anySimpleType':
+          case 'xsd:float':
+          case 'xsd:integer':
+            return 'Number';
+          case 'xsd:string':
+            return 'Text';
+          case 'xsd:date':
+            return 'Date'
+          case 'xsd:dateTime':
+            return 'DateTime';
+          case 'xsd:boolean':
+            return 'Checkbox';
+          case 'xsd:anyURI':
+            return 'URL';
+          default:
+            var typeType = attribute.vie.types.get(type);
+            if (!typeType) {
+              return null;
+            }
+            if (typeType.attributes.get('value')) {
+              // Convert to proper xsd type
+              return getWidgetForType(typeType.attributes.get('value').range[0]);
+            }
+            return 'NestedModel';
+        }
+      };
+
+      // TODO: Generate a nicer label
+      schema.title = VIE.Util.toCurie(attribute.id, false, attribute.vie.namespaces);
+
+      // TODO: Handle attributes linking to other VIE entities
+
+      if (attribute.min > 0) {
+        schema.validators = ['required'];
+      }
+
+      if (attribute.max > 1) {
+        schema.type = 'List';
+        schema.listType = getWidgetForType(primaryType);
+        if (schema.listType === 'NestedModel') {
+          schema.nestedModelType = primaryType;
+        }
+        return schema;
+      }
+
+      schema.type = getWidgetForType(primaryType);
+      if (schema.type === 'NestedModel') {
+        schema.nestedModelType = primaryType;
+      }
+      return schema;
+    },
+
+// ### VIE.Util.getFormSchema(entity)
+// This creates a [Backbone Forms](https://github.com/powmedia/backbone-forms)
+// -compatible form schema for any VIE Entity. The form schema creation
+// utilizes type information attached to the entity.
+// **Parameters**:
+// *{```Entity```}* **entity** An instance of VIE ```Entity```.
+// **Throws**:
+// *nothing*..
+// **Returns**:
+// *{object}* a JavaScript object representation of the form schema
+    getFormSchema : function(entity) {
+      if (!entity || !entity.isEntity) {
+        return {};
+      }
+
+      var unionType = VIE.Util.getEntityTypeUnion(entity);
+      var schema = VIE.Util.getFormSchemaForType(unionType, true);
+
+      // Handle nested models
+      _.each(schema, function (property, id) {
+        if (property.type !== 'NestedModel' && property.listType !== 'NestedModel') {
+          return;
+        }
+        schema[id].model = entity.vie.getTypedEntityClass(property.nestedModelType);
+      });
+
+      return schema;
+    },
+
 // ### VIE.Util.xsdDateTime(date)
 // This transforms a ```Date``` instance into an xsd:DateTime format.  
 // **Parameters**:  
