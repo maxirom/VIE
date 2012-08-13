@@ -32,10 +32,59 @@ VIE.prototype.OpenCalaisService = function(options) {
         namespaces : {
         	opencalaisc:  "http://s.opencalais.com/1/pred/",
         	opencalaiscr: "http://s.opencalais.com/1/type/er/",
-        	opencalaiscm: "http://s.opencalais.com/1/type/em/e/"
+        	opencalaiscm: "http://s.opencalais.com/1/type/em/e/",
+			opencalaiscs: "http://s.opencalais.com/1/type/sys/"
         },
         /* default rules that are shipped with this service */
-        rules : []
+        rules : [
+			{
+                'left' : [
+                    '?instance a opencalaiscs:InstanceInfo',
+                    '?instance opencalaisc:subject ?object',
+					'?entity opencalaisc:subject ?object',
+					'?entity opencalaisc:name ?name'
+                ],
+                'right' : [
+                    '?entity opencalaisc:hasTextAnnotation ?instance',
+					'?entity rdfs:label ?name'
+                ]
+            },
+			{
+                'left' : [
+                    '?subject a opencalaiscm:Person',
+                 ],
+                 'right':[
+					'?subject a dbpedia:Person'
+				 ]
+             },
+			 
+			 {
+                'left' : [
+                    '?subject a opencalaiscm:Organization',
+                 ],
+                 'right': [
+					'?subject a dbpedia:Organisation'
+				 ]
+             },
+			 
+			 {
+                'left' : [
+                    '?subject a opencalaiscr:Geo/City',
+                 ],
+                 'right': [
+					'?subject a dbpedia:City'
+				 ]
+             },
+
+			 {
+                'left' : [
+                    '?subject a opencalaiscr:Geo/Country',
+                 ],
+                 'right': [
+					'?subject a dbpedia:Country'
+				 ]
+             }
+		]
     };
     /* the options are merged with the default options */
     this.options = jQuery.extend(true, defaults, options ? options : {});
@@ -74,28 +123,6 @@ VIE.prototype.OpenCalaisService.prototype = {
         }
         
         this.rules = jQuery.extend([], VIE.Util.transformationRules(this));
-       /* this.rules = jQuery.extend(this.rules, [{
-        	'left' : [
-        	          '?subject a opencalaiscm:Person',
-                      '?subject opencalaisc:name ?name'
-                ],
-            	'right': function(ns) {
-                    return function() {
-                        return [
-                            jQuery.rdf.triple(this.subject.toString(),
-                                'a',
-                                '<' + ns.base() + 'Person>', {
-                                    namespaces: ns.toObj()
-                                }),
-                            jQuery.rdf.triple(this.subject.toString(),
-                                '<' + ns.base() + 'name>',
-                                this.label, {
-                                    namespaces: ns.toObj()
-                                })
-                            ];
-                    };
-                }(this.vie.namespaces)
-            }]);*/
         this.rules = jQuery.merge(this.rules, (this.options.rules) ? this.options.rules : []);
         //this.rules = [];
         this.connector = new this.vie.OpenCalaisConnector(this.options);
@@ -148,19 +175,7 @@ VIE.prototype.OpenCalaisService.prototype = {
 
     // this private method extracts text from a jQuery element
     _extractText: function (element) {
-        if (element.get(0) &&
-            element.get(0).tagName &&
-            (element.get(0).tagName == 'TEXTAREA' ||
-            element.get(0).tagName == 'INPUT' && element.attr('type', 'text'))) {
-            return element.get(0).val();
-        }
-        else {
-            var res = element
-                .text()    /* get the text of element */
-                .replace(/\s+/g, ' ') /* collapse multiple whitespaces */
-                .replace(/\0\b\n\r\f\t/g, ''); /* remove non-letter symbols */
-            return jQuery.trim(res);
-        }
+        return jQuery(element).html();
     }
 };
 
@@ -239,7 +254,7 @@ VIE.prototype.OpenCalaisConnector.prototype = {
             type: "POST",
             url: enhancerUrl,
             data: data,
-            accept: "text/plain"
+            dataType: "text"
         });
     },
 
@@ -265,10 +280,12 @@ VIE.prototype.OpenCalaisConnector.prototype = {
     _prepareData : function (text) {
     	return {
     		licenseID: this.options.api_key,
-            calculareRelevanceScore: "true",
+            calculateRelevanceScore: "true",
             enableMetadataType: "GenericRelations,SocialTags",
             contentType: "text/html",
-            content: text
+            outputFormat : "Application/JSON",
+            content: text,
+			docRDFaccessible: "true"
             // for more options check http://developer.opencalais.com/docs/suggest/
         };
     }

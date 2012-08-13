@@ -41,13 +41,17 @@ test("Initialization", function() {
             equal(hospital.attributes.get('location').range[0], "PostalAddress");
             equal(hospital.attributes.get('location').range[1], "Place");
             
+            // this is an imported ontology and hence locked
             raises(function () {
                 hospital.attributes.remove("description");
             });
+
+            // this is an imported ontology and hence locked
+            raises(function () {
+                z.types.get("Organization").attributes.remove("founders");
+            });
             
-            z.types.get("Organization").attributes.remove("founders");
-            
-            equal( hospital.attributes.list().length, 34);
+            equal( hospital.attributes.list().length, 35);
             start();
         },
         error : function (msg) {

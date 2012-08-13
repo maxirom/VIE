@@ -96,7 +96,21 @@ VIE.prototype.Type = function (id, attrs) {
 //
 //     console.log(person.attributes);
     this.attributes = new this.vie.Attributes(this, (attrs)? attrs : []);
-
+    
+// ### locked
+// This field is set to `true` when the type has been imported
+// from an external ontology and hence should not be altered.  
+// **Parameters**:  
+// nothing  
+// **Throws**:  
+// nothing  
+// **Returns**:  
+// *{boolean}* : `true` when the type is locked, `false` otherwise.  
+// **Example usage**:  
+//
+//      console.log(person.locked);
+     this.locked = false;
+    
 // ### isof(type)
 // This method checks whether the current type is a child of the given type.  
 // **Parameters**:  
@@ -108,7 +122,7 @@ VIE.prototype.Type = function (id, attrs) {
 // **Example usage**:  
 //
 //     console.log(person.isof("owl:Thing"));
-//     // <-- true    
+//    // <-- true    
     this.isof = function (type) {
         type = this.vie.types.get(type);
         if (type) {
@@ -168,6 +182,10 @@ VIE.prototype.Type = function (id, attrs) {
 //     var y = new vie.Type(...).inherit(x);
 //     y.isof(x) // <-- true
     this.inherit = function (supertype) {
+        if (this.locked) {
+            throw new Error("The type " + this.id + " has been imported from an external ontology and must not " + 
+                    "be altered! Please create a new type that inherits from the current type!");
+        }
         if (typeof supertype === "string") {
             this.inherit(this.vie.types.get(supertype));
         }

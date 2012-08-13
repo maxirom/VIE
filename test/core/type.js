@@ -44,6 +44,9 @@ test("VIE - Type API", function() {
     ok(thingy.id);
     ok(typeof thingy.id === 'string');
     ok(v.namespaces.isUri(thingy.id));
+
+    ok(thingy.locked === false);
+    ok(typeof thingy.locked === 'boolean');
     
     ok(thingy.subsumes);
     ok(typeof thingy.subsumes === 'function');
@@ -230,10 +233,48 @@ test("VIE - Type Sorting", function () {
     ok(test(sortedArrayDesc2));
     
     ok(v.types.sort([]));
-    equals(v.types.sort([]).length, [].length);
+    equal(v.types.sort([]).length, [].length);
     
-    equals(v.types.sort(["TestType1"]).length, 1);
-    equals(v.types.sort(["TestType1"])[0], "TestType1");
+    equal(v.types.sort(["TestType1"]).length, 1);
+    equal(v.types.sort(["TestType1"])[0], "TestType1");
 
+});
+
+
+test("VIE - Locking mechanism of types", function() {
+    var v = new VIE();
+    v.namespaces.add("xsd", "http://www.w3.org/2001/XMLSchema#");
+
+    var tt1 = v.types.add("TestType1", []);
+    var tt2 = v.types.add("TestType2", []);
+    var tt3 = v.types.add("TestType3", []);
+    equal(tt1.locked, false);
+    
+    // the type is not locked, hence this should still be possible to do
+    tt1.attributes.add("name", "Text");
+    tt1.attributes.remove("name");
+    tt1.inherit(tt2);
+    
+    tt1.locked = true;
+
+    raises(function() {
+        tt1.attributes.add("name", "Text");
+      }, "The type is locked and no add/remove methods shall work!");
+    raises(function() {
+        tt1.attributes.remove("name");
+      }, "The type is locked and no add/remove methods shall work!");
+    raises(function() {
+        tt1.inherit(tt3);
+      }, "The type is locked and no inherit shall work!");
     
 });
+
+
+
+
+
+
+
+
+
+

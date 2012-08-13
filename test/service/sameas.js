@@ -1,30 +1,31 @@
-module("vie.js - DBPedia Service");
+module("vie.js - SameAs Service");
 
-test("VIE.js DBPedia connection", function() {
-    var z = new VIE();
-    ok(z.DBPediaService, "Checking if the DBPedia Service exists.'");
-    z.use(new z.DBPediaService);
-    ok(z.service('dbpedia'));
+test("VIE.js SameAs connection", function() {
+    var v = new VIE();
+    ok(v.SameAsService, "Checking if the SameAs Service exists.'");
+    v.use(new v.SameAsService);
+    ok(v.service('sameas'));
 });
 
-test("VIE.js DBPediaService - Load", function () {
+test("VIE.js SameAsService - Load", function () {
     if (navigator.userAgent === 'Zombie') {
        return;
     } 
     var entity = "<http://dbpedia.org/resource/Barack_Obama>";
     var z = new VIE();
-    ok (z.DBPediaService);
-    equal(typeof z.DBPediaService, "function");
-    z.use(new z.DBPediaService());
+    ok (z.SameAsService);
+    equal(typeof z.SameAsService, "function");
+    z.use(new z.SameAsService());
     stop();
     z
     .load({entity: entity})
-    .using('dbpedia')
+    .using('sameas')
     .execute()
     .done(function(x) {
         ok(x, "Something returned");
         ok(x.isCollection);
-        ok(x.at(0).isEntity);
+        equal(x.size(), 1);
+        equal(x.at(0).id, entity);
         start();
     })
     .fail(function(f){
@@ -34,29 +35,26 @@ test("VIE.js DBPediaService - Load", function () {
 });
 
 
-
-test("VIE.js DBPediaService - Load multiple entities", function () {
+test("VIE.js SameAsService - Load Multiple Entities", function () {
     if (navigator.userAgent === 'Zombie') {
        return;
     } 
     var entity1 = "<http://dbpedia.org/resource/Barack_Obama>";
     var entity2 = "<http://dbpedia.org/resource/London>";
     var z = new VIE();
-    ok (z.DBPediaService);
-    equal(typeof z.DBPediaService, "function");
-    z.use(new z.DBPediaService());
+    ok (z.SameAsService);
+    equal(typeof z.SameAsService, "function");
+    z.use(new z.SameAsService());
     stop();
     z
     .load({entity: [entity1, entity2]})
-    .using('dbpedia')
+    .using('sameas')
     .execute()
     .done(function(x) {
-        ok(x, "Something returned");
+        ok(x, "In the current implementation, this is called twice!");
         ok(x.isCollection);
-        ok(x.at(0).isEntity);
-        ok(x.at(1).isEntity);
-        equal(x.at(0).id, entity1);
-        equal(x.at(1).id, entity2);
+        equal(x.size(), 1);
+        ok (x.at(0).id === entity1 || x.at(0).id === entity2);
         start();
     })
     .fail(function(f){

@@ -169,11 +169,19 @@ VIE.prototype.Analyzable = function (options) {
 };
 VIE.prototype.Analyzable.prototype = new VIE.prototype.Able();
 
-// ## VIE.Findable
-// A ```VIE.Findable``` is a wrapper around the deferred object
-// to **find** semantic data on a semantic storage.
+//## VIE.Findable
+//A ```VIE.Findable``` is a wrapper around the deferred object
+//to **find** semantic data on a semantic storage.
 VIE.prototype.Findable = function (options) {
-    this.init(options, "find");
+ this.init(options, "find");
 };
 VIE.prototype.Findable.prototype = new VIE.prototype.Able();
+
+//## VIE.Queryable
+//A ```VIE.Queryable``` is a wrapper around the deferred object
+//to **query** semantic data on a semantic storage.
+VIE.prototype.Queryable = function (options) {
+ this.init(options, "query");
+};
+VIE.prototype.Queryable.prototype = new VIE.prototype.Able();
 

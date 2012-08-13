@@ -57,6 +57,9 @@ var root = this,
 //     vie.RDFaEntities.getInstances();
 var VIE = root.VIE = function(config) {
     this.config = (config) ? config : {};
+    this.config.lang = (this.config.lang)? this.config.lang : "en";
+    
+    this.id = VIE.Util.UUIDGenerator();
     this.services = {};
     this.jQuery = jQuery;
     this.entities = new this.Collection();
@@ -65,6 +68,11 @@ var VIE = root.VIE = function(config) {
     this.entities.vie = this;
     this.Entity.prototype.entityCollection = this.Collection;
     this.Entity.prototype.vie = this;
+    
+    this.Literal.prototype.vie = this;
+    this.BooleanLiteral.prototype.vie = this;
+    this.NumberLiteral.prototype.vie = this;
+    this.StringLiteral.prototype.vie = this;
     
     this.Namespaces.prototype.vie = this;
 // ### Namespaces in VIE
@@ -223,24 +231,44 @@ VIE.prototype.getServicesArray = function() {
   return _.map(this.services, function (v) {return v;});
 };
 
-// ### load(options)
-// This method instantiates a new VIE.Loadable in order to
-// perform queries on the services.  
-// **Parameters**:  
-// *{object}* **options** Options to be set.  
-// **Throws**:  
-// *nothing*  
-// **Returns**:  
-// *{VIE.Loadable}* : A new instance of VIE.Loadable.  
-// **Example usage**:  
+//### load(options)
+//This method instantiates a new VIE.Loadable in order to
+//perform queries on the services.  
+//**Parameters**:  
+//*{object}* **options** Options to be set.  
+//**Throws**:  
+//*nothing*  
+//**Returns**:  
+//*{VIE.Loadable}* : A new instance of VIE.Loadable.  
+//**Example usage**:  
 //
-//     var vie = new VIE();
-//     vie.use(new vie.StanbolService(), "stanbol");
-//     var loader = vie.load({...});
+//  var vie = new VIE();
+//  vie.use(new vie.StanbolService(), "stanbol");
+//  var loader = vie.load({...});
 VIE.prototype.load = function(options) {
-  if (!options) { options = {}; }
-  options.vie = this;
-  return new this.Loadable(options);
+if (!options) { options = {}; }
+options.vie = this;
+return new this.Loadable(options);
+};
+
+//### query(options)
+//This method instantiates a new VIE.Queryable in order to
+//perform queries on the services.  
+//**Parameters**:  
+//*{object}* **options** Options to be set.  
+//**Throws**:  
+//*nothing*  
+//**Returns**:  
+//*{VIE.Queryable}* : A new instance of VIE.Queryable.  
+//**Example usage**:  
+//
+//  var vie = new VIE();
+//  vie.use(new vie.StanbolService(), "stanbol");
+//  var querier = vie.query({...});
+VIE.prototype.query = function(options) {
+if (!options) { options = {}; }
+options.vie = this;
+return new this.Queryable(options);
 };
 
 // ### save(options)
@@ -372,6 +400,77 @@ VIE.prototype.loadSchema = function(url, options) {
     }
     
     return this;
+};
+
+//### equals(vieInstance)
+//This method tests for equality of two VIE instances.  
+//**Parameters**:  
+//*{VIE}* **vieInstance** The other VIE instance.  
+//**Throws**:  
+//*nothing*.  
+//**Returns**:  
+//*{boolean}* : `true` if the current instance 
+// equals to the given instance, false otherwise.  
+//**Example usage**:  
+//
+//  var vie = new VIE();
+//  var vie2 = new VIE();
+//  console.log(vie.equals(vie2)); // <-- false
+//  console.log(vie2.equals(vie)); // <-- false
+//  console.log(vie.equals(vie)); //  <-- true
+VIE.prototype.equals = function(vieInstance) {
+	if (this.id && vieInstance && vieInstance.id) {
+		return vieInstance.id === this.id;
+	}
+	return false;
+};
+
+
+//### setLang(lang)
+//This method sets the default language that is  
+//used internally in this VIE instance.  
+//**Parameters**:  
+//*{String}* **lang** The languag code (using ISO 639-1).  
+//**Throws**:  
+//*nothing*.  
+//**Returns**:  
+//*{String}* : The default language that has been  
+// set OR the former default language if `lang` was  
+// not properly set.
+//**Example usage**:  
+//
+//var v = new VIE();
+//v.getLang ();    // the language of the document OR "en"
+//v.setLang("de"); // accepts language codes only in ISO 639-1 format
+//v.getLang();     // "de"
+VIE.prototype.setLang = function (lang) {
+    /* [a-z]+ ('-' [a-z0-9]+ )* */
+    if (lang && 
+        lang.match(/[a-z]{2}/) !== null && 
+        lang.length === 2)
+        this.config.lang = lang;
+    
+    return this.config.lang;
+};
+
+//### getLang()
+//This method gets the default language that is  
+//used internally in this VIE instance.  
+//**Parameters**:  
+//*nothing*  
+//**Throws**:  
+//*nothing*.  
+//**Returns**:  
+//*{String}* : The default language that has been  
+//set.
+//**Example usage**:  
+//
+//var v = new VIE();
+//v.getLang ();    // the language of the document OR "en"
+//v.setLang("de"); // accepts language codes only in ISO 639-1 format
+//v.getLang();     // "de"
+VIE.prototype.getLang = function (lang) {
+  return this.config.lang;
 };
 
 // IE per default doesn't have a console API. For making sure this doesn't break

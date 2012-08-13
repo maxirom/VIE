@@ -108,7 +108,7 @@ VIE.prototype.Attribute = function (id, range, domain, minCount, maxCount) {
 //
 //     console.log(person.max);
 //      // --> 1.7976931348623157e+308
-    maxCount = maxCount ? maxCount : Number.MAX_VALUE
+    maxCount = maxCount ? maxCount : Number.MAX_VALUE;
     this.max = (maxCount >= this.min)? maxCount : this.min;
 // ### applies(range)
 // This method checks, whether the current attribute applies in the given range.
@@ -202,6 +202,10 @@ VIE.prototype.Attributes = function (domain, attrs) {
 //
 //     personAttrs.add("name", "Text", 0, 1);
     this.add = function (id, range, min, max) {
+        if (this.domain.locked) {
+            throw new Error("The type " + domain.id + " has been imported from an external ontology and must not " + 
+                    "be altered! Please create a new type that inherits from the current type!");
+        }
         if (this.get(id)) {
             throw new Error("Attribute '" + id + "' already registered for domain " + this.domain.id + "!");
         } 
@@ -234,6 +238,10 @@ VIE.prototype.Attributes = function (domain, attrs) {
 //
 //     personAttrs.remove("knows");
     this.remove = function (id) {
+        if (this.domain.locked) {
+            throw new Error("The type " + domain.id + " has been imported from an external ontology and must not " + 
+                    "be altered!");
+        }
         var a = this.get(id);
         if (a.id in this._local) {
             delete this._local[a.id];

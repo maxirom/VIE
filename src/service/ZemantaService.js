@@ -30,20 +30,79 @@ VIE.prototype.ZemantaService = function(options) {
         url: ["http://api.zemanta.com/services/rest/0.0/"],
         timeout : 20000, /* 20 seconds timeout */
         namespaces : {
-        	zemanta: "http://s.zemanta.com/ns#"
+        	zemanta: "http://s.zemanta.com/ns#",
+			freebase:"http://rdf.freebase.com/ns/schema/"
         },
         /* default rules that are shipped with this service */
         rules : [
-                 {
+            {
                 'left' : [
                     '?subject a zemanta:Recognition',
                     '?subject zemanta:object ?object',
-                    '?object owl:sameAs ?entity'
-                ],
+					'?object zemanta:entity_type ?type',
+                    '?object owl:sameAs ?entity',
+					'?entity zemanta:title ?title'
+					],
                 'right' : [
-                    '?entity zemanta:hasEntityAnnotation ?subject'
-                ]
-            }
+                    '?entity zemanta:hasEntityAnnotation ?subject',
+					'?entity a ?type',
+					'?entity rdfs:label ?title'
+					]
+			},
+			
+			{
+                'left' : [
+                    '?subject a freebase:people/person',
+                 ],
+                 'right': [
+					'?subject a dbpedia:Person'
+				 ]
+             } ,
+			 
+			 {
+                'left' : [
+                    '?subject a freebase:location/location',
+                 ],
+                 'right': [
+					'?subject a dbpedia:Place'
+				 ]
+             },
+			 
+			 {
+                'left' : [
+                    '?subject a freebase:location/citytown',
+                 ],
+                 'right': [
+					'?subject a dbpedia:City'
+				 ]
+             },
+			 
+			 {
+                'left' : [
+                    '?subject a freebase:business/company',
+                 ],
+                 'right': [
+					'?subject a dbpedia:Company'
+				 ]
+             },
+			 
+			 {
+                'left' : [
+                    '?subject a freebase:location/country',
+                 ],
+                 'right': [
+					'?subject a dbpedia:Country'
+				 ]
+             },
+			 
+			 {
+                'left' : [
+                    '?subject a freebase:organization/organization',
+                 ],
+                 'right': [
+					'?subject a dbpedia:Organisation'
+				 ]
+             }
          ],
          "api_key" : undefined
     };
@@ -118,7 +177,7 @@ VIE.prototype.ZemantaService.prototype = {
 
         var text = service._extractText(element);
 
-        if (text.length > 0) {
+        if ($(element).text().length > 0) {
             var success = function (results) {
                 _.defer(function(){
                     var entities = VIE.Util.rdf2Entities(service, results);

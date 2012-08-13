@@ -13,7 +13,7 @@
     <property name="TEST_DIR" value="./test"/>
     <property name="TMP_DIR" value="./tmp"/>
     <property name="TOOLS_DIR" value="./utils"/>
-    <property name="YUI" value="${TOOLS_DIR}/yui-compressor/yuicompressor-2.4.2.jar" />
+    <property name="YUI" value="${TOOLS_DIR}/yui-compressor/yuicompressor-2.4.7.jar" />
 	
 	<target name="timestamp">
 		<tstamp>
@@ -191,6 +191,8 @@
             <fileset dir="${SRC_DIR}" includes="VIE.js"/>
             <fileset dir="${SRC_DIR}" includes="Able.js"/>
             <fileset dir="${SRC_DIR}" includes="Util.js"/>
+            <fileset dir="${SRC_DIR}" includes="Literal.js"/>
+            <fileset dir="${SRC_DIR}" includes="LiteralCollection.js"/>
             <fileset dir="${SRC_DIR}" includes="Entity.js"/>
             <fileset dir="${SRC_DIR}" includes="Collection.js"/>
             <fileset dir="${SRC_DIR}" includes="Type.js"/>
@@ -199,6 +201,13 @@
             <!-- VIE 1.0 API compat -->
             <fileset dir="${SRC_DIR}" includes="Classic.js"/>
             <fileset dir="${SRC_DIR}/service" includes="*.js"/>
+            <fileset dir="${SRC_DIR}/service/stanbol">
+                <include name="StanbolConnector.js"/>
+            </fileset>
+            <fileset dir="${SRC_DIR}/service/stanbol">
+                <include name="*.js"/>
+                <exclude name="StanbolConnector.js"/>
+            </fileset>
             <fileset dir="${SRC_DIR}/view" includes="*.js"/>
             <!-- Internet Explorer specific jQuery Ajax transport handler -->
             <fileset dir="${SRC_DIR}" includes="xdr.js"/>

@@ -122,8 +122,8 @@ VIE.prototype.DBPediaService.prototype = {
                     for (var e = 0; e < entities.length; e++) {
                     	entities[e].set("DBPediaServiceLoad", VIE.Util.xsdDateTime(new Date()));
                     }
-                    entities = (entities.length === 1)? entities[0] : entities;
-                    loadable.resolve(entities);
+                    var retCollection = new service.vie.Collection(entities);
+                    loadable.resolve(retCollection);
                 } catch (e) {
                     loadable.reject(e);
                 }
@@ -174,7 +174,7 @@ VIE.prototype.DBPediaConnector.prototype = {
 // ### load(uri, success, error, options)
 // This method loads all properties from an entity and returns the result by the success callback.  
 // **Parameters**:  
-// *{string}* **uri** The URI of the entity to be loaded.  
+// *{string|array}* **uri** The URI of the entity to be loaded or an array of URIs.  
 // *{function}* **success** The success callback.  
 // *{function}* **error** The error callback.  
 // *{object}* **options** Options, like the ```format```.  

@@ -32,8 +32,8 @@ VIE.Util = {
 //           { "dbp": "http://dbpedia.org/ontology/" }
 //     );
 //     var uri = "<http://dbpedia.org/ontology/Person>";
-//     VIE.Util.toCurie(uri, false, ns); // --> dbp:Person
-//     VIE.Util.toCurie(uri, true, ns); // --> [dbp:Person]
+//     VIE.Util.toCurie(uri, false, ns);// --> dbp:Person
+//     VIE.Util.toCurie(uri, true, ns);// --> [dbp:Person]
 	toCurie : function (uri, safe, namespaces) {
         if (VIE.Util.isCurie(uri, namespaces)) {
             return uri;
@@ -73,10 +73,10 @@ VIE.Util = {
 //     var curie = "dbp:Person";
 //     var scurie = "[dbp:Person]";
 //     var text = "This is some text.";
-//     VIE.Util.isCurie(uri, ns);    // --> false
-//     VIE.Util.isCurie(curie, ns);  // --> true
-//     VIE.Util.isCurie(scurie, ns); // --> true
-//     VIE.Util.isCurie(text, ns);   // --> false
+//     VIE.Util.isCurie(uri, ns);   // --> false
+//     VIE.Util.isCurie(curie, ns); // --> true
+//     VIE.Util.isCurie(scurie, ns);// --> true
+//     VIE.Util.isCurie(text, ns);  // --> false
     isCurie : function (curie, namespaces) {
         if (VIE.Util.isUri(curie)) {
             return false;
@@ -139,8 +139,8 @@ VIE.Util = {
 //
 //     var uri = "<http://dbpedia.org/ontology/Person>";
 //     var curie = "dbp:Person";
-//     VIE.Util.isUri(uri);   // --> true
-//     VIE.Util.isUri(curie); // --> false
+//     VIE.Util.isUri(uri);  // --> true
+//     VIE.Util.isUri(curie);// --> false
     isUri : function (something) {
         return (typeof something === "string" && something.search(/^<.+>$/) === 0);
     },
@@ -158,7 +158,7 @@ VIE.Util = {
 //
 //      var attr = "name";
 //      var ns = myVIE.namespaces;
-//      VIE.Util.mapAttributeNS(attr, ns); // '<' + ns.base() + attr + '>';
+//      VIE.Util.mapAttributeNS(attr, ns);// '<' + ns.base() + attr + '>';
     mapAttributeNS : function (attr, ns) {
         var a = attr;
         if (ns.isUri (attr) || attr.indexOf('@') === 0) {
@@ -227,7 +227,7 @@ VIE.Util = {
 	                //jQuery.createCurie(propertyUri, {namespaces: service.vie.namespaces.toObj(true)});
 	            } catch (e) {
 	                propertyCurie = propertyUri;
-	                // console.warn(propertyUri + " doesn't have a namespace definition in '", service.vie.namespaces.toObj());
+	               // console.warn(propertyUri + " doesn't have a namespace definition in '", service.vie.namespaces.toObj());
 	            }
 	            entities[subject][propertyCurie] = entities[subject][propertyCurie] || [];
 
@@ -289,6 +289,8 @@ VIE.Util = {
       resArr = [];
       /* Try to find a label in the preferred language
       */
+      preferredFields = (_.isArray(preferredFields))? preferredFields : [ preferredFields ];
+      preferredLanguages = (_.isArray(preferredLanguages))? preferredLanguages : [ preferredLanguages ];
       for (l = 0, _len = preferredLanguages.length; l < _len; l++) {
         lang = preferredLanguages[l];
         for (p = 0, _len2 = preferredFields.length; p < _len2; p++) {
@@ -429,12 +431,13 @@ VIE.Util = {
     loadSchemaOrg : function (vie, SchemaOrg, baseNS) {
     
         if (!SchemaOrg) {
-            throw new Error("Please load the schema.json file.");
+            throw new Error("Please load the schema.rdfs.org-json file.");
         }
         vie.types.remove("<http://schema.org/Thing>");
         
         var baseNSBefore = (baseNS)? baseNS : vie.namespaces.base();
-        vie.namespaces.base(baseNS);
+        /* temporarily set the schema.org namespace as the default one */
+        vie.namespaces.base("http://schema.org/");
         
         var datatypeMapping = {
             'DataType': 'xsd:anyType',
@@ -490,6 +493,7 @@ VIE.Util = {
             if (id === "Thing" && !type.isof("owl:Thing")) {
                 type.inherit("owl:Thing");
             }
+            type.locked = true;
             return type;
         };
         
@@ -499,8 +503,10 @@ VIE.Util = {
                 typeHelper.call(vie, ancestors, t, typeProps.call(vie, t));
             }
         }
-        /* set the namespace to either the old value or the provided baseNS value */
+        /* set the namespace(s) back to what they were before */
         vie.namespaces.base(baseNSBefore);
+        if (baseNS !== "http://schema.org/")
+            vie.namespaces.add("schema", "http://schema.org/");
     },
 
 // ### VIE.Util.xsdDateTime(date)
@@ -541,7 +547,7 @@ VIE.Util = {
 //
 //          var attrs = ["name", "rdfs:label"];
 //          var langs = ["en", "de"];
-//          VIE.Util.extractLanguageString(someEntity, attrs, langs); // "Barack Obama";
+//          VIE.Util.extractLanguageString(someEntity, attrs, langs);// "Barack Obama";
     extractLanguageString : function(entity, attrs, langs) {
         if (entity && typeof entity !== "string") {
         	attrs = (_.isArray(attrs))? attrs : [ attrs ];
@@ -558,7 +564,7 @@ VIE.Util = {
                         	if (n.isEntity) {
                         		n = VIE.Util.extractLanguageString(n, attrs, lang);
                         	} else if (typeof n === "string") {
-                        		n = n;
+                        		// n = n;
                         	} else {
                         		n = "";
                         	}
@@ -602,7 +608,7 @@ VIE.Util = {
 // *{array}* An array of rules with 'left' and 'right' side.
     transformationRules : function (service) {
         var res = [
-            // rule(s) to transform a dbpedia:Person into a VIE:Person
+           // rule(s) to transform a dbpedia:Person into a VIE:Person
              {
                 'left' : [
                     '?subject a dbpedia:Person',
@@ -625,7 +631,7 @@ VIE.Util = {
                      };
                  }(service.vie.namespaces)
              },
-             // rule(s) to transform a foaf:Person into a VIE:Person
+            // rule(s) to transform a foaf:Person into a VIE:Person
              {
              'left' : [
                      '?subject a foaf:Person',
@@ -648,7 +654,7 @@ VIE.Util = {
                       };
                   }(service.vie.namespaces)
               },
-             // rule(s) to transform a dbpedia:Place into a VIE:Place
+            // rule(s) to transform a dbpedia:Place into a VIE:Place
              {
                  'left' : [
                      '?subject a dbpedia:Place',
@@ -671,7 +677,7 @@ VIE.Util = {
                       };
                   }(service.vie.namespaces)
               },
-             // rule(s) to transform a dbpedia:City into a VIE:City
+            // rule(s) to transform a dbpedia:City into a VIE:City
               {
                  'left' : [
                      '?subject a dbpedia:City',
@@ -710,52 +716,106 @@ VIE.Util = {
         return res;
     },
     
-    getAdditionalRules : function (service) {
-
-    	var mapping = {
-			Work : "CreativeWork",
-			Film : "Movie",
-			TelevisionEpisode : "TVEpisode",
-			TelevisionShow : "TVSeries", // not listed as equivalent class on dbpedia.org
-			Website : "WebPage",
-			Painting : "Painting",
-			Sculpture : "Sculpture",
-	
-			Event : "Event",
-			SportsEvent : "SportsEvent",
-			MusicFestival : "Festival",
-			FilmFestival : "Festival",
-	
-			Place : "Place",
-			Continent : "Continent",
-			Country : "Country",
-			City : "City",
-			Airport : "Airport",
-			Station : "TrainStation", // not listed as equivalent class on dbpedia.org
-			Hospital : "GovernmentBuilding",
-			Mountain : "Mountain",
-			BodyOfWater : "BodyOfWater",
-	
-			Company : "Organization",
-			Person : "Person",
-    	};
-
-		var additionalRules = new Array();
-		for ( var key in mapping) {
-			var tripple = {
-				'left' : [ '?subject a dbpedia:' + key, '?subject rdfs:label ?label' ],
-				'right' : function(ns) {
-					return function() {
-						return [ jQuery.rdf.triple(this.subject.toString(), 'a', '<' + ns.base() + mapping[key] + '>', {
-							namespaces : ns.toObj()
-						}), jQuery.rdf.triple(this.subject.toString(), '<' + ns.base() + 'name>', this.label.toString(), {
-							namespaces : ns.toObj()
-						}) ];
-					};
-				}(service.vie.namespaces)
-			};
-			additionalRules.push(tripple);
-		}
-		return additionalRules;
+// ### VIE.Util.getAdditionalRules(vie)
+// This returns a extended set of rdfQuery rules that transform semantic data into the
+// VIE entity types.  
+// **Parameters**:  
+// *{object}* **vie** An instance of a vie
+// **Throws**: 
+// *nothing*..  
+// **Returns**: 
+// *{array}* An array of rules with 'left' and 'right' side.
+    getAdditionalRules : function (vie) {
+        mapping = {
+                'Work'              : 'CreativeWork',
+                'Film'              : 'Movie',
+                'TelevisionEpisode' : 'TVEpisode',
+                'TelevisionShow'    : 'TVSeries',// not listed as equivalent class on dbpedia.org
+                'Website'           : 'WebPage',
+                'Painting'          : 'Painting',
+                'Sculpture'         : 'Sculpture',
+                'Event'             : 'Event',
+                'SportsEvent'       : 'SportsEvent',
+                'MusicFestival'     : 'Festival',
+                'FilmFestival'      : 'Festival',
+                'Place'             : 'Place',
+                'Continent'         : 'Continent',
+                'Country'           : 'Country',
+                'City'              : 'City',
+                'Airport'           : 'Airport',
+                'Station'           : 'TrainStation',// not listed as equivalent class on dbpedia.org
+                'Hospital'          : 'GovernmentBuilding',
+                'Mountain'          : 'Mountain',
+                'BodyOfWater'       : 'BodyOfWater',
+                'Company'           : 'Organization',
+                'Person'            : 'Person' };
+        var additionalRules = new Array();
+        for (var key in mapping) {
+            additionalRules.push(this.createSimpleRule(key, mapping[key], vie));
+        }
+        return additionalRules;
+    },
+// ### VIE.Util.createSimpleRule(key, value, vie)
+// Returns a simple rule that only transforms the rdfs:label from dbpedia into VIE entity type.  
+// **Parameters**:
+// *{string}* **key** The dbpedia ontology name (left side)
+// *{string}* **value** The target ontology name (right side)
+// *{object}* **vie** An instance of a vie.
+// **Throws**:
+// *nothing*..
+// **Returns**:
+// *{array}* A single rule with 'left' and 'right' side.
+    createSimpleRule : function (key, value, vie) {
+        var rule = {
+                'left' : [ '?subject a dbpedia:' + key, '?subject rdfs:label ?label' ],
+                'right' : function(ns) {
+                    return function() {
+                        return [ vie.jQuery.rdf.triple(this.subject.toString(), 'a', '<' + ns.base() + value + '>', {
+                            namespaces : ns.toObj()
+                        }), vie.jQuery.rdf.triple(this.subject.toString(), '<' + ns.base() + 'name>', this.label.toString(), {
+                            namespaces : ns.toObj()
+                        }) ];
+                    };
+                }(vie.namespaces)
+            };
+        return rule;
+    },
+// ### VIE.Util.getDepiction(entity, picWidth)
+// Returns the URL of the "foaf:depiction" or the "schema:thumbnail" of an entity.
+// **Parameters**:
+// *{object}* **entity** The entity to get the picture for
+// *{int}* **picWidth** The prefered width in px for the found image
+// **Throws**:
+// *nothing*..
+// **Returns**:
+// *{string}* the image url
+    getDepiction : function (entity, picWidth) {
+        var depictionUrl, field, fieldValue, preferredFields;
+        preferredFields = [ "foaf:depiction", "schema:thumbnail" ];
+        field = _(preferredFields).detect(function(field) {
+            if (entity.get(field)) return true;
+        });
+        if (field && (fieldValue = _([entity.get(field)]).flatten())) {
+            depictionUrl = _(fieldValue).detect(function(uri) {
+                uri = (typeof uri.getSubject === "function" ? uri.getSubject() : void 0) || uri;
+                if (uri.indexOf("thumb") !== -1) return true;
+            }).replace(/[0-9]{2..3}px/, "" + picWidth + "px");
+            return depictionUrl.replace(/^<|>$/g, '');
+        }
+    },
+    
+ // ### VIE.Util.UUIDGenerator()
+ // Returns a UUID. The original code is from [stackoverflow](http://stackoverflow.com/questions/105034/how-to-create-a-guid-uuid-in-javascript).
+ // **Parameters**:
+ // *nothing*
+ // **Throws**:
+ // *nothing*.
+ // **Returns**:
+ // *{string}* The generated UUID.    
+    UUIDGenerator: function () {
+        var S4 = function() {
+           return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
+        };
+        return (S4()+S4()+"-"+S4()+"-"+S4()+"-"+S4()+"-"+S4()+S4()+S4());
     }
 };
