@@ -708,8 +708,123 @@
 				}
 			});
 			r.end();
-		} // end of _getRecipeNode
+		}, // end of _getRecipeNode
 
+		// ### refactor(graph, recipe, success, error, options)
+		// @author mere01
+		// addresses resource refactor/ and refactor/apply, which "performs RDF 
+		// graphs transformations to specific target vocabularies or ontologies 
+		// by means of rules. This allows the harmonization and the alignment of 
+		// RDF graphs expressed with different vocabularies". 
+		// (http://incubator.apache.org/stanbol/docs/trunk/components/rules/)
+		// 
+		// Uses the specified recipe to transform the specified RDF graph.
+		// The **recipe** can be either a string encoding the recipe in the
+		// stanbol rule syntax, or it can be the URI of an existing recipe on 
+		// /stanbol/recipe.
+		// The **options** parameter 'rec' has to be set accordingly to either
+		// 'syntax' or 'uri'. If no **options** is specified, **recipe** is
+		// assumed to be the URI of an existing recipe. 
+		// **Parameters**:
+		// *{string}* **graph** the RDF graph to be transformed
+		// *{string}* **recipe** the recipe to be used for transformation 
+		// *{function}* **success** The success callback.
+		// *{function}* **error** The error callback.
+		// *{object}* **options** Options. Specify parameter 'rec' to have 
+		//		the value 'syntax' if **recipe** is a recipe in rule syntax,
+		//		or value 'uri' if **recipe** is the URI of an existing recipe.
+		// **Throws**:
+		// *nothing*
+		// **Returns**:
+		// *{VIE.StanbolConnector}* : The VIE.StanbolConnector
+		// instance itself.
+		refactor : function(graph, recipe, success, error, options) {
+
+			options = (options) ? options : false;
+			
+			var rec = (options.rec) ? options.rec.toLowerCase() : "uri";
+			
+
+			// curl -X POST -H "Content-Type: multipart/form-data" 
+			//   -H "Accept: text/turtle" 
+			//   -F recipe="personTypes[is(<http://dbpedia.org/ontology/Person>, ?x) -> is(<http://rdf.data-vocabulary.org/Person>, ?x)]" 
+			// 	 -F input=@personsRDF.xml 
+			//	 http://lnv-89012.dfki.uni-sb.de:9001/refactor/apply
+			
+			// curl -X POST -H "Accept: application/rdf+xml" 
+			//  -F input=@personsRDF.xml 
+			//  -F recipe="http://www.dfki.de/mere01/recipe/TestRecipe" 
+			//  http://lnv-89012.dfki.uni-sb.de:9001/refactor
+
+			var connector = this;
+
+			var data = new FormData();
+			data.append('recipe', recipe);
+			data.append('input', graph);
+
+//			console.log("the FormData object:")
+//			console.log(data)
+
+			connector._iterate( {
+				method : connector._refactor,
+				methodNode : connector._refactor,
+				success : success,
+				error : error,
+				url : function(idx, opts) {
+				// var u = this.options.url[idx].replace(/\/$/, '');
+				// u += this.options.rules.urlPostfix.replace(/\/$/, '');
+				// u += this.options.rules.recipe.replace(/\/$/, '');
+
+				// return u;
+				var u = "http://lnv-89012.dfki.uni-sb.de:9001/refactor";
+				if (rec !== "uri") {
+					u += "/apply";
+				}
+				return u;
+			},
+			args : {
+				data : data
+			},
+			urlIndex : 0
+			});
+		}, // end of refactor
+
+		_refactor : function(url, args, success, error) {
+			jQuery.ajax( {
+				success : success,
+				error : error,
+				url : url,
+				type : "POST",
+				data : args.data,
+				contentType : false,
+				processData : false,
+				cache : false
+
+			});
+		}, // end of _refactor
+
+		_refactorNode : function(url, args, success, error) {
+			var request = require('request');
+			var r = request( {
+				method : args.verb,
+				uri : url,
+				body : args.content,
+				headers : {
+					Accept : "text/plain",
+					"Content-Type" : "text/plain"
+				}
+			}, function(err, response, body) {
+				try {
+					success( {
+						results : JSON.parse(body)
+					});
+				} catch (e) {
+					error(e);
+				}
+			});
+			r.end();
+		} // end of _refactorNode
+		
 	});
 
 })();

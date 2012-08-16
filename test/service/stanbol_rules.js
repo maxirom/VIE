@@ -136,5 +136,27 @@ test("VIE.js StanbolConnector - Rules Manager", function() {
  	    }, {
  	    	desc : description
  	    });
+    
+    
+    // independent testing of /refactor 
+    graph = "";
+    recipe = "personTypes[is(<http://dbpedia.org/ontology/Person>, ?x) -> is(<http://rdf.data-vocabulary.org/Person>, ?x)]";	
+    stop();
+	stanbol.connector.refactor(graph, recipe, function(success){
+		
+		start();
+		
+	}, function(error){
+		
+		start(); 
+		
+	}, { 
+		rec : 'syntax' 
+		});
 	
+	// independent testing of /refactor/apply
+	// first create a recipe
+	// then use it to refactor our graph
+    
+    
 });		// end of test for Rules Manager
