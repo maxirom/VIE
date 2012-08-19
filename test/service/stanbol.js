@@ -67,4 +67,6 @@ test("VIE.js StanbolService - Registration", function() {
     z.use(new z.StanbolService);
     ok(z.service('stanbol'));
 
+
 });
+

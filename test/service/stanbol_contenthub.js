@@ -24,6 +24,7 @@ test(
           var location = xhr.getResponseHeader('Location');
           console.log("this is the location:")
           console.log(location);
+          				// must specify an ID for the new content item 
                         // TODO: This does not work in jQuery :(
                            start();
                        }, function(err) {
@@ -204,7 +205,7 @@ test("VIE.js StanbolConnector - ContentHub CRD access on indices", function() {
 
         // we first want to create ourselves a new index, using an ldpath
         // program
-        var ldpath = "name=melaniesIndex&program=@prefix rdf : <http://www.w3.org/1999/02/22-rdf-syntax-ns#>; @prefix rdfs : <http://www.w3.org/2000/01/rdf-schema#>; @prefix db-ont : <http://dbpedia.org/ontology/>; title = rdfs:label :: xsd:string; dbpediatype = rdf:type :: xsd:anyURI; population = db-ont:populationTotal :: xsd:int;";
+//        var ldpath = "name=melaniesIndex&program=@prefix rdf : <http://www.w3.org/1999/02/22-rdf-syntax-ns#>; @prefix rdfs : <http://www.w3.org/2000/01/rdf-schema#>; @prefix db-ont : <http://dbpedia.org/ontology/>; title = rdfs:label :: xsd:string; dbpediatype = rdf:type :: xsd:anyURI; population = db-ont:populationTotal :: xsd:int;";
         var name = "melaniesIndex";
         var prog = "@prefix rdf : <http://www.w3.org/1999/02/22-rdf-syntax-ns#>; @prefix rdfs : <http://www.w3.org/2000/01/rdf-schema#>; @prefix db-ont : <http://dbpedia.org/ontology/>; title = rdfs:label :: xsd:string; dbpediatype = rdf:type :: xsd:anyURI; population = db-ont:populationTotal :: xsd:int;";
         var index = name;
@@ -246,8 +247,7 @@ test("VIE.js StanbolConnector - ContentHub CRD access on indices", function() {
             	 stanbol.connector.deleteIndex(
                          index,
                          function(success) {
-                            ok(
-                              true, "00. Index " + index + " was deleted from contenthub.");
+                            ok(true, "00. Index " + index + " was deleted from contenthub.");
                             console.log("00 deleted index " + index);
                             start();
                         },
@@ -265,8 +265,7 @@ test("VIE.js StanbolConnector - ContentHub CRD access on indices", function() {
            start();
         },
         function(err) {
-            ok(false,
-              "00. No contenthub indices have been returned!");
+            ok(false, "00. No contenthub indices have been returned!");
             start();
         }, 
         {},

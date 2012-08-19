@@ -69,11 +69,6 @@ var VIE = root.VIE = function(config) {
     this.Entity.prototype.entityCollection = this.Collection;
     this.Entity.prototype.vie = this;
     
-    this.Literal.prototype.vie = this;
-    this.BooleanLiteral.prototype.vie = this;
-    this.NumberLiteral.prototype.vie = this;
-    this.StringLiteral.prototype.vie = this;
-    
     this.Namespaces.prototype.vie = this;
 // ### Namespaces in VIE
 // VIE supports different ontologies and an easy use of them.
@@ -425,52 +420,37 @@ VIE.prototype.equals = function(vieInstance) {
 	return false;
 };
 
-
-//### setLang(lang)
-//This method sets the default language that is  
-//used internally in this VIE instance.  
-//**Parameters**:  
-//*{String}* **lang** The languag code (using ISO 639-1).  
-//**Throws**:  
-//*nothing*.  
-//**Returns**:  
-//*{String}* : The default language that has been  
-// set OR the former default language if `lang` was  
-// not properly set.
-//**Example usage**:  
+// ### getTypedEntityClass(type)
+// This method generates a special type of `Entity` based on the given type.  
+// **Parameters**:  
+// *{string}* **type** The type.  
+// **Throws**:  
+// *{Error}* if the type is unknown to VIE.  
+// **Returns**:  
+// *{VIE.Entity}* : A subclass of `VIE.Entity`.  
+// **Example usage**:  
 //
-//var v = new VIE();
-//v.getLang ();    // the language of the document OR "en"
-//v.setLang("de"); // accepts language codes only in ISO 639-1 format
-//v.getLang();     // "de"
-VIE.prototype.setLang = function (lang) {
-    /* [a-z]+ ('-' [a-z0-9]+ )* */
-    if (lang && 
-        lang.match(/[a-z]{2}/) !== null && 
-        lang.length === 2)
-        this.config.lang = lang;
-    
-    return this.config.lang;
-};
-
-//### getLang()
-//This method gets the default language that is  
-//used internally in this VIE instance.  
-//**Parameters**:  
-//*nothing*  
-//**Throws**:  
-//*nothing*.  
-//**Returns**:  
-//*{String}* : The default language that has been  
-//set.
-//**Example usage**:  
-//
-//var v = new VIE();
-//v.getLang ();    // the language of the document OR "en"
-//v.setLang("de"); // accepts language codes only in ISO 639-1 format
-//v.getLang();     // "de"
-VIE.prototype.getLang = function (lang) {
-  return this.config.lang;
+//     var vie = new VIE();
+//     vie.types.add("Person");
+//     var PersonClass = vie.getTypedEntityClass("Person");
+//     var Person = new PersonClass({"name", "Sebastian"});
+VIE.prototype.getTypedEntityClass = function (type) {
+  var typeType = this.types.get(type);
+  if (!typeType) {
+    throw new Error("Unknown type " + type);
+  }
+  var TypedEntityClass = function (attrs, opts) {
+    if (!attrs) {
+      attrs = {};
+    }
+    attrs["@type"] = type;
+    this.set(attrs, opts);
+  };
+  TypedEntityClass.prototype = new this.Entity();
+  TypedEntityClass.prototype.schema = function () {
+    return VIE.Util.getFormSchemaForType(typeType);
+  };
+  return TypedEntityClass;
 };
 
 // IE per default doesn't have a console API. For making sure this doesn't break

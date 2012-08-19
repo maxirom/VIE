@@ -73,6 +73,8 @@ test("vie.js Entities API -  id/getSubject()", function () {
 
     ok(empty.isNew());
 
+    equal(empty.vie, z);
+
     // FIXME: This should be made to pass
     // equal(empty.id, null);
 
@@ -566,4 +568,16 @@ test("vie.js Analyzable API - always", 1, function () {
         ok(true);
         start();
     }).execute();
+});
+
+test("vie.js Generate Typed Entity Classes", function () {
+    var v = new VIE();
+    v.types.add("Person");
+    var TypedEntityClass = v.getTypedEntityClass("Person");
+
+    var Person = new TypedEntityClass({"name": "Sebastian"});
+    ok(Person.isEntity);
+    ok(Person.isof("Person"));
+    equal(Person.get("@type").id, "<" + v.namespaces.base() + "Person" + ">");
+    ok(Person instanceof Backbone.Model);
 });

@@ -23,9 +23,11 @@
 		//		contenthub.
 		// *{function}* **success** The success callback.
 		// *{function}* **error** The error callback.
-		// *{object}* **options** Options: specify index: '<indexName>' to load
-		// up items to a specific index;
-		// specify id: '<id>' as the ID under which your content item will be
+		// *{object}* **options** Options: Possible parameters:
+		// Specify index: '<indexName>' to load
+		// up items to a specific index. If none is specified, the item will be
+		// stored to the default index (contenthub).
+		// Specify id: '<id>' as the ID under which your content item will be
 		// stored on the contenthub.
 		// **Throws**:
 		// *nothing*

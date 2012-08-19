@@ -2,6 +2,7 @@ var stanbolRootUrl = (window.STANBOL_URLS) ? window.STANBOL_URLS : [
 "http://dev.iks-project.eu:8081",
 "http://dev.iks-project.eu/stanbolfull" ];
 
+/* TODO: wait for dev-iks server to be updated to new API
 test("VIE.js StanbolConnector - Perform SPARQL Query", function() {
     if (navigator.userAgent === 'Zombie') {
         return;
@@ -41,3 +42,5 @@ test("VIE.js StanbolConnector - Perform SPARQL Query", function() {
      start();
  });
 });
+*/
+

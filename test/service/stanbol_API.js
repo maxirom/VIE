@@ -2,6 +2,7 @@ var stanbolRootUrl = (window.STANBOL_URLS) ? window.STANBOL_URLS : [
 "http://dev.iks-project.eu:8081",
 "http://dev.iks-project.eu/stanbolfull" ];
 
+
 test("VIE.js StanbolService - API", function() {
     var z = new VIE();
     z.use(new z.StanbolService);
@@ -66,7 +67,7 @@ test("VIE.js StanbolConnector - API", function() {
     equal(typeof stanbol.connector.query, "function");
     ok(stanbol.connector.getMapping);
     equal(typeof stanbol.connector.getMapping, "function");
-    
+
     // contenthub
     ok(stanbol.connector.uploadContent);
     equal(typeof stanbol.connector.uploadContent, "function");
@@ -90,7 +91,7 @@ test("VIE.js StanbolConnector - API", function() {
     equal(typeof stanbol.connector.createFact, "function");
     ok(stanbol.connector.queryFact);
     equal(typeof stanbol.connector.queryFact, "function");
-    
+
     // ontonet
     ok(stanbol.connector.createScope);
     equal(typeof stanbol.connector.createScope, "function");
@@ -120,7 +121,7 @@ test("VIE.js StanbolConnector - API", function() {
     equal(typeof stanbol.connector.updateScopes, "function");
     ok(stanbol.connector.detachOntology);
     equal(typeof stanbol.connector.detachOntology, "function");
-    
+
     // rules
     ok(stanbol.connector.getRecipe);
     equal(typeof stanbol.connector.getRecipe, "function");
@@ -146,5 +147,5 @@ test("VIE.js StanbolConnector - API", function() {
     equal(typeof stanbol.connector.mapRDFtoRepository, "function");
     ok(stanbol.connector.mapRepositoryToRDF);
     equal(typeof stanbol.connector.mapRepositoryToRDF, "function");
-    
+
 });
