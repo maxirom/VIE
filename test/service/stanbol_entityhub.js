@@ -1360,20 +1360,21 @@ test(
        } ]
    };
 
-   var z = new VIE();
-   ok(z.StanbolService);
-   equal(typeof z.StanbolService, "function");
-   var stanbol = new z.StanbolService( {
+//   var z = new VIE();
+//   ok(z.StanbolService);
+//   equal(typeof z.StanbolService, "function");
+//   var stanbol = new z.StanbolService( {
+//
+//    url : stanbolRootUrl[0]
+//
+//});
+//   z.use(stanbol);
 
-    url : stanbolRootUrl[0]
-
-});
-   z.use(stanbol);
-
+   stop();			
    z.query( {
     query : query,
     local : true
-}).using(stanbol).execute().done(
+}).using('stanbol').execute().done( // using(stanbol)
 
 function(entities) {
     ok(true, "Retrieved entities according to query Frankf*");
