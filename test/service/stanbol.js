@@ -1,3 +1,4 @@
+
 module("vie.js - Apache Stanbol Service");
 
 /* All known endpoints of Stanbol */
@@ -65,4 +66,7 @@ test("VIE.js StanbolService - Registration", function() {
     ok(z.StanbolService, "Checking if the Stanbol Service exists.'");
     z.use(new z.StanbolService);
     ok(z.service('stanbol'));
+
+
 });
+

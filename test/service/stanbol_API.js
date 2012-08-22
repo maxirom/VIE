@@ -1,3 +1,6 @@
+var stanbolRootUrl = (window.STANBOL_URLS) ? window.STANBOL_URLS : [
+"http://dev.iks-project.eu:8081",
+"http://dev.iks-project.eu/stanbolfull" ];
 
 
 test("VIE.js StanbolService - API", function() {
@@ -30,12 +33,15 @@ test("VIE.js StanbolConnector - API", function() {
     z.use(stanbol);
 
     // API
+    
     // enhancer
     ok(stanbol.connector.analyze);
     equal(typeof stanbol.connector.analyze, "function");
+    
     // sparql
     ok(stanbol.connector.sparql);
     equal(typeof stanbol.connector.sparql, "function");
+    
     // entityhub
     ok(stanbol.connector.createEntity);
     equal(typeof stanbol.connector.createEntity, "function");
@@ -61,6 +67,7 @@ test("VIE.js StanbolConnector - API", function() {
     equal(typeof stanbol.connector.query, "function");
     ok(stanbol.connector.getMapping);
     equal(typeof stanbol.connector.getMapping, "function");
+
     // contenthub
     ok(stanbol.connector.uploadContent);
     equal(typeof stanbol.connector.uploadContent, "function");
@@ -74,6 +81,9 @@ test("VIE.js StanbolConnector - API", function() {
     equal(typeof stanbol.connector.contenthubIndices, "function");
     ok(stanbol.connector.deleteIndex);
     equal(typeof stanbol.connector.deleteIndex, "function");
+    ok(stanbol.connector.deleteContent);
+    equal(typeof stanbol.connector.deleteContent, "function");
+    
     // factstore
     ok(stanbol.connector.createFactSchema);
     equal(typeof stanbol.connector.createFactSchema, "function");
@@ -81,17 +91,22 @@ test("VIE.js StanbolConnector - API", function() {
     equal(typeof stanbol.connector.createFact, "function");
     ok(stanbol.connector.queryFact);
     equal(typeof stanbol.connector.queryFact, "function");
+
     // ontonet
-    ok(stanbol.connector.loadScope);
-    equal(typeof stanbol.connector.loadScope, "function");
+    ok(stanbol.connector.createScope);
+    equal(typeof stanbol.connector.createScope, "function");
     ok(stanbol.connector.deleteScope);
     equal(typeof stanbol.connector.deleteScope, "function");
     ok(stanbol.connector.getScope);
     equal(typeof stanbol.connector.getScope, "function");
-    ok(stanbol.connector.loadOntology);
-    equal(typeof stanbol.connector.loadOntology, "function");
+    ok(stanbol.connector.appendOntology);
+    equal(typeof stanbol.connector.appendOntology, "function");
     ok(stanbol.connector.getOntology);
     equal(typeof stanbol.connector.getOntology, "function");
+    ok(stanbol.connector.appendLibrary);
+    equal(typeof stanbol.connector.appendLibrary, "function");
+    ok(stanbol.connector.getLibrary);
+    equal(typeof stanbol.connector.getLibrary, "function");
     ok(stanbol.connector.ontoScopes);
     equal(typeof stanbol.connector.ontoScopes, "function");
     ok(stanbol.connector.createSession);
@@ -100,10 +115,13 @@ test("VIE.js StanbolConnector - API", function() {
     equal(typeof stanbol.connector.deleteSession, "function");
     ok(stanbol.connector.getSession);
     equal(typeof stanbol.connector.getSession, "function");
-    ok(stanbol.connector.appendToSession);
-    equal(typeof stanbol.connector.appendToSession, "function");
-    ok(stanbol.connector.undockFromSession);
-    equal(typeof stanbol.connector.undockFromSession, "function");
+    ok(stanbol.connector.appendOntology);
+    equal(typeof stanbol.connector.appendOntology, "function");
+    ok(stanbol.connector.updateScopes);
+    equal(typeof stanbol.connector.updateScopes, "function");
+    ok(stanbol.connector.detachOntology);
+    equal(typeof stanbol.connector.detachOntology, "function");
+
     // rules
     ok(stanbol.connector.getRecipe);
     equal(typeof stanbol.connector.getRecipe, "function");
@@ -115,6 +133,19 @@ test("VIE.js StanbolConnector - API", function() {
     equal(typeof stanbol.connector.findRule, "function");
     ok(stanbol.connector.createRule);
     equal(typeof stanbol.connector.createRule, "function");
+    ok(stanbol.connector.deleteRule);
+    equal(typeof stanbol.connector.deleteRule, "function");
+    ok(stanbol.connector.findRecipe);
+    equal(typeof stanbol.connector.findRecipe, "function");
+//    ok(stanbol.connector.getRule);
+//    equal(typeof stanbol.connector.getRule, "function");
+    
     // cmsadapter
+    ok(stanbol.connector.getReposSessionKey);
+    equal(typeof stanbol.connector.getReposSessionKey, "function");
+    ok(stanbol.connector.mapRDFtoRepository);
+    equal(typeof stanbol.connector.mapRDFtoRepository, "function");
+    ok(stanbol.connector.mapRepositoryToRDF);
+    equal(typeof stanbol.connector.mapRepositoryToRDF, "function");
 
 });

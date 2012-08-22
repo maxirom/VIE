@@ -1,3 +1,6 @@
+var stanbolRootUrl = (window.STANBOL_URLS) ? window.STANBOL_URLS : [
+"http://dev.iks-project.eu:8081",
+"http://dev.iks-project.eu/stanbolfull" ];
 
 
 test("VIE.js StanbolConnector - Get all referenced sites", function() {
@@ -9,7 +12,9 @@ test("VIE.js StanbolConnector - Get all referenced sites", function() {
   ok(z.StanbolService);
   equal(typeof z.StanbolService, "function");
   var stanbol = new z.StanbolService( {
-     url : stanbolRootUrl
+
+     url : stanbolRootUrl[0]
+
  });
   z.use(stanbol);
   stop();
@@ -35,7 +40,9 @@ test(
     ok(z.StanbolService);
     equal(typeof z.StanbolService, "function");
     z.use(new z.StanbolService( {
-        url : stanbolRootUrl
+
+        url : stanbolRootUrl[0]
+
     }));
     stop();
 
@@ -191,7 +198,9 @@ test(
     ok(z.StanbolService);
     equal(typeof z.StanbolService, "function");
     z.use(new z.StanbolService( {
-        url : stanbolRootUrl
+
+        url : stanbolRootUrl[0]
+
     }));
     stop();
     z
@@ -350,7 +359,9 @@ test(
     ok(z.StanbolService);
     equal(typeof z.StanbolService, "function");
     var stanbol = new z.StanbolService( {
-        url : stanbolRootUrl
+
+        url : stanbolRootUrl[0]
+
     });
     z.use(stanbol);
 
@@ -397,7 +408,6 @@ test(
 // endpoint,
 // the service to create Entities managed on the Entityhub.
 // @author mere01
-/* TODO: wait for dev-iks server to be updated to new API
 test(
   "VIE.js StanbolService - save (create) local entities",
   function() {
@@ -409,7 +419,9 @@ test(
     equal(typeof z.StanbolService, "function");
 
     var stanbol = new z.StanbolService( {
-        url : stanbolRootUrl
+
+        url : stanbolRootUrl[0]
+
     });
     z.use(stanbol);
 
@@ -521,7 +533,9 @@ test(
     equal(typeof z.StanbolService, "function");
 
     var stanbol = new z.StanbolService( {
-        url : stanbolRootUrl
+
+        url : stanbolRootUrl[0]
+
     });
     z.use(stanbol);
 
@@ -753,7 +767,6 @@ stanbol.connector.createEntity(entity, function(response) {
 
         }); // end of test for CRUD entityhub/entity
 
-*/
 
 // ### test for the /entityhub/mapping endpoint, checking the retrieval of
 // entity mappings
@@ -779,7 +792,9 @@ test("VIE.js StanbolConnector - entityhub/mapping", function() {
         ok(z.StanbolService);
         equal(typeof z.StanbolService, "function");
         var stanbol = new z.StanbolService( {
-            url : stanbolRootUrl
+
+            url : stanbolRootUrl[0]
+
         });
         z.use(stanbol);
 
@@ -1225,7 +1240,9 @@ test(
 
 var z = new VIE();
 z.use(new z.StanbolService( {
-    url : stanbolRootUrl
+
+    url : stanbolRootUrl[0]
+
 }));
 stop();
             // query all referenced sites (entityhub/sites/query)
@@ -1291,7 +1308,6 @@ stop();
             /**/
         });
 
-/* TODO: wait for dev-iks server to be updated to new API
 
 test(
   "VIE.js StanbolService - Query (local)",
@@ -1303,7 +1319,9 @@ test(
 
     var z = new VIE();
     z.use(new z.StanbolService( {
-        url : stanbolRootUrl
+
+        url : stanbolRootUrl[0]
+
     }));
     stop();
     z
@@ -1326,7 +1344,9 @@ test(
         start();
     });
 
-    // mere01 
+
+    /** mere01 * */
+
     var query = {
         "selected" : [ "http:\/\/www.w3.org\/2000\/01\/rdf-schema#label" ],
         "offset" : "0",
@@ -1340,18 +1360,21 @@ test(
        } ]
    };
 
-   var z = new VIE();
-   ok(z.StanbolService);
-   equal(typeof z.StanbolService, "function");
-   var stanbol = new z.StanbolService( {
-    url : stanbolRootUrl
-});
-   z.use(stanbol);
+//   var z = new VIE();
+//   ok(z.StanbolService);
+//   equal(typeof z.StanbolService, "function");
+//   var stanbol = new z.StanbolService( {
+//
+//    url : stanbolRootUrl[0]
+//
+//});
+//   z.use(stanbol);
 
+   stop();			
    z.query( {
     query : query,
     local : true
-}).using(stanbol).execute().done(
+}).using('stanbol').execute().done( // using(stanbol)
 
 function(entities) {
     ok(true, "Retrieved entities according to query Frankf*");
@@ -1370,5 +1393,6 @@ function(entities) {
     start();
 });
 
+/**/
 });
-*/
+

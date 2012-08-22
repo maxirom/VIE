@@ -61,6 +61,12 @@ VIE.prototype.StanbolConnector = function (options) {
             findRule : "/find/rules",
             findRecipe : "/find/recipes"
         },
+        cmsadapter : {
+            urlPostfix : "/cmsadapter",
+            session : "/session",
+            contenthubfeed : "/contenthubfeed",
+            map : "/map"
+        },
         sparql : {
             urlPostfix : "/sparql"
         }
