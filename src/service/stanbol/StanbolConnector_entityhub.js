@@ -15,7 +15,8 @@
     jQuery.extend(true, VIE.prototype.StanbolConnector.prototype, {
         
 		// ### find(term, limit, offset, success, error, options)
-		// This method finds entities given the term from the entity hub and returns the result by the success callback.  
+		// This method finds entities given the term from the entity hub and 
+    	// returns the result by the success callback.  
 		// **Parameters**:  
 		// *{string}* **term** The term to be searched for. 
 		// *{int}* **limit** The limit of results to be returned. 

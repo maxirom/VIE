@@ -10,11 +10,11 @@ var stanbolRootUrl = (window.STANBOL_URLS) ? window.STANBOL_URLS : [
 // A library is an aggregate object of multiple ontology sources. 
 // A registry is the RDF graph that describes one or more libraries (or parts thereof). 
 //@author mere01
-test("VIE.js StanbolConnector - OntoNet Scope Manager", function() {
+test("VIE.js StanbolConnector - OntoNet Scope Manager", 13, function() {
 	
 	var scope = "pizzaScope";
-    var lib = "http://stanbol.apache.org/ontologies/registries/stanbol_network/SocialNetworks";
-    var ontology = "http://ontologydesignpatterns.org/ont/iks/kres/omv.owl";
+    var lib = "http://stanbol.apache.org/ontologies/registries/stanbol_network/Alignments";
+    var ontology = "http://ontologydesignpatterns.org/ont/iks/kres/onm.owl";
     var z = new VIE();
     ok(z.StanbolService);
     equal(typeof z.StanbolService, "function");
@@ -30,13 +30,11 @@ test("VIE.js StanbolConnector - OntoNet Scope Manager", function() {
 				function(success) {
 					console.log("01. Created scope " + scope)
 					ok(true, "01. Created scope " + scope);
-					start();
 					
 					// we can load specific libraries or ontologies into a specific scope
 	// core end
 					
-					// TODO post/redirect/get problem for libraries //TODO back in
-					stop();
+					// TODO post/redirect/get problem for libraries 
 					stanbol.connector.appendLibrary(scope, lib, function(success){
 						
 						ok(true, "02.A. Loaded library into scope " + scope);
@@ -48,6 +46,81 @@ test("VIE.js StanbolConnector - OntoNet Scope Manager", function() {
 							ok(true, "03.A. Retrieved library from scope " + scope);
 							console.log("03.A. Retrieved library " + lib + " from scope " + scope)
 							
+							
+							// TODO post/redirect/get problem for ontologies due to time out for GET
+							stanbol.connector.appendOntology(
+								scope,
+								ontology,
+								function(success) {
+									// retrieve the URI under which the ontology was
+									// stored on the scope
+									ontID = success['@subject'][0]['@subject'];
+
+									ok(true, "02.B. Loaded ontology " + ontology + " as "
+										+ ontID + " into existing scope " + scope);
+									console.log("02.B. Loaded ontology " + ontology
+										+ " as " + ontID + " into existing scope " + scope);
+
+							
+			                stanbol.connector.getOntology(scope, ontID, function(success) {
+			                    ok(true, "03.B. Retrieved ontology " + ontology + " at scope " + scope);
+			                    console.log("03.B. Retrieved ontology " + ontology);
+//			                    console.log(success)	// TODO returns HTML page instead of RDF
+			                    
+			                    
+			                // we can get a list of all the registered scopes
+						    stanbol.connector.ontoScopes(function(success) {
+						        ok(true, "04. could retrieve list of all registered scopes");
+						        console.log("04. retrieved list of registered scopes:")
+//						        console.log(success) // TODO returns HTML page instead of RDF
+						        
+						        
+						        stanbol.connector.deleteScope(scope, function(success) {
+								       ok(true, "05. deleted scope " + scope + " from the ontonet/ontology.");
+								       console.log("05. deleted scope " + scope)
+								       start();
+								   }, function(err) {	// error callback of deleteScope()
+								       ok(false, "05. Could not delete scope " + scope + " from the ontonet/ontology.");
+								       console.log("05. Could not delete scope " + scope);
+								       start();
+								   }, {});
+						        
+						      
+						    }, function(err) {	// error callback of ontoScopes()
+						        ok(false, "04. Could not retrieve list of all registered scopes");
+						        console.log("04. Could not retrieve list of all registered scopes")
+						        console.log(err)
+						        start();
+						     
+						    });
+			                    
+			                
+						        
+			                    
+			                    
+			                   
+			                }, function(err) {		// error callback of getOntology
+			                    ok(false, "03.B. Could not retrieve ontology " + ontology + " at scope " + scope);
+								console.log("03.B. Could not retrieve ontology " + ontology + " at scope " + scope)
+			                    start();
+			                }, {
+			                	loc : 'scope'
+			                });
+
+								},
+								function(err) { // error callback of loadOntology
+									ok(false, "02.B. Could not load ontology " + ontology
+										+ " into scope " + scope);
+									console.log("02.B. Could not load ontology "
+										+ ontology + " into scope " + scope)
+									console.log(err);
+									start();
+								}, 
+								{ 
+									loc : 'scope'
+								});
+							
+
 							
 
 							
@@ -70,79 +143,7 @@ test("VIE.js StanbolConnector - OntoNet Scope Manager", function() {
 						loc : 'scope'
 					});
 					
-					// TODO post/redirect/get problem for ontologies due to time out for GET
-					stop();
-					stanbol.connector.appendOntology(
-						scope,
-						ontology,
-						function(success) {
-							// retrieve the URI under which the ontology was
-							// stored on the scope
-							ontID = success['@subject'][0]['@subject'];
-
-							ok(true, "02.B. Loaded ontology " + ontology + " as "
-								+ ontID + " into existing scope " + scope);
-							console.log("02.B. Loaded ontology " + ontology
-								+ " as " + ontID + " into existing scope "
-								+ scope);
-
-					
-	                stanbol.connector.getOntology(scope, ontID, function(success) {
-	                    ok(true, "03.B. Retrieved ontology " + ontology + " at scope " + scope);
-	                    console.log("03.B. Retrieved ontology " + ontology);
-	                    console.log(success)
-	                    start();
-	                }, function(err) {		// error callback of getOntology
-	                    ok(false, "03.B. Could not retrieve ontology " + ontology + " at scope " + scope);
-						console.log("03.B. Could not retrieve ontology " + ontology + " at scope " + scope)
-	                    start();
-	                }, {
-	                	loc : 'scope'
-	                });
-
-						},
-						function(err) { // error callback of loadOntology
-							ok(false, "02.B. Could not load ontology " + ontology
-								+ " into scope " + scope);
-							console.log("02.B. Could not load ontology "
-								+ ontology + " into scope " + scope)
-							console.log(err);
-							start();
-						}, 
-						{ 
-							loc : 'scope'
-						});
-					
- // core
-					// TODO stable part start
-				    // we can get a list of all the registered scopes
-				    stanbol.connector.ontoScopes(function(success) {
-				        ok(true, "04. could retrieve list of all registered scopes");
-				        console.log("04. retrieved list of registered scopes:")
-//				         console.log(success) // TODO returns HTML page instead of RDF
-				     
-				        
-				        stanbol.connector.deleteScope(scope, function(success) {
-				            ok(true, "05. deleted scope " + scope + " from the ontonet/ontology.");
-				            console.log("05. deleted scope " + scope)
-				            start();
-				        }, function(err) {	// error callback of deleteScope()
-				            ok(false, "05. could not delete scope " + scope + " from the ontonet/ontology.");
-				            console.log("05. could not delete scope " + scope);
-				            start();
-				        }, {});
-				        
-				    }, function(err) {	// error callback of ontoScopes()
-				        ok(false, "04. could not retrieve list of all registered scopes");
-				        console.log("04. could not retrieve list of all registered scopes")
-				        console.log(err)
-				        start();
-				        
-
-				    });
-				    // TODO stable part end
-
-						
+								
 				}, function(error) {	// error callback of createScope
 					console.log("01. Could not create scope " + scope)
 					ok(false, "01. Could not create scope " + scope);
@@ -175,8 +176,8 @@ test("VIE.js StanbolConnector - OntoNet Scope Manager", function() {
          start();
      }, {
          
-     	 corereg : 'http://stanbol.apache.org/ontologies/registries/stanbol_network/SocialNetworks',	// ok
-         coreont: 'http://www.ontologydesignpatterns.org/cp/owl/sequence.owl'							// ok
+     	 corereg : 'http://stanbol.apache.org/ontologies/registries/stanbol_network/Alignments',	// ok
+         coreont: 'http://ontologydesignpatterns.org/ont/iks/kres/onm.owl'							// ok
          // customont and customreg are deprecated, they now have to be set using
          // loadLibrary() and loadOntology()
 //         customreg : 'http://stanbol.apache.org/ontologies/registries/stanbol_network/Alignments',
@@ -189,34 +190,34 @@ test("VIE.js StanbolConnector - OntoNet Scope Manager", function() {
      var lsc = "listScope";
      stop();
       stanbol.connector.createScope(lsc, function(success) {
-          ok(true, "07. Created scope " + lsc + " using list options.");
-          console.log("07. Could load scope " + lsc + " using list options.");
+          ok(true, "08. Created scope " + lsc + " using list options.");
+          console.log("08. Could load scope " + lsc + " using list options.");
          
           
           stanbol.connector.deleteScope(lsc, function(success) {	
-              ok(true, "07. deleted scope " + lsc + " from the ontonet/ontology.");
-              console.log("07. deleted scope " + lsc)
+              ok(true, "09. deleted scope " + lsc + " from the ontonet/ontology.");
+              console.log("09. deleted scope " + lsc)
               start();
           }, function(err) {
-              ok(false, "07. could not delete scope " + lsc + " from the ontonet/ontology.");
-              console.log("07. could not delete scope " + lsc);
+              ok(false, "09. could not delete scope " + lsc + " from the ontonet/ontology.");
+              console.log("09. could not delete scope " + lsc);
               start();
           }, {});
           
       }, function(err) {
           ok(
-          false, "07. Could not load scope " + lsc + " using list options.");
-          console.log("07. Could not load scope " + lsc + " using list options.");
+          false, "08. Could not load scope " + lsc + " using list options.");
+          console.log("08. Could not load scope " + lsc + " using list options.");
           start();
       }, {
           
       	 corereg : [
-      	            'http://stanbol.apache.org/ontologies/registries/stanbol_network/SocialNetworks',
+      	            'http://stanbol.apache.org/ontologies/registries/stanbol_network/W3C',
       	            'http://stanbol.apache.org/ontologies/registries/stanbol_network/Alignments'		// ok
       	            ],
           coreont: [
                     'http://www.ontologydesignpatterns.org/cp/owl/sequence.owl',						// ok
-                    'http://ontologydesignpatterns.org/ont/iks/kres/omv.owl'
+                    'http://ontologydesignpatterns.org/ont/iks/kres/onm.owl'
                     ],
           foo: 'http://somefoo.com',
           activate: true
@@ -233,7 +234,7 @@ test("VIE.js StanbolConnector - OntoNet Session Manager", function() {
 
     var session = "testSession";
     var scope = "anotherScope";
-    var ont = "http://ontologydesignpatterns.org/ont/iks/kres/omv.owl";
+    var ont = "http://ontologydesignpatterns.org/ont/iks/kres/onm.owl";
 
     var z = new VIE();
     ok(z.StanbolService);

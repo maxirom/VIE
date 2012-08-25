@@ -540,7 +540,7 @@
 						// options)
 						// @author mere01
 						// retrieves the specified library from the
-						// ontonet/ endpoint, i.e. from the specific
+						// ontonet/{ontology|session} endpoint, i.e. from the specific
 						// scope or session it was appended to. 
 						// The options parameter must specify 'loc' to be either
 						// 'session' or 'scope' accordingly. 
@@ -645,8 +645,7 @@
 						// ### deleteScope(scopeID, success, errror, options)
 						// @author mere01
 						// deletes a complete scope from the ontonet/ontology
-						// endpoint. If
-						// scopeID is
+						// endpoint. If scopeID is
 						// specified to be null, then *all* scopes will be
 						// deleted.
 						// **Parameters**:
@@ -721,11 +720,9 @@
 						// ### ontoScopes(success, error, options)
 						// @author mere01
 						// This method returns an RDF document that lists all
-						// scopes that are
-						// currently
+						// scopes that are currently
 						// registered and/or (in)active ontology scopes of the
-						// ontonet/ontology/
-						// endpoint.
+						// ontonet/ontology/ endpoint.
 						// **Parameters**:
 						// *{function}* **success** The success callback.
 						// *{function}* **error** The error callback.
@@ -814,11 +811,9 @@
 						// ### createSession(success, error, sessionId)
 						// @author mere01
 						// creates a session on the ontonet/session/ endpoint.
-						// Optionally, a
-						// session id
+						// Optionally, a session id
 						// can be specified. If no id is specified //TODO, an id
-						// is created
-						// automatically.
+						// is created automatically.
 						// Already existing sessions cannot be overridden by
 						// this function (will
 						// result
@@ -1339,8 +1334,7 @@
 						// ### getSession(sessionID, success, error, options)
 						// @author mere01
 						// retrieves the specified session from the
-						// ontonet/session endpoint. The
-						// session must be existing.
+						// ontonet/session endpoint. The session must be existing.
 						// **Parameters**:
 						// *{string}* **sessionID** the name of the session
 						// *{function}* **success** The success callback.

@@ -139,6 +139,8 @@ test("VIE.js StanbolConnector - API", function() {
     equal(typeof stanbol.connector.findRecipe, "function");
 //    ok(stanbol.connector.getRule);
 //    equal(typeof stanbol.connector.getRule, "function");
+    ok(stanbol.connector.exportRecipe);
+    equal(typeof stanbol.connector.exportRecipe, "function");
     
     // cmsadapter
     ok(stanbol.connector.getReposSessionKey);

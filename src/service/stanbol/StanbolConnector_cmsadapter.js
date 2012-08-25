@@ -67,6 +67,8 @@
 			  u += "&password=" + passwd;
 			  u += "&connectionType=" + connectionType;
 			  
+			  
+			  
 			  if (options.workspaceName) {
 				 u += "&workspaceName=" + options.workspaceName;
 			  }
@@ -82,13 +84,16 @@
 	
 	_getReposSessionKey : function(url, args, success, error) {
 		jQuery.ajax( {
+			beforeSend: function(xhrObj) {
+				xhrObj.setRequestHeader("Accept", "text/plain");
+			},
 			success : success,
 			error : error,
-			url : url + "/" + args.id,
-			type : "GET",
-			accepts : {
-				"text/plain" : "text/plain"
-			}
+			url : url,
+			type : "GET"
+//			accepts : {
+//				text : "text/plain"
+//			}
 
 		});
 	}, // end of _getReposSessionKey
@@ -114,8 +119,7 @@
 		r.end();
 	}, // end of _getReposSessionKeyNode
 	
-	// ### mapRDFtoRepository(sessionKey, rdfURI, success, error,
-	// options)
+	// ### mapRDFtoRepository(sessionKey, success, error, options)
 	// @author mere01
 	// update of content repository based on external RDF data:
 	// in a first step, the given raw RDF data is annotated with standard terms 
@@ -125,60 +129,90 @@
 	// *{string}* **sessionKey** the session key that provides interaction with
 	//		the content repository. A session key can be obtained by calling 
 	// 		getReposSessionKey().
-	// *{string}* **rdfURI** the URI of the raw RDF data to be mapped to the
-	//		repository. Can be either a local RDF file or an URL pointing to 
-	//		external RDF data somewhere on the web.
 	// *{function}* **success** The success callback.
 	// *{function}* **error** The error callback.
-	// *{object}* **options** Options. Can specify parameter 'rdf' to be either
-	//		'url' (default) or 'local', according to whether **rdfURI** is the
-	//		URL to an external RDF file on the web, or the name of a local RDF 
-	//		file.
+	//
+	// *{object}* **options** Options. There are 3 possible ways of submitting
+	//		RDF data:
+	//		{rdfURL : '<rdfURL>'} to specify the URL of some remote RDF file
+	//		{rdfFile : '<rdfFile>'} to specify a local RDF file to be loaded
+	//			by the cmsadapter
 	// 		Optionally, in case that a local RDF file is specified, a parameter
 	//		'rdfFileInfo' can be specified to carry information about the
 	//		submitted RDF file.
+	//		{rdf : '<rdfString>'} to specify plain RDF data as a string, in the
+	//			'application/rdf+xml' format.
+	//		In case more than one of the three main options is specified, only
+	//		one of them will be considered. Priority is: rdf > rdfURL > rdfFile 
+	//
 	// **Throws**:
 	// *nothing*
 	// **Returns**:
 	// *{VIE.StanbolConnector}* : The VIE.StanbolConnector
 	// instance itself.
-	mapRDFtoRepository : function(sessionKey, rdfURI, success, error, options) {
+	mapRDFtoRepository : function(sessionKey, success, error, options) {
 		
+		// a local file:
 		// curl -i -X POST 
 		//   -F "rdfFile=@personsRDF.xml" 
 		//   "http://lnv-89012.dfki.uni-sb.de:9001/cmsadapter/map/rdf?sessionKey=5d934b53-dc33-4d9c-884f-c16c8ba872af"
 
+		// a remote file:
 		// curl -i -X POST 
 		//   -d "sessionKey=5d934b53-dc33-4d9c-884f-c16c8ba872af&url=http://www.w3.org/2001/sw/Europe/200303/geo/exampleGeo.rdf" 
 		//   http://lnv-89012.dfki.uni-sb.de:9001/cmsadapter/map/rdf
-
+		
+		// a string that contains the RDF data:
+		// curl -i -X POST
+		// -d "sessionKey=dfe9fe63-a6d1-4d39-85ec-4e558bd4d5d7&serializedGraph=<?xml...</rdf:RDF>"
+		// http://lnv-89012.dfki.uni-sb.de:9001/cmsadapter/map/rdf
+		
 		options = (options) ? options : false;
-		var rdf = "url";
-		var info = false;
-		if (options.rdf === "local") {
-			rdf = "local";
-			
-			if (options.rdfFileInfo) {
-				info = true;
-			}
+		
+		var rdfURL = (options.rdfURL) ? options.rdfURL : false;
+		var rdfFile = (options.rdfFile) ? options.rdfFile : false;
+		var rdf = (options.rdf) ? options.rdf : false;
+		
+		// must specify at least one of them
+		if (!rdfURL && !rdfFile && !rdf) {
+		
+			return "Must specify one of the options 'rdfURL', 'rdfFile', or 'rdf'.";
 		}
+		
+		if (rdfFile) {
+			
+			var info = (options.rdfFileInfo) ? options.rdfFileInfo : false;
+		}
+		
+		
 		
 		var connector = this;
 
 		var data = false;
+		var local = false;
 		
-		if (rdf === "url") {
+		if (rdf) {
+			
 			data = "sessionKey=" + sessionKey;
-			data += "&url=" + rdfURI;
+			data += "&serializedGraph=" + rdf;
+			
+		} else if (rdfURL){
+			
+			data = "sessionKey=" + sessionKey;
+			data += "&url=" + rdfURL;
+			
 			
 		} else {
 			
+			var local = true;
+			
 			data = new FormData();
-			data.append('rdfFile', rdfURI);
+			data.append('rdfFile', rdfFile);
 			
 			if (info) {
 				data.append('rdfFileInfo', info);
 			}
+
 		}
 
 		connector._iterate( {
@@ -194,14 +228,14 @@
 				u += this.options.cmsadapter.map.replace(/\/$/, '');
 				u += "/rdf";
 				
-				if (rdf === "local") {
+				if (local) {
 					u += "?sessionKey=" + sessionKey;
 				} 
 				
 				return u;
 			},
 			args : {
-				rdf : rdf,
+				local : local,
 				data : data
 			},
 			urlIndex : 0
@@ -211,7 +245,7 @@
 
 	_mapRDFtoRepository : function(url, args, success, error) {
 
-		if (args.rdf === 'local') {
+		if (args.local) {
 		$.ajax( {
 			success : success,
 			error : error,
