@@ -414,11 +414,11 @@
 				success : success,
 				error : error,
 //				complete : complete,
-				url : url + "?" + args.termType + "=" + args.term,
+				url : url + "?" + args.termType + "=" + args.term
 //				type : "GET",
-				accepts : {
-					"application/rdf+xml" : "application/rdf+xml"
-				}
+//				accepts : {
+//					"application/rdf+xml" : "application/rdf+xml"
+//				}
 
 			});
 		}, // end of _findRule
@@ -508,6 +508,9 @@
 
 				_findRule : function(url, args, success, error) {
 					jQuery.ajax( {
+						beforeSend: function(xhrObj) {
+							xhrObj.setRequestHeader("Accept", "application/rdf+xml");
+						},
 						success : success,
 						error : error,
 //						complete : complete,
@@ -544,10 +547,8 @@
 				// ### findRecipe(success, error, options)
 				// @author mere01
 				// retrieves a rule from the /rules/find/ endpoint. The retrieval
-				// can be done using either the name or some description of
-				// the rule. These can be specified in the options parameter
-				// as 'name' or 'description'. In the default case, i.e., if no
-				// options are specified, // TODO
+				// can be done using the some description of the recipe. This 
+				// description must have been specified at creation of the recipe. 
 				// **Parameters**:
 				// *{function}* **success** The success callback.
 				// *{function}* **error** The error callback.
@@ -598,14 +599,17 @@
 
 				_findRecipe : function(url, args, success, error) {
 					jQuery.ajax( {
+						beforeSend: function(xhrObj) {
+							xhrObj.setRequestHeader("Accept", "application/rdf+xml");
+						},
 						success : success,
 						error : error,
 //						complete : complete,
-						url : url,
-						type : "GET",
-						accepts : {
-							"text/turtle" : "text/turtle"
-						}
+						url : url
+//						type : "GET",
+//						accepts : {
+//							"text/turtle" : "text/turtle"
+//						}
 
 					});
 				}, // end of _findRecipe
@@ -823,7 +827,89 @@
 				}
 			});
 			r.end();
-		} // end of _refactorNode
+		}, // end of _refactorNode
+
+		
+		// ### exportRecipe(recipe, format, success, error, options)
+		// @author mere01
+		// exports the specified recipe to the specified format. The recipe must
+		// be existing on rules/recipe/.
+		// **Parameters**:
+		// *{string}* **recipe** the URI of the recipe to be exported
+		// *{format}* **format** the format into which the **recipe** will be
+		//		exported. Can be one of
+		//		* com.hp.hpl.jena.reasoner.rulesys.Rule
+		//		* org.apache.clerezza.rdf.core.sparql.query.ConstructQuery
+		//		* org.apache.stanbol.rules.base.api.SPARQLObject
+		//		* org.semanticweb.owlapi.model.SWRLRule
+		// *{function}* **success** The success callback.
+		// *{function}* **error** The error callback.
+		// *{object}* **options** Options (not specified here)
+		// **Throws**:
+		// *nothing*
+		// **Returns**:
+		// *{VIE.StanbolConnector}* : The VIE.StanbolConnector
+		// instance itself.
+		
+		exportRecipe : function(recipe, format, success, error, options) {
+
+			options = (options) ? options : {};
+			var connector = this;
+		//  curl -i -X GET 
+		//    http://lnv-89012.dfki.uni-sb.de:9001/rules/adapters/http://www.dfki.de/mere01/recipe/r1?format=com.hp.hpl.jena.reasoner.rulesys.Rule
+			connector._iterate( {
+				method : connector._exportRecipe,
+				methodNode : connector._exportRecipeNode,
+				success : success,
+				error : error,
+//				complete : complete,
+				url : function(idx, opts) {
+
+//					var u = this.options.url[idx].replace(/\/$/, '');
+//					u += this.options.rules.urlPostfix.replace(/\/$/, '');
+//					u += this.options.rules.adapters.replace(/\/$/, '');
+//					u += recipe.replace(/\/$/, '');
+//					u += "?format=" + format;
+//
+//					return u;
+				return "http://lnv-89012.dfki.uni-sb.de:9001/rules/adapters/" + recipe.replace(/\/$/, '') + "?format=" + format;
+			},
+			args : {
+				options : options
+			},
+			urlIndex : 0
+			});
+		}, // end of exportRecipe
+
+		_exportRecipe : function(url, args, success, error) {
+			jQuery.ajax( {
+				success : success,
+				error : error,
+//				complete : complete,
+				url : url,
+				type : "GET"
+
+			});
+		}, // end of _exportRecipe
+
+		_exportRecipeNode : function(url, args, success, error) {
+			var request = require('request');
+			var r = request( {
+				method : "GET",
+				uri : url
+				
+			}, function(err, response, body) {
+				try {
+					success( {
+						results : JSON.parse(body)
+					});
+				} catch (e) {
+					error(e);
+				}
+			});
+			r.end();
+		} // end of _exportRecipeNode
+		
 		
 	});
 

@@ -26,6 +26,7 @@ test(
         .execute()
         .done(function(entities) {
 
+          console.log(entities[0])
           ok(entities);
           ok(entities instanceof Array);
           ok(entities.length > 0, "At least one entity returned");

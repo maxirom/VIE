@@ -102,7 +102,7 @@
 		// ### getTextContentByID(id, success, error, options)
 		// @author mere01
 		// This method queries the Apache Stanbol contenthub for the text
-		// content of a specific entity.
+		// content of a specific content item.
 		// **Parameters**:
 		// *{string}* **id** The id of the content item to be retrieved.
 		// *{function}* **success** The success callback.
@@ -195,7 +195,7 @@
 		// ### getMetadataByID(id, success, error, options)
 		// @author mere01
 		// This method queries the Apache Stanbol contenthub for the metadata,
-		// i.e. enhancements of a specific entity. The result is an RDF graph.
+		// i.e. enhancements of a specific content item. The result is an RDF graph.
 		// **Parameters**:
 		// *{string}* **id** The id of the content item to be retrieved.
 		// *{function}* **success** The success callback.
@@ -292,9 +292,6 @@
 		// @author mere01
 		// This method creates a new index on the contenthub, using the
 		// specified ldpath program.
-		// To remove the index again, go to http://<stanbol>/contenthub/ldpath
-		// and click "Delete this
-		// program" next to your LD Path Program.
 		// **Parameters**:
 		// *{object}* **ldpath** The specification of the new index in
 		// ldpath Syntax. This requires an object that holds two keys, 'name' 

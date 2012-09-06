@@ -59,7 +59,8 @@ VIE.prototype.StanbolConnector = function (options) {
             urlPostfix : "/rules",
             recipe : "/recipe",
             findRule : "/find/rules",
-            findRecipe : "/find/recipes"
+            findRecipe : "/find/recipes",
+            adapters : "/adapters"
         },
         cmsadapter : {
             urlPostfix : "/cmsadapter",
