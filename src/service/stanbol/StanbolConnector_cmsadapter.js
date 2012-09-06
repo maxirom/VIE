@@ -296,8 +296,7 @@
 	}, // end of _mapRDFtoRepositoryNode
 
 	
-	// ### mapRepositoryToRDF(sessionKey, baseURI, success, error,
-	// options)
+	// ### mapRepositoryToRDF(sessionKey, baseURI, success, error, options)
 	// @author mere01
 	// maps a content repository to RDF.
 	// **Parameters**:
@@ -444,11 +443,10 @@
 	// *{VIE.StanbolConnector}* : The VIE.StanbolConnector
 	// instance itself.
 	submitRepositoryItem : function(sessionKey, success, error, options) {
-		// TODO curl command is not correct yet
-		
+				
 		// curl -i -X POST 
-		// 	--data "sessionKey=5d934b53-dc33-4d9c-884f-c16c8ba872af&path=/contenthubfeedtest&recursive=true" 
-		//	http://lnv-89012.dfki.uni-sb.de:9001/cmsadapter/contenthubfeed
+		//   --data "sessionKey=eeae036f-2e22-4a8e-8f1d-860a246f1750&path=/test&recursive=yes" 
+		//   http://lnv-89012.dfki.uni-sb.de:9001/cmsadapter/contenthubfeed
 
 
 		
@@ -459,6 +457,7 @@
 		}
 		
 		var params = {};
+		params.sessionKey = sessionKey;
 		
 		var id = (options.id) ? options.id : false;
 			
@@ -488,10 +487,12 @@
 				params.contentProperties = contentProperties;
 			}
 		
+		console.log("the params object is:")
+		console.log(params)
 		
 		var connector = this;
 
-		var data = false;
+		var data = "";
 		
 		for (var key in params) {
 			data += key + "=" + params[key] + "&";
@@ -540,11 +541,11 @@
 			method : "POST",
 			data : args.data,
 			uri : url,
-			body : args.content,
-			headers : {
-				Accept : "application/rdf+xml",
-				"Content-Type" : "text/plain"
-			}
+			body : args.content
+//			headers : {
+//				Accept : "application/rdf+xml",
+//				"Content-Type" : "text/plain"
+//			}
 		}, function(err, response, body) {
 			try {
 				success( {
@@ -691,7 +692,7 @@
 			}
 		});
 		r.end();
-	}	// end of deleteRepositoryItemNode
+	}	// end of _deleteRepositoryItemNode
 	
 	
 	});
