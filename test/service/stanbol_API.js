@@ -145,7 +145,11 @@ test("VIE.js StanbolConnector - API", function() {
     equal(typeof stanbol.connector.getReposSessionKey, "function");
     ok(stanbol.connector.mapRDFtoRepository);
     equal(typeof stanbol.connector.mapRDFtoRepository, "function");
-    ok(stanbol.connector.mapRepositoryToRDF);
-    equal(typeof stanbol.connector.mapRepositoryToRDF, "function");
+//    ok(stanbol.connector.mapRepositoryToRDF);
+//    equal(typeof stanbol.connector.mapRepositoryToRDF, "function");
+    ok(stanbol.connector.submitRepositoryItem);
+    equal(typeof stanbol.connector.submitRepositoryItem, "function");
+//    ok(stanbol.connector.deleteRepositoryItem);
+//    equal(typeof stanbol.connector.deleteRepositoryItem, "function");
 
 });

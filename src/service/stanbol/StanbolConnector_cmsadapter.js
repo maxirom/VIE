@@ -319,59 +319,59 @@
 	// **Returns**:
 	// *{VIE.StanbolConnector}* : The VIE.StanbolConnector
 	// instance itself.
-	mapRepositoryToRDF : function(sessionKey, baseURI, success, error, options) {
+//	mapRepositoryToRDF : function(sessionKey, baseURI, success, error, options) {
 		// TODO curl command is not correct yet
 		
 		// curl -i -X POST 
 		//	-d "sessionKey=eec8ff46-aaf9-485f-a7b5-452c1d7197d0&baseURI=http://www.apache.org/stanbol/cms&store=true" 
 		//	http://lnv-89012.dfki.uni-sb.de:9001/cmsadapter/map/cms
 
-		options = (options) ? options : false;
-		
-		if (options) {
-			var store = (options.store) ? options.store : false;
-			if (store) {
-				var update = (options.update) ? options.update : true;
-			}
-		}
-		
-		
-		var connector = this;
-
-		var data = false;
-		
-		data = "sessionKey=" + sessionKey;
-		data += "&baseURI=" + baseURI;
-		
-		if (store) {
-			u += "&store=" + store;
-			if (update) {
-				u += "&update=" + update;
-			}
-		}
-
-		connector._iterate( {
-			method : connector._mapRepositoryToRDF,
-			methodNode : connector._mapRepositoryToRDFNode,
-			success : success,
-			error : error,
-			url : function(idx, opts) {
-				var u = this.options.url[idx].replace(
-						/\/$/, '');
-				u += this.options.cmsadapter.urlPostfix
-						.replace(/\/$/, '');
-				u += this.options.cmsadapter.map.replace(/\/$/, '');
-				u += "/cms";
-				
-				return u;
-			},
-			args : {
-				data : data
-			},
-			urlIndex : 0
-		});
-
-	}, // end of mapRepositoryToRDF
+//		options = (options) ? options : false;
+//		
+//		if (options) {
+//			var store = (options.store) ? options.store : false;
+//			if (store) {
+//				var update = (options.update) ? options.update : true;
+//			}
+//		}
+//		
+//		
+//		var connector = this;
+//
+//		var data = false;
+//		
+//		data = "sessionKey=" + sessionKey;
+//		data += "&baseURI=" + baseURI;
+//		
+//		if (store) {
+//			u += "&store=" + store;
+//			if (update) {
+//				u += "&update=" + update;
+//			}
+//		}
+//
+//		connector._iterate( {
+//			method : connector._mapRepositoryToRDF,
+//			methodNode : connector._mapRepositoryToRDFNode,
+//			success : success,
+//			error : error,
+//			url : function(idx, opts) {
+//				var u = this.options.url[idx].replace(
+//						/\/$/, '');
+//				u += this.options.cmsadapter.urlPostfix
+//						.replace(/\/$/, '');
+//				u += this.options.cmsadapter.map.replace(/\/$/, '');
+//				u += "/cms";
+//				
+//				return u;
+//			},
+//			args : {
+//				data : data
+//			},
+//			urlIndex : 0
+//		});
+//
+//	}, // end of mapRepositoryToRDF
 
 	_mapRepositoryToRDF : function(url, args, success, error) {
 	
@@ -585,7 +585,7 @@
 	// **Returns**:
 	// *{VIE.StanbolConnector}* : The VIE.StanbolConnector
 	// instance itself.
-	deleteRepositoryItem : function(sessionKey, success, error, options) {
+//	deleteRepositoryItem : function(sessionKey, success, error, options) {
 		// TODO curl command is not correct yet
 		
 		// curl -i -X DELETE 
@@ -594,69 +594,69 @@
 
 
 		
-		options = (options) ? options : false;
-		
-		if (! options) {
-			return "Must specify at least a session key and one of path or id of the repository.";
-		}
-		
-		var params = {};
-		
-		var id = (options.id) ? options.id : false;
-			
-		var path = (options.path) ? options.path : false;
-			
-		if (id && path) {
-			params.id = id;
-		} else if (id) {
-			params.id = id;
-		} else if(path) {
-			params.path = path;	
-			}
-		
-		if (path) {
-			var recursive = (options.recursive) ? options.recursive : false;
-			if (recursive) {
-				params.recursive = recursive;
-			}
-		}
-		
-		var indexName = options.indexName;
-			if (indexName) {
-				params.indexName = indexName;
-			}
-		
-		
-		var connector = this;
-
-		var data = false;
-		
-		for (var key in params) {
-			data += key + "=" + params[key] + "&";
-		}
-		
-
-		connector._iterate( {
-			method : connector._deleteRepositoryItem,
-			methodNode : connector._deleteRepositoryItemNode,
-			success : success,
-			error : error,
-			url : function(idx, opts) {
-				var u = this.options.url[idx].replace(
-						/\/$/, '');
-				u += this.options.cmsadapter.urlPostfix
-						.replace(/\/$/, '');
-				u += this.options.cmsadapter.contenthubfeed.replace(/\/$/, '');
-				
-				return u;
-			},
-			args : {
-				data : data
-			},
-			urlIndex : 0
-		});
-
-	}, // end of deleteRepositoryItem
+//		options = (options) ? options : false;
+//		
+//		if (! options) {
+//			return "Must specify at least a session key and one of path or id of the repository.";
+//		}
+//		
+//		var params = {};
+//		
+//		var id = (options.id) ? options.id : false;
+//			
+//		var path = (options.path) ? options.path : false;
+//			
+//		if (id && path) {
+//			params.id = id;
+//		} else if (id) {
+//			params.id = id;
+//		} else if(path) {
+//			params.path = path;	
+//			}
+//		
+//		if (path) {
+//			var recursive = (options.recursive) ? options.recursive : false;
+//			if (recursive) {
+//				params.recursive = recursive;
+//			}
+//		}
+//		
+//		var indexName = options.indexName;
+//			if (indexName) {
+//				params.indexName = indexName;
+//			}
+//		
+//		
+//		var connector = this;
+//
+//		var data = false;
+//		
+//		for (var key in params) {
+//			data += key + "=" + params[key] + "&";
+//		}
+//		
+//
+//		connector._iterate( {
+//			method : connector._deleteRepositoryItem,
+//			methodNode : connector._deleteRepositoryItemNode,
+//			success : success,
+//			error : error,
+//			url : function(idx, opts) {
+//				var u = this.options.url[idx].replace(
+//						/\/$/, '');
+//				u += this.options.cmsadapter.urlPostfix
+//						.replace(/\/$/, '');
+//				u += this.options.cmsadapter.contenthubfeed.replace(/\/$/, '');
+//				
+//				return u;
+//			},
+//			args : {
+//				data : data
+//			},
+//			urlIndex : 0
+//		});
+//
+//	}, // end of deleteRepositoryItem
 
 	_deleteRepositoryItem : function(url, args, success, error) {
 	
