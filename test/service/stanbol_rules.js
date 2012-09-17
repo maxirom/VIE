@@ -2,6 +2,8 @@ var stanbolRootUrl = (window.STANBOL_URLS) ? window.STANBOL_URLS : [
 "http://dev.iks-project.eu:8081",
 "http://dev.iks-project.eu/stanbolfull" ];
 
+
+
 //### test for the /rules endpoint, the component that "supports the 
 // construction and execution of inference rules. An inference rule, or 
 // transformation rule, is a syntactic rule or function which takes premises and
@@ -49,7 +51,7 @@ test("VIE.js StanbolConnector - Rules Manager", function() {
 //    	console.log("01. could not create recipe: " + recipe);
 //    	start();
 //    }, {
-//  	description : 'Melanie'  
+//  	description : 'Melanie'
 //		});
     
 
@@ -157,6 +159,102 @@ test("VIE.js StanbolConnector - Rules Manager", function() {
 	// independent testing of /refactor/apply
 	// first create a recipe
 	// then use it to refactor our graph
-    
+
+	
     
 });		// end of test for Rules Manager
+
+//### test for the /rules/adapters service, the component that allows for 
+//exporting of recipes to other formats.
+//
+//@author mere01
+test("VIE.js StanbolConnector - Rules Manager - rules/adapters", 3, function() {
+//test the rules/adapters service to convert recipes into another format
+
+var z = new VIE();
+ok(z.StanbolService);
+equal(typeof z.StanbolService, "function");
+var stanbol = new z.StanbolService({
+    url: stanbolRootUrl[0]
+});
+z.use(stanbol);
+
+stop();
+recipe = "http://www.dfki.de/mere01/recipe/r1";
+format = "org.semanticweb.owlapi.model.SWRLRule";
+//  curl -i -X GET 
+//    http://lnv-89012.dfki.uni-sb.de:9001/rules/adapters/http://www.dfki.de/mere01/recipe/r1?format=com.hp.hpl.jena.reasoner.rulesys.Rule
+stanbol.connector.exportRecipe(recipe, format, function(success){
+	
+	ok(true, "Exported recipe to format " + format);
+	console.log("Exported recipe " + recipe + " to format " + format);
+	console.log(success);
+	console.log(success.result)
+	start();
+}, function(error) { 
+
+	ok(false, "Could not export recipe to format " + format);
+	console.log("Could not export recipe " + recipe + " to format " + format);
+	console.log(error);
+	start();
+});
+
+
+
+}); // end of test for Rules Manager - rules/adapters
+
+//### test for the /rules/find service, the component that allows to find rules
+//	and recipes by names and descriptions
+//
+//@author mere01
+test("VIE.js StanbolConnector - Rules Manager - rules/find", function() {
+//test the rules/adapters service to convert recipes into another format
+
+var z = new VIE();
+ok(z.StanbolService);
+equal(typeof z.StanbolService, "function");
+var stanbol = new z.StanbolService({
+  url: stanbolRootUrl[0]
+});
+z.use(stanbol);
+
+var recipe = "http://www.dfki.de/mere01/recipe/r1"; 
+var ruleName = "has_transitive";
+stop();
+// search for this rule on the rules endpoint
+	stanbol.connector.findRule(function(success){
+		
+		ok(true, "04. Got rule " + ruleName + " from rules endpoint");
+		console.log("04. Got rule " + ruleName + " from rules endpoint")
+		console.log(success);
+		
+	}, function(error){
+		
+		ok(false, "04. Could not get rule " + ruleName + " from rules endpoint");
+		console.log("04. Could not get rule " + ruleName + " from rules endpoint")
+		
+	}, {
+		name : ruleName,
+		description : 'transitivity'
+	});
+
+
+
+	// get this recipe by searching through recipe descriptions
+	stanbol.connector.findRecipe("Melanie", function(success) {
+		
+		ok(true, "05. Found recipe " + recipe + " by description 'Melanie'");
+		console.log("05. Found recipe " + recipe + " by description 'Melanie'")
+		console.log(success)
+		start();
+		
+	}, function(error){
+		
+		ok(false, "05. Could not find recipe " + recipe + " by description 'Melanie'");
+		console.log("05. Could not find recipe " + recipe + " by description 'Melanie'")
+		start();
+	});
+
+
+
+}); // end of test for the Rules Manager - rules/find

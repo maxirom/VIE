@@ -15,7 +15,8 @@
     jQuery.extend(true, VIE.prototype.StanbolConnector.prototype, {
         
 		// ### find(term, limit, offset, success, error, options)
-		// This method finds entities given the term from the entity hub and returns the result by the success callback.  
+		// This method finds entities given the term from the entity hub and 
+    	// returns the result by the success callback.  
 		// **Parameters**:  
 		// *{string}* **term** The term to be searched for. 
 		// *{int}* **limit** The limit of results to be returned. 
@@ -60,8 +61,9 @@
 
 					var u = this.options.url[idx].replace(/\/$/, '') + this.options.entityhub.urlPostfix;
 					if (isLocal) {
-						u += "/sites/find";
+						u += "/find";
 					} else {
+//						u += "/sites/find";						
 						u += "/site" + site + "/find";
 					}
 
@@ -376,8 +378,10 @@
                 error : error,
                 url : function (idx, opts) {
                     var site = (opts.site)? opts.site : this.options.entityhub.site;
+                    console.log("site is " + site)
                     site = (site)? "/" + site : "s";
-
+                    console.log("site is now " + site)
+                    
                     var isLocal = opts.local;
 
                     var u = this.options.url[idx].replace(/\/$/, '') + this.options.entityhub.urlPostfix;

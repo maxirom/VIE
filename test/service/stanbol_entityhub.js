@@ -95,6 +95,7 @@ test(
            .done(
              function(entities) {
                 ok(entities);
+                console.log(entities);
                 ok(entities.length > 0);
                 ok(entities instanceof Array);
                 var allEntities = true;
@@ -779,8 +780,8 @@ test("VIE.js StanbolConnector - entityhub/mapping", function() {
         return;
     }
 
-    // we can look for an entity's mapping
-  var entity = "http://dbpedia.org/resource/Paris";
+    	// we can look for an entity's mapping
+    	var entity = "http://dbpedia.org/resource/Paris";
         // or for the mapping itself by its ID
         var mapping = ""; // e.g.
         // "urn:org.apache.stanbol:entityhub:mapping.996b1d77-674d-bf3d-f426-f496c87b5ea7";
@@ -838,367 +839,207 @@ test("VIE.js StanbolConnector - entityhub/mapping", function() {
                             start();
 
                             /** * */
-                            console
-                           .log("testing 'there' in order to do the rest")
-                           if (there) {
-                            console
-                            .log("in if test of 'there' for the rest")
+                            console.log("'there' is true: " + there)
+                           
+                            // execute the following tests only if we have
+                            // an entity Paris on the local entityhub
+                            console.log("do request for mapping of " + entity)
                             stop();
-                                // execute the following tests only if we have
-                                // an entity Paris on
-                                // the local entityhub
-                                console.log("starting to do the rest")
-                                console.log("do request for mapping of "
-                                  + entity)
-                                stanbol.connector
-                              .getMapping(
-                                entity,
+                            stanbol.connector.getMapping(entity,
                                 function(success) {
-                                   ok(true,
-                                     "retrieved Mapping for entity "
-                                     + entity);
-                                   console
-                                   .log("retrieved Mapping for entity "
-                                       + entity);
+                                   ok(true, "retrieved Mapping for entity " + entity);
+                                   console.log("retrieved Mapping for entity " + entity);
                                    console.log(success);
                                    start();
 
                                },
                                function(err) {
-                                   ok(false,
-                                     "couldn't retrieve mapping for entity"
-                                     + entity);
-                                   console
-                                   .log("couldn't retrieve mapping for entity"
-                                       + entity);
+                                   ok(false, "couldn't retrieve mapping for entity" + entity);
+                                   console.log("couldn't retrieve mapping for entity" + entity);
                                    console.log(err);
                                    start();
                                }, {
                                    entity : true
                                });
 
-stop();
-console.log("do request for symbol " + symbol);
-stanbol.connector
-.getMapping(symbol, function(success) {
- ok(true,
-   "retrieved mapping for symbol "
-   + symbol);
- console.log(success);
-                                            // retrieve the mapping's id
-                                                // from the symbol's mapping
-                                                mapping = success['results'][0]['id'];
-                                                start();
-
-                                                stop();
-                                                console
-                                              .log("do request for mapping "
-                                                + mapping)
-                                              stanbol.connector
-                                              .getMapping(
-                                                mapping,
-                                                function(
-                                                  success) {
-                                                   ok(true,
-                                                     "retrieved mapping by ID.");
-                                                   console
-                                                   .log(success);
-                                                   start();
-
-                                               },
-                                               function(err) {
-                                                   ok(false,
-                                                     "couldn't retrieve mapping by ID");
-                                                   console
-                                                   .log(err);
-                                                   start();
-                                               }, {});
-
-}, function(err) {
-    ok(false,
-      "couldn't retrieve mapping for symbol "
-      + symbol);
-    console.log(err);
-    start();
-}, {
-    symbol : true
-});
-
-if (del) {
-   console.log("in case 'del'")
-   stop();
-   stanbol.connector
-   .deleteEntity(
-       symbol,
-       function(success) {
-          console
-          .log("deleted entity "
-              + entity
-              + " from the local entityhub")
-          ok(
-            true,
-            "deleted entity "
-            + entity
-            + " from the local entityhub");
+		stop();
+		console.log("do request for symbol " + symbol);
+		stanbol.connector.getMapping(symbol, function(success) {
+		  ok(true, "retrieved mapping for symbol " + symbol);
+		  console.log(success);
+          // retrieve the mapping's id from the symbol's mapping
+          mapping = success['results'][0]['id'];
           start();
-      },
-      function(err) {
-          console
-          .log("could not delete entity "
-              + entity
-              + " from the local entityhub")
-          ok(
-            false,
-            "could not delete entity "
-            + entity
-            + " from the local entityhub");
-          start();
-      }, {});
-}
 
-}
-/** * */
+          stop();
+          console.log("do request for mapping " + mapping)
+          stanbol.connector.getMapping(mapping,
+            function(success) {
+               ok(true, "retrieved mapping by ID.");
+               console.log(success);
+               start();
+         	},
+            function(err) {
+            ok(false, "couldn't retrieve mapping by ID");
+            console.log(err);
+            start();
+            }, 
+            {});
 
-},
-function(err) {
- ok(
-   true,
-   "Could not look up entity "
-   + entity
-   + ". This entity apparently is not stored on the local entityhub. I will temporarily create this entity until tests are completed.");
- console.log("Could not look up entity " + entity)
- start();
+		}, function(err) {
+		    ok(false,
+		      "couldn't retrieve mapping for symbol "
+		      + symbol);
+		    console.log(err);
+		    start();
+		}, {
+		    symbol : true
+		});
 
-                            // if the entity is not already there -> create it
-                            // temporarily
-                            if (!there) {
-                                console.log("in case '!there'")
-                                stop();
-                                stanbol.connector
-                              .lookup(
-                                entity,
-                                function(succ) {
-                                                    // so the entity got
-                                                    // referenced locally
-                                                    there = true;
-                                                    ok(true,
-                                                     "newly referenced entity "
-                                                     + entity);
-                                                    console
-                                                 .log("newly referenced entity "
-                                                   + entity)
-                                                 console
-                                                 .log("set 'there' to "
-                                                   + there)
-                                                 console
-                                                 .log("picking from lookup:");
-                                                 var counter = 0;
-                                                    // get the symbol for this
-                                                    // entity
-                                                    for ( var key in succ) {
-                                                        counter += 1;
-                                                        console.log(key);
-                                                        console.log(succ[key]);
-                                                        // pick the urn, but not
-                                                        // the .meta info
-                                                        var suffix = ".meta";
-                                                        if (key
-                                                            .indexOf(
-                                                              suffix,
-                                                              key.length
-                                                              - suffix.length) === -1) {
-                                                            symbol = key;
-                                                  }
-                                              }
+	if (del) {
+	   console.log("wrong in case 'del' = " + del + " while 'there' is = " + there)
+		}
 
-                                              start();
 
-                                              /** * */
-                                              console
-                                              .log("testing 'there' in order to do the rest")
-                                              if (there) {
-                                                  console
-                                                  .log("in if test of 'there' for the rest")
-                                                  stop();
-                                                        // execute the following
-                                                        // tests only if we have
-                                                        // an entity Paris on
-                                                        // the local entityhub
-                                                        console
-                                                        .log("starting to do the rest")
-                                                        console
-                                                        .log("do request for mapping of "
-                                                          + entity)
-                                                        stanbol.connector
-                                                        .getMapping(
-                                                          entity,
-                                                          function(
-                                                            success) {
-                                                             ok(
-                                                               true,
-                                                               "retrieved Mapping for entity "
-                                                               + entity);
-                                                             console
-                                                             .log("retrieved Mapping for entity "
-                                                                 + entity);
-                                                             console
-                                                             .log(success);
-                                                             start();
+  /** * */
 
-                                                         },
-                                                         function(
-                                                            err) {
-                                                             ok(
-                                                               false,
-                                                               "couldn't retrieve mapping for entity"
-                                                               + entity);
-                                                             console
-                                                             .log("couldn't retrieve mapping for entity"
-                                                                 + entity);
-                                                             console
-                                                             .log(err);
-                                                             start();
-                                                         },
-                                                         {
-                                                             entity : true
-                                                         });
+  },
+  function(err) {
+	  // so the entity is not referenced on the entityhub
+	  ok(true, "Could not look up entity " + entity
+			  + ". This entity apparently is not stored on the local entityhub. I will temporarily create this entity until tests are completed.");
+	  console.log("Could not look up entity " + entity)
+	  start();
 
-stop();
-console
-.log("do request for symbol "
-  + symbol);
-stanbol.connector
-.getMapping(
-  symbol,
-  function(
-    success) {
-     ok(
-       true,
-       "retrieved mapping for symbol "
-       + symbol);
-     console
-     .log("retrieved symbol:")
-     console
-     .log(success);
-                                                                            // retrieve
-                                                                            // the
-                                                                            // mapping's
-                                                                            // id
-                                                                            // from
-                                                                            // the
-                                                                            // symbol's
-                                                                            // mapping
-                                                                            mapping = success['results'][0]['id'];
-                                                                            start();
+      // if the entity is not already there -> create it temporarily
+      console.log("in case '!there' : there =" + there)
+      stop();
+      stanbol.connector.lookup(entity,
+         function(succ) {
+                 // so the entity got referenced locally
+                 there = true;
+                 ok(true, "newly referenced entity " + entity);
+                 console.log("newly referenced entity " + entity)
+                 console.log("set 'there' to " + there)
+                 console.log("picking from lookup:");
+                 var counter = 0;
+                 // get the symbol for this entity
+                 for ( var key in succ) {
+                     counter += 1;
+                     console.log(key);
+                     console.log(succ[key]);
+                     // pick the urn, but not the .meta info
+                     var suffix = ".meta";
+                     if (key.indexOf(suffix, key.length - suffix.length) === -1) {
+                          symbol = key;
+                     }
+                 }
 
-                                                                            stop();
-                                                                            console
-                                                                           .log("do request for mapping "
-                                                                             + mapping)
-                                                                           stanbol.connector
-                                                                           .getMapping(
-                                                                             mapping,
-                                                                             function(
-                                                                               success) {
-                                                                                ok(
-                                                                                  true,
-                                                                                  "retrieved mapping by ID.");
-                                                                                console
-                                                                                .log(success);
-                                                                                start();
+                
 
-                                                                            },
-                                                                            function(
-                                                                               err) {
-                                                                                ok(
-                                                                                  false,
-                                                                                  "couldn't retrieve mapping by ID");
-                                                                                console
-                                                                                .log(err);
-                                                                                start();
-                                                                            },
-                                                                            {});
+                 /** * */
+                 
+                    // execute the following tests only if we have an entity Paris on the local entityhub
+                    console.log("starting to do the rest")
+                    console.log("do request for mapping of " + entity)
+                    stanbol.connector.getMapping(entity, function(success) {
+                        ok(true, "retrieved Mapping for entity " + entity);
+                        console.log("retrieved Mapping for entity " + entity);
+                        console.log(success);
+                        start();
 
-},
-function(
-    err) {
- ok(
-   false,
-   "couldn't retrieve mapping for symbol "
-   + symbol);
- console
- .log(err);
- start();
-},
-{
- symbol : true
-});
+                    	},
+                    	function(err) {
+                             ok(false, "couldn't retrieve mapping for entity" + entity);
+                             console.log("couldn't retrieve mapping for entity" + entity);
+                             console.log(err);
+                             start();
+                       },
+                       {
+                             entity : true
+                        });
 
-if (del) {
- console
- .log("in case 'del'")
- stop();
- stanbol.connector
- .deleteEntity(
-     symbol,
-     function(
-       success) {
-        console
-        .log("deleted entity "
-            + entity
-            + " from the local entityhub")
-        ok(
-          true,
-          "deleted entity "
-          + entity
-          + " from the local entityhub");
-        start();
+    stop();
+    console.log("do request for symbol " + symbol);
+	stanbol.connector.getMapping(symbol,
+	  function(success) {
+	     ok(true,"retrieved mapping for symbol " + symbol);
+	     console.log("retrieved symbol:")
+	     console.log(success);
+	        // retrieve the mapping's id from the symbol's mapping
+	        mapping = success['results'][0]['id'];
+	        start();
+	
+	        stop();
+	        console.log("do request for mapping " + mapping)
+	        stanbol.connector.getMapping(mapping,
+	          function(success) {
+	              ok(true,"retrieved mapping by ID.");
+	              console.log(success);
+	              start();
+	              
+	              
+	 			 console.log("in case 'del'")
+				 stop();
+				 stanbol.connector.deleteEntity(symbol,
+				     function(success) {
+				        console.log("deleted entity " + entity + " from the local entityhub")
+				        ok(true, "deleted entity " + entity + " from the local entityhub");
+				        start();
+				    },
+				    function(err) {
+				        console.log("could not delete entity " + entity + " from the local entityhub")
+				        ok(false, "could not delete entity " + entity + " from the local entityhub");
+				        start();
+				    },
+				    {});
+				 
+	
+	           },
+	           function(err) {
+	             ok(false, "couldn't retrieve mapping by ID");
+	             console.log(err);
+	             start();
+	            },
+	          {});
+	
+			},
+			function(err) {
+			 ok(false, "couldn't retrieve mapping for symbol " + symbol);
+			 console.log(err);
+			 start();
+			},
+			{
+			 symbol : true
+			});
+
+			
+
+
+	/** * */
+
     },
-    function(
-       err) {
-        console
-        .log("could not delete entity "
-            + entity
-            + " from the local entityhub")
-        ok(
-          false,
-          "could not delete entity "
-          + entity
-          + " from the local entityhub");
-        start();
-    },
-    {});
-}
+    function(err) {
+    	ok(false, "failed to reference entity " + entity);
+    	console.log("failed to reference entity " + entity);
 
-}
-/** * */
+    	start();
 
-},
-function(err) {
-   ok(false,
-     "failed to reference entity "
-     + entity);
-   console
-   .log("failed to reference entity "
-       + entity);
+    }, {
+    	'create' : true
+    });
 
-   start();
 
-}, {
-   'create' : true
-});
-}
+ },
 
-},
-
-{
- 'create' : false
+ {
+  'create' : false
                         // do NOT create new references/mappings
-                  });
+ });
 });
 
 test(
-  "VIE.js StanbolService - Query (non-local)",
+  "VIE.js StanbolService - Query (non-local)", 6,
   function() {
      if (navigator.userAgent === 'Zombie') {
         return;
@@ -1310,7 +1151,7 @@ stop();
 
 
 test(
-  "VIE.js StanbolService - Query (local)",
+  "VIE.js StanbolService - Query (local)", 8,
   function() {
      if (navigator.userAgent === 'Zombie') {
         return;
@@ -1318,11 +1159,12 @@ test(
     var query = {};
 
     var z = new VIE();
-    z.use(new z.StanbolService( {
+    var stanbol = new z.StanbolService( {
 
         url : stanbolRootUrl[0]
 
-    }));
+    });
+    z.use(stanbol);
     stop();
     z
     .query( {
@@ -1334,13 +1176,13 @@ test(
     .done(
      function(entities) {
         ok(false,
-          "This should not return successfully if query was wrong!");
+          "A. This should not return successfully because query was wrong!");
         start();
     })
     .fail(
      function(msg) {
         ok(true,
-          "Query failed because of wrong query syntax (empty query object)");
+          "A. Query failed because of wrong query syntax (empty query object)");
         start();
     });
 
@@ -1360,38 +1202,146 @@ test(
        } ]
    };
 
-//   var z = new VIE();
-//   ok(z.StanbolService);
-//   equal(typeof z.StanbolService, "function");
-//   var stanbol = new z.StanbolService( {
-//
-//    url : stanbolRootUrl[0]
-//
-//});
-//   z.use(stanbol);
 
-   stop();			
-   z.query( {
-    query : query,
-    local : true
-}).using('stanbol').execute().done( // using(stanbol)
+   // first we decide whether we need to reference an entity for the following test
+   var there = false;
+   var del = true;
+   entity = "http://dbpedia.org/resource/Frankfurt";
+	   
+   stop();
+   console.log("startin")
+   stanbol.connector.lookup(entity, 
+	  function(success){
+	   
+	   ok(true, "1. Looked up entity " + entity + ". This entity apparently is already stored on the local entityhub.");
+	   ok(true, "2. No need to reference entity " + entity);
+	   
+	   // so the entity is already referenced locally
+       there = true;
+       console.log("1. set 'there' to " + there)
+       // this means we must NOT delete it after tests are done
+       del = false;
+       console.log("1. set 'del' to " + del)
+       console.log("1. looked up entity " + entity);
+       
 
-function(entities) {
-    ok(true, "Retrieved entities according to query Frankf*");
-    ok(entities);
-    if (!entities.length > 0) {
-       ok(false, "no entitites found.");
-   } else {
-       ok(true, "at least one entity was found.");
-   }
-   ok(entities instanceof Array);
-   console.log("returned entities:")
-   console.log(entities)
-   start();
-}).fail(function(f) {
-    ok(false, f.statusText);
-    start();
-});
+      // execute the following tests only if we have an entity Frankf* on the local entityhub
+      console.log("1. starting the query")
+      z.query( {
+          query : query,
+          local : true
+      }).using('stanbol').execute().done( // using(stanbol)
+
+            function(entities) {
+            	    ok(true, "3. Retrieved entities according to query Frankf*");
+            	    ok(entities);
+            	    if (!entities.length > 0) {
+            	       ok(false, "3. no entitites found.");
+            	   } else {
+            	       ok(true, "3. at least one entity was found.");
+            	   }
+            	   ok(entities instanceof Array);
+            	   console.log("3. returned entities:")
+            	   console.log(entities)
+            	   start();
+            }).fail(function(f) {
+            	ok(false, f.statusText);
+            	start();
+            });
+     
+      ok(true, "4. We will NOT delete entity " + entity + " since it has been there before"); 
+	   
+   }, function(error){ // end of success case of lookup (create : false)
+	   
+	   ok(true, "1. Could not look up entity " + entity + ". This entity apparently is not stored on the local entityhub. I will temporarily create this entity until tests are completed.");
+	   console.log("1. Could not look up entity " + entity)
+
+	   // if the entity is not already there -> create it temporarily
+		   console.log("1. in case '!there'")
+		   
+		   stanbol.connector.lookup(entity, function(success){
+			   
+			   there = true;
+               ok(true, "2. newly referenced entity " + entity);
+               console.log("2. newly referenced entity " + entity)
+               console.log("2. set 'there' to " + there)
+               
+               // in order to delete the entity again, we need to find its id:
+               console.log(success)
+               var id;
+               var counter = 0;
+               for ( var key in success) {
+                  counter += 1;
+                  console.log(key);
+                  console.log(success[key]);
+                  // pick the urn, but not the .meta info
+                  var suffix = ".meta";
+                  if (key.indexOf(suffix, key.length - suffix.length) === -1) {
+                     id = key;
+                  }
+                                
+              }
+              
+ 
+                   // execute the following tests only if we have an entity Frankf* on the local entityhub
+                   console.log("2. the query:")
+                   z.query( {
+                	    query : query,
+                	    local : true
+                	}).using('stanbol').execute().done( // using(stanbol)
+
+                	function(entities) {
+                	    ok(true, "3. Retrieved entities according to query Frankf*");
+                	    ok(entities);
+                	    if (!entities.length > 0) {
+                	       ok(false, "3. no entitites found.");
+                	   } else {
+                	       ok(true, "3. at least one entity was found.");
+                	   }
+                	   ok(entities instanceof Array);
+                	   console.log("3. returned entities:")
+                	   console.log(entities)
+                	   start();
+                	}).fail(function(f) {
+                	    ok(false, f.statusText);
+                	    start();
+                	});
+               // delete the entity again
+            	   console.log("4. in case 'del'")
+            	   stop();
+            	   stanbol.connector.deleteEntity(
+            	       id,
+            	       function(success) {
+            	          console.log("4. deleted entity " + entity + " from the local entityhub")
+            	          ok(true, "4. deleted entity " + entity + " from the local entityhub");
+            	          start();
+            	      },
+            	      function(err) {
+            	          console.log("4. could not delete entity " + entity + " from the local entityhub")
+            	          ok(false, "4. could not delete entity " + entity + " from the local entityhub");
+            	          start();
+            	      },
+            	      {});
+   
+            
+		   }, function(error){
+			   
+			   ok(false, "2. failed to reference entity " + entity);
+			   console.log("2. failed to reference entity " + entity);
+			   start();
+			   
+		   }, {
+			   create : true
+		   });
+	
+	   
+	   
+   }, {	// end of error case of lookup (create : false)
+	   create : false
+       
+ });	
+   
+
 
 /**/
 });
