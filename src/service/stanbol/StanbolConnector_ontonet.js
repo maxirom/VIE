@@ -336,7 +336,7 @@
 							var r = request( {
 								method : "POST",
 								uri : url,
-								body : args.content,
+								body : args.data,
 								headers : {
 									Accept : "application/rdf+xml",
 									"Content-Type" : "text/plain"
@@ -880,7 +880,7 @@
 							var r = request( {
 								method : args.verb,
 								uri : url,
-								body : args.content,
+								//body : args.content,
 								headers : {
 									Accept : "text/plain",
 									"Content-Type" : "text/plain"
@@ -1091,7 +1091,7 @@
 								method : "POST",
 								data : args.data,
 								uri : url,
-								body : args.content,
+								//body : args.content,
 								headers : {
 									Accept : "application/rdf+xml",
 									"Content-Type" : "text/plain"
@@ -1231,7 +1231,7 @@
 								method : "POST",
 								data : args.data,
 								uri : url,
-								body : args.content,
+								//body : args.content,
 								headers : {
 									Accept : "application/rdf+xml",
 									"Content-Type" : "text/plain"
@@ -1317,7 +1317,7 @@
 							var r = request( {
 								method : "DELETE",
 								uri : url,
-								body : args.content,
+								//body : args.content,
 								headers : {
 									Accept : "application/rdf+xml",
 									"Content-Type" : "text/plain"

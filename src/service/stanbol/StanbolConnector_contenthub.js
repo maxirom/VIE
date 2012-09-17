@@ -273,7 +273,7 @@
 				uri : url,
 				body : args.text,
 				headers : {
-					Accept : args.format,
+					Accept : 'text/plain',
 					'Content-Type' : 'text/plain'
 				}
 			}, function(err, response, body) {
@@ -361,10 +361,10 @@
 			var r = request( {
 				method : "POST",
 				uri : url,
-				body : args.data,
-				headers : {
-					Accept : args.format
-				}
+				body : args.data
+//				headers : {
+//					Accept : args.format
+//				}
 			}, function(err, response, body) {
 				try {
 					success( {
@@ -527,7 +527,7 @@
 				method : "GET",
 				uri : url,
 				headers : {
-					Accept : args.format
+					Accept : "application/rdf+json"
 				}
 			}, function(err, response, body) {
 				try {
@@ -606,7 +606,7 @@
 			var request = require('request');
 			var r = request( {
 				method : "DELETE",
-				uri : url + args.index
+				uri : url //+ args.index
 
 			}, function(err, response, body) {
 				try {

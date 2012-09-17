@@ -2,8 +2,14 @@ var stanbolRootUrl = (window.STANBOL_URLS) ? window.STANBOL_URLS : [
 "http://dev.iks-project.eu:8081",
 "http://dev.iks-project.eu/stanbolfull" ];
 
+var repo = (window.CMS_REPO) ? window.CMS_REPO : false;
+var rdf = (window.CMS_rdf) ? window.CMS_rdf : false;
+var rdfURL = (window.CMS_rdfURL) ? window.CMS_rdfURL : false;
+var rdfFile = (window.CMS_rdfFile) ? window.CMS_rdfFile : false;
+var path = (window.CMS_path) ? window.CMS_path : false;
+
 // helper function needed in order to read from files
-//@author shamelessly copied from http://snipplr.com/view/4021/
+//@author shamelessly inspired by http://snipplr.com/view/4021/
 function getXmlHttp() {
 	   if (window.XMLHttpRequest) {
 	      xmlhttp=new XMLHttpRequest();
@@ -21,6 +27,13 @@ function getXmlHttp() {
 //@author mere01
 test("VIE.js StanbolConnector - CMS Adapter", function() {
 	
+	if ( (! repo) ) {//|| (repo === "http://lnv-89012.dfki.uni-sb.de:9002/rmi") ) {
+		
+		ok(true, "CMS Adapter test is not configured. If you want to run tests for the Stanbol cmsadapter, please specify your settings in VIE/utils/api_keys.js. Also remember to configure your CMS path in Stanbol: at http://lnv-89012.dfki.uni-sb.de:9001/system/console/configMgr, choose \"Apache Stanbol CMS Adapter Default RDF Bridge Configuration\" and add a bridge to your repository.");
+		return;
+		
+	}
+	
 	var z = new VIE();
     ok(z.StanbolService);
     equal(typeof z.StanbolService, "function");
@@ -28,11 +41,6 @@ test("VIE.js StanbolConnector - CMS Adapter", function() {
         url: stanbolRootUrl[0]
     });
     z.use(stanbol);
-    
-    var repo = "http://lnv-89012.dfki.uni-sb.de:9002/rmi";
-    var rdf = '<?xml version="1.0" encoding="UTF-8"?><rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:dbprop="http://dbpedia.org/property/" xmlns:dbpedia="http://dbpedia.org/ontology"><rdf:Description rdf:about="urn:example:person:ernie"><dbpedia:Person>Ernie</dbpedia:Person><rdf:type rdf:resource="http://dbpedia.org/ontology/Person"/><dbpedia:profession>Friend of Bert</dbpedia:profession></rdf:Description></rdf:RDF>';
-    var rdfURL = "http://ontologydesignpatterns.org/ont/wn/supersenses.rdf";
-    var rdfFile = "../../../personsRDF.xml"; // TODO
     
     stop();
     var file;
@@ -56,7 +64,9 @@ test("VIE.js StanbolConnector - CMS Adapter", function() {
 		ok(true, "Obtained session key for repository.");
 		console.log("Obtained session key for repository: " + key);
 		
-		/* this test is depending on the local file system
+		///* this test is depending on the local file system
+		if (rdfFile) {
+			ok(true, "Parameter 'rdfFile' is set to " + rdfFile);
 		stanbol.connector.mapRDFtoRepository(
 				   key,  
 				   function(success) {
@@ -72,8 +82,14 @@ test("VIE.js StanbolConnector - CMS Adapter", function() {
 				}, 
 						{rdfFile : file}
 						);
-		*/
+		} else {
+			ok(true, "Parameter 'rdfFile' is *NOT* set. Not testing mapping of a local rdf file to your repository");
+		}
+		//*/
 		
+		if (rdf) {
+			
+			ok(true, "Parameter 'rdf' is set.");
 		stanbol.connector.mapRDFtoRepository(
 				   key,  
 				   function(success) {
@@ -89,7 +105,13 @@ test("VIE.js StanbolConnector - CMS Adapter", function() {
 				}, 
 						{rdf : escape(rdf)}
 						);
+		} else {
+			ok(true, "Parameter 'rdf' is *NOT* set. Not testing mapping of an rdf string to your repository");
+		}
 		
+		if (rdfURL) {
+			
+			ok(true, "Parameter 'rdfURL' is set to " + rdfURL);
 		stanbol.connector.mapRDFtoRepository(
 		   key,  
 		   function(success) {
@@ -107,8 +129,15 @@ test("VIE.js StanbolConnector - CMS Adapter", function() {
 		}, 
 				{rdfURL : rdfURL}
 				);
+		} else {
+			ok(true, "Parameter 'rdfURL' is *NOT* set. Not testing mapping of a remote rdf file to your repository");
+		}
 		
 		// now submit the subtree stored in our repo at path /test to the contenthub
+		if (path) {
+			
+			ok(true, "Parameter 'path' is set to " + path);
+			
 		stop();
 		stanbol.connector.submitRepositoryItem(
 				key, 
@@ -128,9 +157,10 @@ test("VIE.js StanbolConnector - CMS Adapter", function() {
 				},
 				{
 					recursive : true,
-					path : "/test"
+					path : path
 				}
 		);
+	
 		
 		// and try the same thing without using a legal sessionKey
 		stop();
@@ -152,11 +182,13 @@ test("VIE.js StanbolConnector - CMS Adapter", function() {
 				},
 				{
 					recursive : true,
-					path : "/test"
+					path : path
 				}
 		);
 		
-		
+		} else {
+			ok(true, "Parameter 'path' is *NOT* set. Not testing submission of repository items to the Stanbol contenthub.");
+		}
 		
 	}, function(error){
 		

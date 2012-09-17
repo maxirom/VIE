@@ -13,8 +13,9 @@
 //
 // getReposSessionKey()
 // mapRDFtoRepository()
-// mapRepositoryToRDF()
-//
+// mapRepositoryToRDF() // does not work yet (see https://issues.apache.org/jira/browse/STANBOL-727)
+// submitRepositoryItem()
+// deleteRepositoryItem() // does not work yet (see https://issues.apache.org/jira/browse/STANBOL-727)
 //
 (function(){
 		

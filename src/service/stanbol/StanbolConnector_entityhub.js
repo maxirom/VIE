@@ -262,7 +262,7 @@
 				method: "GET",
 				uri: url,
 				headers: {
-					Accept: args.format
+					Accept: "application/rdf+json"
 				}
 			}, function(err, response, body) {
 				try {
