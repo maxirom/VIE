@@ -141,6 +141,7 @@ VIE.prototype.Entity = function(attrs, opts) {
                 attrs = attrs.attributes;
             }
             var self = this;
+            var coll;
             // resolve shortened URIs like rdfs:label..
             _.each (attrs, function (value, key) {
                 var newKey = VIE.Util.mapAttributeNS(key, self.vie.namespaces);
@@ -161,9 +162,10 @@ VIE.prototype.Entity = function(attrs, opts) {
                        });
                    } else if (value.isEntity) {
                        self.vie.entities.addOrUpdate(value);
-                       var coll = new self.vie.Collection();
-                       coll.vie = self.vie;
-                       coll.add(value);
+                       coll = new self.vie.Collection(value, {
+                         vie: self.vie,
+                         predicate: key
+                       });
                        attrs[key] = coll;
                    } else if (_.isArray(value)) {
                        if (this.attributes[key] && this.attributes[key].isCollection) {
@@ -173,15 +175,16 @@ VIE.prototype.Entity = function(attrs, opts) {
                        }
                    } else if (value["@value"]) {
                        // The value is a literal object, ignore
-                   } else if (typeof value == "object") {
+                   } else if (_.isObject(value) && !_.isDate(value)) {
                        // The value is another VIE Entity
                        var child = new self.vie.Entity(value, options);
                        // which is being stored in `v.entities`
                        self.vie.entities.addOrUpdate(child);
                        // and set as VIE Collection attribute on the original entity 
-                       var coll = new self.vie.Collection();
-                       coll.vie = self.vie;
-                       coll.add(value);
+                       coll = new self.vie.Collection(value, {
+                         vie: self.vie,
+                         predicate: key
+                       });
                        attrs[key] = coll;
                    } else {
                        // ignore

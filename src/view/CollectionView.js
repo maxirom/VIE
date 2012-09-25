@@ -5,14 +5,17 @@ if (!VIE.prototype.view) {
 VIE.prototype.view.Collection = Backbone.View.extend({
     // Ensure the collection view gets updated when items get added or removed
     initialize: function() {
-        this.template = this.options.template;
+        this.templates = this.options.templates;
         this.service = this.options.service;
         if (!this.service) {
             throw "No RDFa service provided to the Collection View";
         }
         this.owner = this.options.owner;
+        this.definition = this.options.definition;
         this.entityViews = {};
+
         _.bindAll(this, 'addItem', 'removeItem', 'refreshItems');
+
         this.collection.bind('add', this.addItem);
         this.collection.bind('remove', this.removeItem);
         this.collection.bind('reset', this.refreshItems);
@@ -24,52 +27,92 @@ VIE.prototype.view.Collection = Backbone.View.extend({
         });
     },
 
+    /*
+     * ## canAdd: check if the view can add an item
+     *
+     * The Collection View can add items to itself if two constraints
+     * pass:
+     *
+     *  * Collection View has a template
+     *  * The attribute definition for the collection allows adding a model
+     *
+     *  Optionally you can pass a type to this method to check per type.
+     */
+    canAdd: function (type) {
+      if (_.isEmpty(this.templates)) {
+        return false;
+      }
+
+      if (type && !this.templates[type]) {
+        return false;
+      }
+
+      return this.collection.canAdd(type);
+    },
+
     addItem: function(entity, collection) {
         if (collection !== this.collection) {
             return;
         }
 
-        if (!this.template || this.template.length === 0) {
+        var childType = entity.get('@type');
+        var childTypeName = childType.id;
+
+        if (!this.canAdd(childTypeName)) {
             return;
         }
 
-        var entityView = this.service._registerEntityView(entity, this.cloneElement(this.template, entity));
-        var entityElement = jQuery(entityView.render().el);
-        if (entity.id) {
-            this.service.setElementSubject(entity.getSubjectUri(), entityElement);
-        }
+        var self = this;
+        // Run the templating function
+        this.templates[childTypeName](entity, function (template) {
+            // Template has been generated, register a view
+            var entityView = self.service._registerEntityView(entity, template, true);
+            var entityElement = entityView.render().$el;
+            if (entity.id) {
+                self.service.setElementSubject(entity.getSubjectUri(), entityElement);
+            }
 
-        var entityIndex = collection.indexOf(entity);
-        if (entityIndex === 0) {
-          jQuery(this.el).prepend(entityElement);
-        } else {
-          var previousEntity = collection.at(entityIndex - 1);
-          var previousView = this.entityViews[previousEntity.cid];
-          if (previousView) {
-            jQuery(previousView.el).after(entityElement);
-          } else {
-            jQuery(this.el).append(entityElement);
-          }
-        }
+            // Add the new view to DOM
+            var entityIndex = collection.indexOf(entity);
+            if (entityIndex === 0) {
+                self.$el.prepend(entityElement);
+            } else {
+                var previousEntity = collection.at(entityIndex - 1);
+                var previousView = self.entityViews[previousEntity.cid];
+                if (previousView) {
+                    previousView.$el.after(entityElement);
+                } else {
+                    self.$el.append(entityElement);
+                }
+            }
 
+            // Update reverse relations, if any
+            self.findReverseRelations(entity, entityElement);
+       
+            // Handle eventing
+            self.trigger('add', entityView);
+            self.entityViews[entity.cid] = entityView;
+            entityElement.show();
+        }, this);
+    },
+
+    findReverseRelations: function (entity, element) {
         // Ensure we catch all inferred predicates. We add these via JSONLD
         // so the references get properly Collectionized.
         var service = this.service;
-        entityElement.parent('[rev]').each(function() {
+        element.parent('[rev]').each(function() {
             var predicate = jQuery(this).attr('rev');
             var relations = {};
-            relations[predicate] = new service.vie.Collection();
-            relations[predicate].vie = service.vie;
+            relations[predicate] = new service.vie.Collection([], {
+              vie: service.vie,
+              predicate: predicate
+            });
             var model = service.vie.entities.get(service.getElementSubject(this));
             if (model) {
                 relations[predicate].addOrUpdate(model);
             }
             entity.set(relations);
         });
-        
-        this.trigger('add', entityView);
-        this.entityViews[entity.cid] = entityView;
-        entityElement.show();
     },
 
     registerItem: function(entity, collection) {
@@ -100,24 +143,5 @@ VIE.prototype.view.Collection = Backbone.View.extend({
         collection.forEach(function(entity) {
             view.addItem(entity, collection);
         });
-    },
-
-    cloneElement: function(element, entity) {
-        var newElement = jQuery(element).clone(false);
-        var service = this.service;
-        if (newElement.attr('about') !== undefined) {
-            // Direct match with container
-            newElement.attr('about', '');
-        }
-        newElement.find('[about]').attr('about', '');
-        var subject = this.service.getElementSubject(newElement);
-        service.findPredicateElements(subject, newElement, false).each(function() {
-            var predicate = service.getElementPredicate(jQuery(this));
-            if (entity.get(predicate) && entity.get(predicate).isCollection) {
-              return true;
-            }
-            service.writeElementValue(null, jQuery(this), '');
-        });
-        return newElement;
     }
 });
