@@ -22,9 +22,8 @@ test("VIE.js DBPediaService - Load", function () {
     .using('dbpedia')
     .execute()
     .done(function(x) {
-        ok(x, "Something returned");
-        ok(x.isCollection);
-        ok(x.at(0).isEntity);
+		ok(x, "Something returned");
+        ok(x.isEntity);
         start();
     })
     .fail(function(f){
@@ -52,11 +51,10 @@ test("VIE.js DBPediaService - Load multiple entities", function () {
     .execute()
     .done(function(x) {
         ok(x, "Something returned");
-        ok(x.isCollection);
-        ok(x.at(0).isEntity);
-        ok(x.at(1).isEntity);
-        equal(x.at(0).id, entity1);
-        equal(x.at(1).id, entity2);
+        ok(x[0].isEntity);
+        ok(x[1].isEntity);
+        equal(x[0].id, entity1);
+        equal(x[1].id, entity2);
         start();
     })
     .fail(function(f){
@@ -64,4 +62,3 @@ test("VIE.js DBPediaService - Load multiple entities", function () {
         start();
     });
 });
-
