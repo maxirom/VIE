@@ -1,0 +1,95 @@
+---
+layout: widget
+title: "DateTimePicker"
+category: widgets
+css_extras:
+  - /style/dateTimePicker.css
+  - /style/kalendae.css
+js_extras:
+  - /lib/moment/require.js
+  - /lib/moment/kalendae.js
+  - /lib/vie.widget.dateTimePicker.js
+github: "https://github.com/cholpon/VIE-widget--Editable-Date-Time-Picker"
+---
+<p>
+VIE DateTimePicker assists with editing date-annotations in web content.
+</p>
+
+
+<div >
+   <article class="well2">   
+      <div id="content">             
+
+                     <span about="http://live.dbpedia.org/page/Avatar_(2009_film)" typeof="Movie">
+                     <span property="datePublished" content="2009-12-10"> <span property="genre" content="science fiction"><span property="name">Avatar</span></span></span> is a science fiction film directed by
+                        <span rel="director">
+                          <span about="http://live.dbpedia.org/page/James_Cameron" typeof="Person">
+                            <span property="birthDate" content="1954-08-16"><span property="name">James Cameron</span></span>, a Canadian film director and film producer. Cameron was born in Kapuskasing, Ontario on August 16, 1954 and is famous for his previous works, such as "The Terminator"(1984), "Aliens"(1986), "True Lies"(1994) and "Titanic"(1997). 
+                            <br />
+                            <br />
+                            To launch a promotion campaign for Avatar, Cameron appeared at
+                            <span rel="performerIn">
+                              <span typeof="Event" about="http://live.dbpedia.org/page/San_Diego_Comic-Con_International">
+                                <span property="name">San Diego Comic-Con International</span>, a four-day convention that was held from 
+                                <span property="startDate" content="2009-07-23">July 23th, 2009</span> to 
+                                <span property="endDate" content="2009-07-27">July 27th, 2009</span>.
+                              </span>
+                            </span>
+                          </span>
+                        </span>
+                        On December 10, 2009 the film premiered in London. It received positive critical reviews worldwide and quickly became the highest-grossing film of all time. The film's production company was
+                        <span rel="productionCompany">
+                          <span typeof="Organization" about="http://dbpedia.openlinksw.com:8890/page/Category:Lightstorm_Entertainment_films"><span property="name">Lightstorm Entertainment</span>.
+                          </span>
+                        </span>
+                  </span>               
+          </div> 
+         <div id="entity-cards"></div>     
+   </article>
+     
+<div class="example">
+     <script type="text/javascript">
+        var error = window.error = function (msg) {
+            $('#warning').html($('#warning').html() + msg + "<br />")
+            .slideDown(300)
+            .click(function () {
+              $(this).slideUp(300).html("");
+            });
+         };
+     </script>
+      <script>                       
+ $ (function ()  {
+    var vie = window.vie = new VIE({
+       baseNamespace: 'http://schema.org/'
+    });
+    
+    vie.loadSchema("http://schema.rdfs.org/all.json", {
+        baseNS : "http://schema.org/",
+        success: function () {
+          vie.use(new vie.RdfaService);
+          vie.load({element: jQuery('#content')}).using('rdfa').execute()
+              .success(function(entities) {
+                  console.log(JSON.stringify(entities));
+                  console.log("We got " + entities.length + " editable objects from the page");
+              })
+              .fail(function (e) {
+                  console.warn("failed to load rdfa entities" + e);
+              });
+            
+        $('#content').vieDatePicker({vie: vie, container: $("#entity-cards"), format: "MM-DD-YYYY"}); 
+        },
+        error: function (e) {
+            console.warn("failed to load schema " + e);
+        }
+    });
+});
+        </script>  
+</div>
+<div style="margin-top:20px;">
+    <span style="text-align:center;" class="tellmemore finalMenuItem">
+      <h3>Tutorial</h3>
+      Click <a style="color:#31e;" href="http://neogermi.github.com/VIEwidgets/widgets/image_search/explain.html">here</a> for the tutorial.
+    </span>
+</div>
+</div>
+

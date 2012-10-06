@@ -1,0 +1,73 @@
+/** style for entity cards **/
+
+.clickable{
+    color: greenYellow;
+    text-shadow: 0 0 0.2em #87F, 0 0 0.2em #87F;
+    cursor: pointer;
+}
+.clickable:hover {
+    text-shadow: 0 0 0.2em #8F7, 0 0 0.2em #8F7;
+    cursor: pointer;
+}
+.close-btn {
+    float:right;
+    background:white;
+    border:2px solid #ccc;
+    color:#999;
+    background:white;
+    border:2px solid #ccc;
+    color:#999;
+    line-height:17px;
+    text-align:center;
+    font-size:13px;
+    border-radius:10px;
+    box-shadow:0 1px 3px rgba(0,0,0,0.75);
+    cursor:pointer;
+}
+
+.close-btn:after {content:"\2716";}
+.close-btn:hover {
+    color:#7EA0E2;
+    background:white;
+    border-color:#7EA0E2;
+}     
+
+
+.well2 {
+    background-color: #2E3436;
+    min-height: 6em;
+    min-height: 20px;
+    padding: 19px;
+    margin-bottom: 20px;
+
+    border: 1px solid #eee;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
+    -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
+}   
+
+
+[name] {
+    color: greenYellow;
+    text-shadow: 0 0 0.2em #87F, 0 0 0.2em #87F;
+    cursor: pointer;
+}
+        
+[name]:hover, [name].selected {
+    text-shadow: 0 0 0.2em #8F7, 0 0 0.2em #8F7;
+    cursor: pointer;
+        }
+
+[about] {
+         color: white;
+         text-shadow: 0 0 0.2em #87F, 0 0 0.2em #87F;
+         cursor: pointer;
+        }
+        
+[about]:hover, [about].selected {
+         text-shadow: none;
+        }
