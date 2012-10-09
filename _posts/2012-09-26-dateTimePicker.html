@@ -24,7 +24,7 @@ VIE DateTimePicker assists with editing date-annotations in web content.
                      <span property="datePublished" content="2009-12-10"> <span property="genre" content="science fiction"><span property="name">Avatar</span></span></span> is a science fiction film directed by
                         <span rel="director">
                           <span about="http://live.dbpedia.org/page/James_Cameron" typeof="Person">
-                            <span property="birthDate" content="1954-08-16"><span property="name">James Cameron</span></span>, a Canadian film director and film producer. Cameron was born in Kapuskasing, Ontario on August 16, 1954 and is famous for his previous works, such as "The Terminator"(1984), "Aliens"(1986), "True Lies"(1994) and "Titanic"(1997). 
+                            <span property="birthDate" content="1954-08-16"><span property="name">James Cameron</span></span>, a Canadian film director and film producer. Cameron was born in Kapuskasing, Ontario on August 16, 1954 and is famous for his previous works, such as "The Terminator" (1984), "Aliens" (1986), "True Lies" (1994) and "Titanic" (1997). 
                             <br />
                             <br />
                             To launch a promotion campaign for Avatar, Cameron appeared at
@@ -76,7 +76,7 @@ VIE DateTimePicker assists with editing date-annotations in web content.
                   console.warn("failed to load rdfa entities" + e);
               });
             
-        $('#content').vieDatePicker({vie: vie, container: $("#entity-cards"), format: "MM-DD-YYYY"}); 
+        $('#content').vieDatePicker({vie: vie, container: $("#entity-cards"), setFormat: "MM-DD-YYYY"}); 
         },
         error: function (e) {
             console.warn("failed to load schema " + e);
@@ -88,7 +88,7 @@ VIE DateTimePicker assists with editing date-annotations in web content.
 <div style="margin-top:20px;">
     <span style="text-align:center;" class="tellmemore finalMenuItem">
       <h3>Tutorial</h3>
-      Click <a style="color:#31e;" href="http://neogermi.github.com/VIEwidgets/widgets/image_search/explain.html">here</a> for the tutorial.
+      Click <a style="color:#31e;" href="http://cholpon.github.com/VIE-widget--Editable-Date-Time-Picker/explain.html">here</a> for the tutorial.
     </span>
 </div>
 </div>
