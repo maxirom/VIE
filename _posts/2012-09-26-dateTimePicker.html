@@ -11,8 +11,11 @@ js_extras:
   - /lib/vie.widget.dateTimePicker.js
 github: "https://github.com/cholpon/VIE-widget--Editable-Date-Time-Picker"
 ---
+<p> <br/>
+VIE Editable DateTimePicker assists with editing date-annotations. It recognizes entities from a content and for each entity it can visualize the relevant information, such as its date-attributes and all of its filled-out attributes. The information is visualized in form of a card, where the user can select date-attributes and edit them, by selecting date values from a provided calendar. The non-date attributes are also visualized to let a user better orient in existing semantic dependencies between different entities and between different date-attributes of one entity.
+</p>
 <p>
-VIE DateTimePicker assists with editing date-annotations in web content.
+DateTimePicker will identify the semantic dependencies relevant for a valid date range of input, if this can be inferred from the given annotations. As a result, DateTimePicker will give a recommendation for input's upper and lower bounds.
 </p>
 
 
@@ -57,7 +60,7 @@ VIE DateTimePicker assists with editing date-annotations in web content.
             });
          };
      </script>
-      <script>                       
+      <textarea>                       
  $ (function ()  {
     var vie = window.vie = new VIE({
        baseNamespace: 'http://schema.org/'
@@ -83,13 +86,12 @@ VIE DateTimePicker assists with editing date-annotations in web content.
         }
     });
 });
-        </script>  
+        </textarea>  
 </div>
 <div style="margin-top:20px;">
-    <span style="text-align:center;" class="tellmemore finalMenuItem">
+    <span class="tellmemore finalMenuItem">
       <h3>Tutorial</h3>
-      Click <a style="color:#31e;" href="http://cholpon.github.com/VIE-widget--Editable-Date-Time-Picker/explain.html">here</a> for the tutorial.
+      Click <a style="color:#31e;" href="http://cholpon.github.com/VIE-widget--Editable-Date-Time-Picker/explain.html">here</a> for the tutorial. For complete source code on GitHub, please click <a style="color:#31e;" href="https://github.com/cholpon/VIE-widget--Editable-Date-Time-Picker">here</a>.
     </span>
 </div>
 </div>
-
