@@ -123,7 +123,7 @@ VIE.prototype.SameAsService.prototype = {
                 return function (results) {
                     _.defer(function() {
                         try {
-                            var returnEntities = new service.vie.Collection();
+                            var returnEntities = [];
                             var newEnts = VIE.Util.rdf2Entities(service, results);
                             for (var e = 0; e < newEnts.length; e++) {
                                 var isValid = false;
@@ -133,11 +133,11 @@ VIE.prototype.SameAsService.prototype = {
                                     isValid |= id1 === id2;
                                 }
                                 if (isValid) {
-                                    returnEntities.add(newEnts[e]);
+                                    returnEntities.push(newEnts[e]);
                                 }
                             }
-                            returnEntities.each(function (ent) {
-                                ent.set("SameAsServiceLoad", VIE.Util.xsdDateTime(new Date()));
+                            _.each(returnEntities, function (entity) {
+                                entity.set("SameAsServiceLoad", VIE.Util.xsdDateTime(new Date()));
                             });
                             loadable.resolve(returnEntities);
                         } catch (except) {
