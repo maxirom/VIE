@@ -10,6 +10,19 @@
 // The DBPedia service allows a VIE developer to directly query
 // the DBPedia database for entities and their properties. Obviously,
 // the service does not allow for saving, removing or analyzing methods.
+// 
+// find()
+// lookup()
+// referenced()
+// ldpath()
+// query()
+// createEntity() alias save()
+// readEntity() alias load()
+// udpateEntity()
+// deleteEntity()
+// getMapping()
+// 
+
 (function(){
 		
     jQuery.extend(true, VIE.prototype.StanbolConnector.prototype, {
@@ -18,12 +31,23 @@
 		// This method finds entities given the term from the entity hub and 
     	// returns the result by the success callback.  
 		// **Parameters**:  
-		// *{string}* **term** The term to be searched for. 
-		// *{int}* **limit** The limit of results to be returned. 
-		// *{int}* **offset** The offset to be search for.  
+		// *{string}* **term** The term to be searched for. (The name of the 
+    	// Entity to search. Supports '*' and '?')
+		// *{int}* **limit** The limit of results to be returned. (The maximum 
+    	//		number of returned Entities) 
+		// *{int}* **offset** The offset to be search for. (The offset of the 
+    	//		first returned Entity)  
 		// *{function}* **success** The success callback.  
 		// *{function}* **error** The error callback.  
-		// *{object}* **options** Options, like the ```format```. If ```local``` is set, only the local entities are accessed.  
+		// *{object}* **options** Options, like the output ```format```. 
+    	// If ```local``` is set, only the local entities are accessed. 
+    	// Search-related options are:
+    	// * field: The name of the field to search the term (optional, default 
+    	//		is "http://www.iks-project.eu/ontology/rick/model/label")
+    	// * lang: The language of the parsed name (default: any)
+    	// * select: A list of fields included for returned Entities
+    	// * ldpath: The LDPath program executed for entities selected by the 
+    	//		find query. The LDPath program needs to be URLEncoded
 		// **Throws**:  
 		// *nothing*  
 		// **Returns**:  
@@ -31,12 +55,12 @@
 		// **Example usage**:  
 		//
 		//		     var stnblConn = new vie.StanbolConnector(opts);
-		//		     stnblConn.find("Bishofsh", 10, 0,
+		//		     stnblConn.find("Bisho", 10, 0,
 		//		                 function (res) { ... },
 		//		                 function (err) { ... });
 		find: function(term, limit, offset, success, error, options) {
 			options = (options)? options :  {};
-			/* curl -X POST -d "name=Bishofsh&limit=10&offset=0" http://localhost:8080/entityhub/sites/find */
+			/* curl -X POST -d "name=Bisho&limit=10&offset=0" http://localhost:8080/entityhub/sites/find */
 
 			var connector = this;
 
@@ -47,7 +71,20 @@
 
 			offset = (offset)? offset : 0;
 			limit  = (limit)? limit : 10;
-
+			var data = "name=" + term + "&limit=" + limit + "&offset=" + offset;
+			if (options.field) {
+				data += "&field=" + options.field;
+			}
+			if (options.lang) {
+				data += "&lang=" + options.lang;
+			}
+			if (options.select) {
+				data += "&select=" + options.select;
+			}
+			if (options.ldpath) {
+				data += "&ldpath=" + options.ldpath;
+			}
+			
 			connector._iterate({
 				method : connector._find,
 				methodNode : connector._findNode,
@@ -70,9 +107,7 @@
 					return u;
 				},
 				args : {
-					term : term,
-					offset : offset,
-					limit : limit,
+					data : data,
 					format : options.format || "application/rdf+json",
 					options : options
 				},
@@ -86,7 +121,7 @@
 				error: error,
 				url: url,
 				type: "POST",
-				data: "name=" + args.term + "&limit=" + args.limit + "&offset=" + args.offset,
+				data: args.data,
 				dataType: args.format,
 				contentType : "application/x-www-form-urlencoded",
 				accepts: {"application/rdf+json": "application/rdf+json"}
@@ -98,7 +133,7 @@
 			var r = request({
 				method: "POST",
 				uri: url,
-				body : "name=" + args.term + "&limit=" + args.limit + "&offset=" + args.offset,
+				body : args.data,
 				headers: {
 					Accept: args.format
 				}
@@ -127,16 +162,28 @@
 		//		    If the parsed ID is a URI of a Symbol, than the stored information of the Symbol are returned in the requested media type ('accept' header field).
 		//		    If the parsed ID is a URI of an already mapped entity, then the existing mapping is used to get the according Symbol.
 		//		    If "create" is enabled, and the parsed URI is not already mapped to a Symbol, than all the currently active referenced sites are searched for an Entity with the parsed URI.
-		//		    If the configuration of the referenced site allows to create new symbols, than a the entity is imported in the Entityhub, a new Symbol and EntityMapping is created and the newly created Symbol is returned.
+		//		    If the configuration of the referenced site allows to create new symbols, then the entity is imported in the Entityhub, a new Symbol and EntityMapping is created and the newly created Symbol is returned.
 		//		    In case the entity is not found (this also includes if the entity would be available via a referenced site, but create=false) a 404 "Not Found" is returned.
 		//		    In case the entity is found on a referenced site, but the creation of a new Symbol is not allowed a 403 "Forbidden" is returned.   
+		// 		In the **options** parameter, you can specify the ```accept```
+		//		format of the returned data. (default is application/json). 
+		//		Available are:
+		// 		application/rdf+json,
+		//		application/rdf+xml,
+		//		application/x-turtle,
+		// 		text/rdf+n3,
+		// 		text/rdf+nt,
+		// 		text/turtle
 		// **Throws**:  
 		// *nothing*  
 		// **Returns**:  
 		// *{VIE.StanbolConnector}* : The VIE.StanbolConnector instance itself.  
 		lookup: function(uri, success, error, options) {
 			options = (options)? options :  {};
+			var accept = (options.accept) ? options.accept : "application/json";
+			
 			/*/lookup/?id=http://dbpedia.org/resource/Paris&create=false"*/
+			
 			var connector = this;
 
 			uri = uri.replace(/^</, '').replace(/>$/, '');
@@ -156,6 +203,7 @@
 					return u;
 				},
 				args : {
+					accept : accept,
 					format : options.format || "application/rdf+json",
 					options : options
 				},
@@ -166,13 +214,14 @@
 
 		_lookup : function (url, args, success, error) {
 			jQuery.ajax({
+				beforeSend: function(xhrObj) {
+	    			xhrObj.setRequestHeader("Accept", args.accept);
+				},
 				success: success,
 				error: error,
 				url: url,
 				type: "GET",
-				dataType: args.format,
-				contentType: "text/plain",
-				accepts: {"application/rdf+json": "application/rdf+json"}
+				contentType: "text/plain"
 			});
 		},
 
@@ -197,7 +246,8 @@
 
 
 		// ### referenced(success, error, options)
-		// This method returns a list of all referenced sites that the entityhub comprises.  
+		// This method returns a list of all referenced sites that the entityhub
+		// comprises.  
 		// **Parameters**:  
 		// *{function}* **success** The success callback.  
 		// *{function}* **error** The error callback.  
@@ -275,9 +325,11 @@
 		},
 
         // ### ldpath(query, success, error, options)
-        // TODO.  
-        // **Parameters**:  
-        // TODO
+        // execute an LDPath program on one or more Entities (contexts). 
+		// Produces an RDF Graph with the parsed context(s) as subject the field
+		// selected by the LDPath program as properties and the selected values
+		// as object.  
+        // **Parameters**:
         // *{function}* **success** The success callback.  
         // *{function}* **error** The error callback.  
         // *{object}* **options** Options, unused here.   
@@ -357,9 +409,9 @@
         },
 
         // ### query(query, success, error, options)
-        // TODO: add description
-        // **Parameters**:  
-        // TODO
+        // parse JSON serialized field queries to search for entities on the 
+        // entityhub
+        // **Parameters**:
         // *{function}* **success** The success callback.  
         // *{function}* **error** The error callback.  
         // *{object}* **options** Options, unused here.   
@@ -432,7 +484,7 @@
         },
         
                 
-        // ### createEntity(entity, success, error, option)
+        // ### createEntity(entity, success, error, option) alias save()
     	// @author mere01
     	// This method creates a new local entity on the Apache Stanbol entityhub endpoint.
         // If options.update is not set to true, the method fails if the entity is already existing in the entityhub.
@@ -440,8 +492,9 @@
     	// *{string}* **entity** the rdf xml formatted entity to be sent to the entityhub/entity/
         // *{function}* **success** The success callback.  
     	// *{function}* **error** The error callback.  
-        // *{object}* **options** the options to append to the URL request, e.g. "update: true" will 
-        // 						 enable updating an already existing entity.
+        // *{object}* **options** the options to append to the URL request, e.g. 
+        //		"update: true" will enable updating an already existing entity.
+        //		"id : <id>" will store the entity under the specified id.
     	// **Example usage**:  
     	//
         //    	     var stnblConn = new vie.StanbolConnector(opts);
@@ -450,13 +503,8 @@
         //    	                 function (err) { ... },);	to create a new entity in the entityhub
         createEntity: function(entity, success, error, options) {
         	
-//        	console.log("createEntity receives arguments:")
-//        	console.log(entity)
-//        	console.log(success)
-//        	console.log(error)
-//        	console.log(options)
-        	
     			options = (options)? options :  {};
+    			var id = (options.id) ? options.id : false;
 
     			var connector = this;
     	
@@ -472,9 +520,18 @@
     	                
     	                u += "/entity";
     	                
-    	                if (update) {
-    	                	u += "?update=true";
+    	                if (update || id) {
+    	                	u += "?"
     	                }
+    	                
+    	                if(id) {
+    	                	u += "id=" + id + "&";
+    	                }
+    	                
+    	                if (update) {
+    	                	u += "update=true";
+    	                }
+    	                
     	        		return u;
     	        	},
     	        	
@@ -495,7 +552,7 @@
                 url: url,
                 type: "POST",
                 data: args.entity,
-                contentType: args.format//,
+                contentType: args.format
             });
         }, 
 
@@ -518,9 +575,10 @@
             });
             r.end();
         },
+        
+        
         // ### save(id, success, error, option)
         // This is an alias to createEntity
-
 //        save: function () {
 //            return this.createEntity(arguments[0], arguments[1], arguments[2], arguments[3]);
 
@@ -535,7 +593,20 @@
         // *{string}* **uri** The URI of the entity to be loaded.  
         // *{function}* **success** The success callback.  
         // *{function}* **error** The error callback.  
-        // *{object}* **options** Options, like the ```format```, the ```site```. If ```local``` is set, only the local entities are accessed.   
+        // *{object}* **options** Options, like the ```format```, the ```site```. 
+        // 		If ```local``` is set, only the local entities are accessed.   
+        //		In the **options** parameter, you can specify the ```accept```
+		//		format of the returned data. (default is application/json). 
+		//		Available are:
+		// 		application/rdf+json,
+		//		application/rdf+xml,
+		//		application/x-turtle,
+		// 		text/rdf+n3,
+		// 		text/rdf+nt,
+		// 		text/turtle
+        //		Note: in case you set ```accept``` to something different from
+        //		the default, you might need to set ```format``` to "text" in
+        //		order to avoid a parsererror in the ajax callback.
         // **Throws**:  
         // *nothing*  
         // **Returns**:  
@@ -550,6 +621,7 @@
         readEntity: function (uri, success, error, options) {
             var connector = this;
             options = (options)? options :  {};
+            var accept = (options.accept) ? options.accept : "application/rdf+json";
 
             console.log("uri:")
             console.log(uri)
@@ -577,7 +649,9 @@
                     return u;
                 },
                 args : {
+                	accept : accept,
                     format : options.format || "application/rdf+json",
+                    content : options.content || "application/rdf+json",
                     options : options
                 },
                 urlIndex : 0
@@ -585,14 +659,17 @@
         },
 
         _readEntity : function (url, args, success, error) {
+        	console.log("_readEntity says: args.accept is set to: " + args.accept)
             jQuery.ajax({
+            	beforeSend: function(xhrObj) {
+	    		xhrObj.setRequestHeader("Accept", args.accept);
+				},
                 success: success,
                 error: error,
                 url: url,
                 type: "GET",
                 dataType: args.format,
-                contentType: "text/plain",
-                accepts: {"application/rdf+json": "application/rdf+json"}
+                contentType: args.content
             });
         },
 
@@ -603,7 +680,7 @@
                 uri: url,
                 body: args.text,
                 headers: {
-                    Accept: args.format
+                    Accept: args.accept
                 }
             }, function(err, response, body) {
                 try {
@@ -614,8 +691,9 @@
             });
             r.end();
         },
+        
+        
         // ### load(id, success, error, option)
-
         // This is an alias to readEntity
         load: function (uri, success, error, options) {
             return this.readEntity.call(this, uri, success, error, options);
@@ -711,9 +789,14 @@
 
         // ### deleteEntity(id, success, error, options)
     	// @author mere01
-    	// This method deletes a local entity from the Apache Stanbol entityhub/entity endpoint.
+    	// This method deletes a local entity from the Apache Stanbol 
+        // entityhub/entity endpoint. It is possible to delete *all* entities
+        // at the same time, by passing "*" as the **id**. Be careful with
+        // that, however, since other users might be relying on the existence
+        // of entities.
     	// **Parameters**:  
-        // *{string}* **id** the ID of the entity which is to be deleted from the entityhub.
+        // *{string}* **id** the ID of the entity which is to be deleted from 
+        //  	the entityhub.
         // *{function}* **success** The success callback.  
     	// *{function}* **error** The error callback.  
         // *{object}* **options** Options. 
@@ -796,6 +879,17 @@
         //			If you want to look up the mappings for an entity, specify "entity: true".
         //			If you want to look up the mappings for a symbol, specify "symbol: true".
         //			If you want to look up the mappings by the mapping ID itself, specify nothing.
+        // 		In the **options** parameter, you can specify the ```accept```
+		//		format of the returned data. (default is application/json). 
+		//		Available are:
+		// 		application/rdf+json,
+		//		application/rdf+xml,
+		//		application/x-turtle,
+		// 		text/rdf+n3,
+		// 		text/rdf+nt,
+		// 		text/turtle 		
+        // 		When asking for a symbol ID, only application/json is available.
+        //		
     	// **Throws**:  
     	// *nothing*  
     	// **Returns**:  
@@ -814,6 +908,13 @@
 
     			var connector = this;
     	
+    			options = (options)? options :  {};
+    			var accept = (options.accept) ? options.accept : "application/json";
+    			
+    			// curl -iv -X GET 
+    			//  -H "Accept: text/turtle"
+    			//  "http://lnv-89012.dfki.uni-sb.de:9001/entityhub/mapping/entity?id=http://dbpedia.org/resource/Paris"
+    			
     	    	connector._iterate({
     	        	method : connector._getMapping,
     	        	methodNode : connector._getMappingNode,
@@ -834,13 +935,14 @@
     	                	u += "/symbol";
     	                }
     	                
-    	                u += "?id=" + escape(id);
+    	                u += "?id=" + id;// + escape(id);
     	                
     	        		return u;
     	        	},
     	        	args : {
     	        		format : "application/json",
-    	        		options: options
+    	        		options: options,
+    	        		accept : accept
     	        	},
     	        	success : success,
     	        	error : error,
@@ -850,6 +952,9 @@
 
         _getMapping : function (url, args, success, error) {
         	jQuery.ajax({
+        		beforeSend: function(xhrObj) {
+	    		xhrObj.setRequestHeader("Accept", args.accept);
+				},
                 success: success,
                 error: error,
                 url: url,
@@ -864,7 +969,7 @@
                 method: "GET",
                 uri: url,
                 headers: {
-                    Accept: "application/json",
+                    Accept: args.accept,
                     'Content-Type': args.format
                 }
             }, function(err, response, body) {

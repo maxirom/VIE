@@ -9,7 +9,7 @@ var rdfFile = (window.CMS_rdfFile) ? window.CMS_rdfFile : false;
 var path = (window.CMS_path) ? window.CMS_path : false;
 
 // helper function needed in order to read from files
-//@author shamelessly inspired by http://snipplr.com/view/4021/
+// shamelessly inspired by http://snipplr.com/view/4021/
 function getXmlHttp() {
 	   if (window.XMLHttpRequest) {
 	      xmlhttp=new XMLHttpRequest();
@@ -24,7 +24,7 @@ function getXmlHttp() {
 
 //### test for the cmsadapter/ endpoint, the component that connects stanbol to
 // content management systems and their data repositories.
-//@author mere01
+// @author mere01
 test("VIE.js StanbolConnector - CMS Adapter", function() {
 	
 	if ( (! repo) ) {//|| (repo === "http://lnv-89012.dfki.uni-sb.de:9002/rmi") ) {
@@ -146,7 +146,25 @@ test("VIE.js StanbolConnector - CMS Adapter", function() {
 					ok(true, "Submitted repository item at '/test' to contenthub.");
 					console.log("Submitted repository item at '/test' to contenthub.");
 					console.log(success);
-					start();
+
+					// delete the item again
+					stanbol.connector.deleteRepositoryItem(
+						key,
+						function(success){
+							ok(true, "Deleted repository item at '/test' from contenthub.");
+							console.log("Deleted repository item at '/test' from contenthub.")
+							console.log(success)
+							start();						
+					}, function(error) {
+							ok(false, "Could not delete repository item at '/test' from contenthub.");
+							console.log("Could not delete repository item at '/test' from contenthub.")
+							console.log(error)
+							start();
+					}, {
+						path : path,
+						recursive: true
+					});
+					
 				},
 				function(error){
 					

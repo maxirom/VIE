@@ -2,37 +2,166 @@ var stanbolRootUrl = (window.STANBOL_URLS) ? window.STANBOL_URLS : [
 "http://dev.iks-project.eu:8081",
 "http://dev.iks-project.eu/stanbolfull" ];
 
-test(
-  "VIE.js StanbolService - ContentHub: Upload of content / Retrieval of enhancements",
-  function() {
-     if (navigator.userAgent === 'Zombie') {
-        return;
-    }
-    var content = 'This is a small test, where Steve Jobs sings the song "We want to live forever!" song.';
+var contentFile = (window.contentItem) ? window.contentItem : false;
+    
+// helper function needed in order to read from files
+// shamelessly inspired by http://snipplr.com/view/4021/
+function getXmlHttp() {
+	   if (window.XMLHttpRequest) {
+	      xmlhttp=new XMLHttpRequest();
+	   } else if (window.ActiveXObject) {
+	      xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+	   }
+	   if (xmlhttp == null) {
+	      alert("Your browser does not support XMLHTTP.");
+	   }
+	   return xmlhttp;
+	}
+    
+//test("VIE.js StanbolService - ContentHub: Upload of content / Retrieval of enhancements",
+//  function() {
+//     if (navigator.userAgent === 'Zombie') {
+//        return;
+//    }
+//    
+//    var content = 'This is a small test, where Steve Jobs sings the song "We want to live forever!" song.';
+//	var sid = 'stevejobs'
+//    
+//    var z = new VIE();
+//     ok(z.StanbolService, "Stanbol Service exists.");
+//     equal(typeof z.StanbolService, "function");
+//
+//     var stanbol = new z.StanbolService( {
+//        url : stanbolRootUrl[0]
+//    });
+//    z.use(stanbol);
+//     
+//    stop();
+//    stanbol.connector.uploadContent(content,
+//       function(success) {
+//       	  start();
+//       	  ok(true, "Loaded up content to contenthub.")
+//       	  
+//          stop();
+//		  stanbol.connector.deleteContent(
+//		  	sid,
+//		  	function(succ){ 
+//		  		ok(true, "Deleted content item " + sid);
+//		  		start();
+//		  	},
+//		  	function(err){ 
+//		  		ok(false, "Could not delete content item " + sid);
+//		  		console.log(err);
+//		  		start();
+//		  	}	  		
+//		  );
+//         
+//		}, function(err) {
+//        	ok(false, "Could not load up content to contenthub: " + err)
+//        	console.log(err)
+//            start();
+//        },
+//        {
+//        	id : sid
+//        });
+//        
+//        
+//	    stop();
+//	    var file;
+//	    var xmlhttp = getXmlHttp();
+//	    xmlhttp.onreadystatechange = function() {
+//	       if (xmlhttp.readyState==4) { 
+//	           file = xmlhttp.responseText;
+//	           console.log("in if-case")
+//	           console.log("***file :")
+//	           console.log(file)			// here, we have the true content of the file
+//	       }
+//	    }
+//	    xmlhttp.open("GET", contentFile, true);
+//	    xmlhttp.send(null);
+//	    console.log(xmlhttp);
+//	    console.log("***file: ")
+//	    console.log(file)					// here, it is 'undefined'    
+//    
+//        stanbol.connector.uploadContent(
+//    		file, 
+//    		function(xml, status, xhr){
+//	    		var location = xhr.getResponseHeader('Location');
+//	    		console.log("status: " + status)
+//	    		ok(true, "Loaded up content from local file " + contentFile);
+//	          	console.log("this is the location:")
+//	          	console.log(location)
+//	    		start();
+//    	}, function(error){
+//	    		ok(false, "Could not load up content from local file " + contentFile);
+//	    		console.log(error)
+//	    		start();
+//    	},
+//    	{
+////    		id : "J-M-B",
+//    		file : true
+//    	});
+//    
+//    var bid = "jmBarrie";
+//	stop();
+//    content = 'James Matthew Barrie, the famous author of Peter Pan, was born in Scotland in 1860.';
+//    stanbol.connector.uploadContent(
+//    	content, 
+//    	function(xml, status, xhr){
+//    		start();
+//    		ok(true, "Loaded up content with form elements.");
+//    		
+//			// then delete the item again:
+//			stop();
+//			stanbol.connector.deleteContent(bid,
+//				function(succ){
+//					ok(true, "Deleted content item " + bid);
+//					start();
+//				}, 
+//				function(err){
+//					ok(false, "Could not delete content item " + bid);
+//					console.log(err)
+//					start();
+//				});
+//          	
+//    	}, function(error){
+//    		ok(false, "Could not load up content with form elements.");
+//    		console.log(error)
+//    		start();
+//    	},
+//    	{
+//    		id : "JMB_with-form-elements",	// does not work using form elements
+//    		fe : {
+//    			title : "Barrie",
+//    			constraints : "{author: \"mere\"}",
+//    			url : "http://net.tutsplus.com", TODO test separately, specify *instead* of 'content' -> 'content' might be a URL
+//    			id : bid
+//    		}
+//    	});
+//                          
+//    
+//  // TODO multipart-formdata file ipload does not work yet
+// 	stop();
+//    stanbol.connector.uploadContent(
+//    	contentFile, function(xml, status, xhr){
+//    		console.log("status: " + status)
+//    		ok(true, "Loaded up content from local file " + contentFile);
+//          	console.log("this is the location:")
+//          	console.log(location)
+//    		start();
+//    	}, function(error){
+//    		ok(false, "Could not load up content from local file " + contentFile);
+//    		start();
+//    	},
+//    	{
+////    		id : "J-M-B",
+//    		file : true
+//    	});
+//    
+//       
+//});
 
-    var z = new VIE();
-    ok(z.StanbolService);
-    equal(typeof z.StanbolService, "function");
-    var stanbol = new z.StanbolService( {
-        url : stanbolRootUrl[0]
-    });
-    z.use(stanbol);
-
-    stop();
-    stanbol.connector.uploadContent(content,
-       function(xml, status, xhr) {
-          var location = xhr.getResponseHeader('Location');
-          console.log("this is the location:")
-          console.log(location);
-          				// must specify an ID for the new content item 
-                        // TODO: This does not work in jQuery :(
-                           start();
-                       }, function(err) {
-                           ok(false, err);
-                           start();
-                       });
-});
-
+	
 // ### test for the /contenthub/contenthub/store/raw/<contentId>, the service to
 // retrieve raw text content from content items via the item's id
 // @author mere01

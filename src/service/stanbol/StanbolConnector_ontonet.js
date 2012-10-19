@@ -19,7 +19,8 @@
 // getLibrary		# get a library from a scope or from a session
 // getScope	
 // deleteScope		
-// ontoScopes		# get all scopes that live on the ontonet endpoint
+// ontoScopes		# get all scopes that live on the ontonet/ontology endpoint
+// ontoSessions		# get all sessions that live on the ontonet/session endpoint
 // createSession	
 // deleteSession
 // updateScopes		# append scopes to a session while detaching all other scopes from this session
@@ -362,7 +363,15 @@
 						// *{string}* **scopeID** the ID of the scope
 						// *{function}* **success** The success callback.
 						// *{function}* **error** The error callback.
-						// *{object}* **options** Options (not specified here)
+						// *{object}* **options** Options to specify the accept
+						// type. Specify 'accept : <type>', where <type> is one
+						// of the following: application/owl+xml, 
+						// application/rdf+json, application/rdf+xml, 
+						// application/x-turtle, text/owl-functional, 
+						// text/owl-manchester, text/plain, text/rdf+n3, 
+						// text/rdf+nt, text/turtle. 
+						// In case nothing is specified, 'text/turtle' will be
+						// used. 
 						// **Throws**:
 						// *nothing*
 						// **Returns**:
@@ -371,6 +380,9 @@
 						getScope : function(scopeID, success, error, options) {
 
 							options = (options) ? options : {};
+							
+							var acc = (options.accept) ? (options.accept) : "text/turtle";
+							
 							var connector = this;
 							// curl -H "Accept:text/turtle" http://<server>/ontonet/ontology/<scope>
 
@@ -391,7 +403,8 @@
 									return u;
 								},
 								args : {
-									options : options
+									options : options,
+									accept : acc
 								},
 								urlIndex : 0
 							});
@@ -399,13 +412,13 @@
 
 						_getScope : function(url, args, success, error) {
 							jQuery.ajax( {
+								beforeSend: function(xhrObj) {
+						    		xhrObj.setRequestHeader("Accept", args.accept);
+								},
 								success : success,
 								error : error,
 								url : url,
-								type : "GET",
-								accepts : {
-									"text/turtle" : "text/turtle"
-								}
+								type : "GET"
 
 							});
 						}, // end of _getScope
@@ -415,9 +428,8 @@
 							var r = request( {
 								method : "GET",
 								uri : url,
-								// body : args.content,
 								headers : {
-									Accept : "text/turtle"
+									Accept : args.accept
 								}
 							}, function(err, response, body) {
 								try {
@@ -448,6 +460,15 @@
 						// *{object}* **options** Options. Must contain the
 						//		key 'loc' with a value of either 'session' or
 						//		'scope'. 
+						// It is also possible to specify the accept
+						// type. Specify 'accept : <type>', where <type> is one
+						// of the following: application/owl+xml, 
+						// application/rdf+json, application/rdf+xml, 
+						// application/x-turtle, text/owl-functional, 
+						// text/owl-manchester, text/plain, text/rdf+n3, 
+						// text/rdf+nt, text/turtle. 
+						// In case nothing is specified, 'text/turtle' will be
+						// used. 
 						// **Throws**:
 						// *nothing*
 						// **Returns**:
@@ -470,6 +491,9 @@
 								"either 'session' or 'scope'";
 								}
 							var connector = this;
+							
+							var acc = (options.accept) ? (options.accept) : "text/turtle";
+
 							// curl -H "Accept:application/rdf+xml"
 							// http://<server>/ontonet/ontology/<scope>/<ontology>
 							// or
@@ -500,7 +524,8 @@
 									return u;
 								},
 								args : {
-									options : options
+									options : options,
+									accept : acc
 								},
 								urlIndex : 0
 							});
@@ -509,14 +534,14 @@
 						_getOntology : function(url, args, success, error) {
 							jQuery
 									.ajax( {
+										beforeSend: function(xhrObj) {
+						    				xhrObj.setRequestHeader("Accept", args.accept);
+										},
 										success : success,
 										error : error,
 										url : url,
-										type : "GET",
-										accepts : {
-											"application/rdf+xml" : "application/rdf+xml"
-										}
-
+										type : "GET"
+										
 									});
 						}, // end of _getOntology
 
@@ -526,7 +551,7 @@
 								method : "GET",
 								uri : url,
 								headers : {
-									Accept : "application/rdf+xml"
+									Accept : args.access
 								}
 							}, function(err, response, body) {
 								try {
@@ -557,6 +582,15 @@
 						// *{object}* **options** Options. Must contain the
 						//		key 'loc' with a value of either 'session' or
 						//		'scope'. 
+						// specify the accept
+						// type. Specify 'accept : <type>', where <type> is one
+						// of the following: application/owl+xml, 
+						// application/rdf+json, application/rdf+xml, 
+						// application/x-turtle, text/owl-functional, 
+						// text/owl-manchester, text/plain, text/rdf+n3, 
+						// text/rdf+nt, text/turtle. 
+						// In case nothing is specified, 'text/turtle' will be
+						// used. 
 						getLibrary : function(id, libraryID, success,
 								error, options) {
 
@@ -575,6 +609,9 @@
 								}
 							
 							var connector = this;
+							
+							var acc = (options.accept) ? (options.accept) : "text/turtle";
+
 							// curl -H "Accept:application/rdf+xml"
 							// http://<server>/ontonet/ontology/<scope>/<Library>
 							// oder
@@ -605,7 +642,8 @@
 									return u;
 								},
 								args : {
-									options : options
+									options : options,
+									accept : acc
 								},
 								urlIndex : 0
 							});
@@ -614,13 +652,14 @@
 						_getLibrary : function(url, args, success, error) {
 							jQuery
 									.ajax( {
+										beforeSend: function(xhrObj) {
+						    				xhrObj.setRequestHeader("Accept", args.accept);
+										},
 										success : success,
 										error : error,
 										url : url,
-										type : "GET",
-										accepts : {
-											"application/rdf+xml" : "application/rdf+xml"
-										}
+										type : "GET"
+										
 
 									});
 						}, // end of _getLibrary
@@ -630,9 +669,8 @@
 							var r = request( {
 								method : "GET",
 								uri : url,
-								// body : args.content,
 								headers : {
-									Accept : "application/rdf+xml"
+									Accept : args.acc
 								}
 							}, function(err, response, body) {
 								try {
@@ -723,16 +761,25 @@
 
 						// ### ontoScopes(success, error, options)
 						// @author mere01
-						// This method returns an RDF document that lists all
-						// scopes that are currently
+						// This method returns all scopes that are currently
 						// registered and/or (in)active ontology scopes of the
-						// ontonet/ontology/ endpoint.
+						// ontonet/ontology/ endpoint. Format/return type can
+						// be specified as options.format.
 						// **Parameters**:
 						// *{function}* **success** The success callback.
 						// *{function}* **error** The error callback.
 						// *{object}* **options** Options. Specify e.g. {
 						// 'inactive' : false }
-						// if you want the inactive scopes to be omitted
+						// if you want the inactive scopes to be omitted.
+						// Specify the return format of the data as 
+						// 'options.format' to be one of the following:
+						// application/owl+xml, 
+						// application/rdf+json, application/rdf+xml, 
+						// application/x-turtle, text/owl-functional, 
+						// text/owl-manchester, text/plain, text/rdf+n3, 
+						// text/rdf+nt, text/turtle. 
+						// In case nothing is specified, 'text/turtle' will be
+						// used. 
 						// **Throws**:
 						// *nothing*
 						// **Returns**:
@@ -747,10 +794,10 @@
 						ontoScopes : function(success, error, options) {
 
 							options = (options) ? options : {};
-//							console.log("options:")
-//							console.log(options)
 							var connector = this;
 
+							var acc = (options.accept) ? (options.accept) : "text/turtle";
+							
 							connector
 									._iterate( {
 										method : connector._ontoScopes,
@@ -761,7 +808,6 @@
 
 											inactive = (options.inactive) ? options.inactive
 													: 'true';
-											//console.log("inactive? = " + inactive)
 
 											var u = this.options.url[idx]
 													.replace(/\/$/, '');
@@ -773,7 +819,7 @@
 											return u;
 										},
 										args : {
-											format : "application/rdf+xml"
+											format : acc
 										},
 										urlIndex : 0
 									});
@@ -811,6 +857,103 @@
 							r.end();
 						}, // end of _ontoScopesNode
 
+						
+						// ### ontoSessions(success, error, options)
+						// @author mere01
+						// This method returns all sessions that are currently
+						// being managed on the 
+						// ontonet/session/ endpoint. Format/return type can
+						// be specified as options.format.
+						// **Parameters**:
+						// *{function}* **success** The success callback.
+						// *{function}* **error** The error callback.
+						// *{object}* **options** Options. Specify e.g. {
+						// 'inactive' : false }
+						// if you want the inactive scopes to be omitted.
+						// Specify the return format of the data as 
+						// 'options.format' to be one of the following:
+						// application/owl+xml, 
+						// application/rdf+json, application/rdf+xml, 
+						// application/x-turtle, text/owl-functional, 
+						// text/owl-manchester, text/plain, text/rdf+n3, 
+						// text/rdf+nt, text/turtle. 
+						// In case nothing is specified, 'text/turtle' will be
+						// used. 
+						// **Throws**:
+						// *nothing*
+						// **Returns**:
+						// *{VIE.StanbolConnector}* : The VIE.StanbolConnector
+						// instance itself.
+						// **Example usage**:
+						//
+						// var stnblConn = new vie.StanbolConnector(opts);
+						// stnblConn.contenthubIndices(
+						// function (res) { ... },
+						// function (err) { ... });
+						ontoSessions : function(success, error, options) {
+
+							options = (options) ? options : {};
+							var connector = this;
+
+							var acc = (options.accept) ? (options.accept) : "text/turtle";
+							
+							connector
+									._iterate( {
+										method : connector._ontoScopes,
+										methodNode : connector._ontoScopesNode,
+										success : success,
+										error : error,
+										url : function(idx, opts) {
+
+											inactive = (options.inactive) ? options.inactive
+													: 'true';
+
+											var u = this.options.url[idx]
+													.replace(/\/$/, '');
+											u += this.options.ontonet.urlPostfix;
+											u += this.options.ontonet.session
+													.replace(/\/$/, '');
+											return u;
+										},
+										args : {
+											format : acc
+										},
+										urlIndex : 0
+									});
+						}, // end of ontoSessions()
+
+						_ontoSessions : function(url, args, success, error) {
+							jQuery.ajax( {
+										beforeSend: function(xhrObj) {
+										xhrObj.setRequestHeader("Accept", args.format);
+										},
+										success : success,
+										error : error,
+										url : url,
+										type : "GET"
+									});
+						}, // end of _ontoSessions
+
+						_ontoSessionsNode : function(url, args, success, error) {
+							var request = require('request');
+							var r = request( {
+								method : "GET",
+								uri : url,
+								headers : {
+									Accept : args.format
+								}
+							}, function(err, response, body) {
+								try {
+									success( {
+										results : JSON.parse(body)
+									});
+								} catch (e) {
+									error(e);
+								}
+							});
+							r.end();
+						}, // end of _ontoSessionsNode
+						
 						// ### createSession(success, error, sessionId)
 						// @author mere01
 						// creates a session with the specified session id on 
@@ -880,7 +1023,6 @@
 							var r = request( {
 								method : args.verb,
 								uri : url,
-								//body : args.content,
 								headers : {
 									Accept : "text/plain",
 									"Content-Type" : "text/plain"
@@ -1214,7 +1356,6 @@
 							});
 							} else {
 								// in case no scopes were specified, we do a simple POST without arguments
-								
 								$.ajax( {
 									success : success,
 									error : error,
@@ -1231,7 +1372,6 @@
 								method : "POST",
 								data : args.data,
 								uri : url,
-								//body : args.content,
 								headers : {
 									Accept : "application/rdf+xml",
 									"Content-Type" : "text/plain"
@@ -1294,7 +1434,6 @@
 									return u;
 								},
 								args : {
-								// options : options
 								},
 								urlIndex : 0
 							});
@@ -1317,7 +1456,6 @@
 							var r = request( {
 								method : "DELETE",
 								uri : url,
-								//body : args.content,
 								headers : {
 									Accept : "application/rdf+xml",
 									"Content-Type" : "text/plain"
@@ -1345,7 +1483,16 @@
 						// *{string}* **sessionID** the name of the session
 						// *{function}* **success** The success callback.
 						// *{function}* **error** The error callback.
-						// *{object}* **options** Options (not specified here)
+						// *{object}* **options** Options: You may
+						// specify the accept
+						// type. Specify 'accept : <type>', where <type> is one
+						// of the following: application/owl+xml, 
+						// application/rdf+json, application/rdf+xml, 
+						// application/x-turtle, text/owl-functional, 
+						// text/owl-manchester, text/plain, text/rdf+n3, 
+						// text/rdf+nt, text/turtle. 
+						// In case nothing is specified, 'text/turtle' will be
+						// used. 
 						// **Throws**:
 						// *nothing*
 						// **Returns**:
@@ -1356,6 +1503,9 @@
 
 							options = (options) ? options : {};
 							var connector = this;
+							
+							var acc = (options.accept) ? (options.accept) : "text/turtle";
+
 							// curl -i -X GET -H "Accept: text/turtle"
 							// http://lnv-89012.dfki.uni-sb.de:9001/ontonet/ontology/pizzaScope
 
@@ -1376,7 +1526,8 @@
 									return u;
 								},
 								args : {
-									options : options
+									options : options,
+									accept : acc
 								},
 								urlIndex : 0
 							});
@@ -1384,14 +1535,14 @@
 
 						_getSession : function(url, args, success, error) {
 							jQuery.ajax( {
+								beforeSend: function(xhrObj) {
+						    		xhrObj.setRequestHeader("Accept", args.accept);
+								},
 								success : success,
 								error : error,
 								url : url,
-								type : "GET",
-								accepts : {
-									"text/turtle" : "text/turtle"
-								}
-
+								type : "GET"
+								
 							});
 						}, // end of _getSession
 

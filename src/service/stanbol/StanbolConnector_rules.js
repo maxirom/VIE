@@ -53,8 +53,6 @@
 				data.append('description', options.desc);
 			}
 
-//			console.log("the FormData object:")
-//			console.log(data)
 
 			connector._iterate( {
 				method : connector._createRule,
@@ -65,8 +63,8 @@
 				// var u = this.options.url[idx].replace(/\/$/, '');
 				// u += this.options.rules.urlPostfix.replace(/\/$/, '');
 				// u += this.options.rules.recipe.replace(/\/$/, '');
-
 				// return u;
+					
 				return "http://lnv-89012.dfki.uni-sb.de:9001/rules/recipe"
 			},
 			args : {
@@ -151,7 +149,7 @@
 				success : success,
 				error : error,
 				url : function(idx, opts) {
-					// var u = this.options.url[idx].replace(/\/$/, '');
+				// var u = this.options.url[idx].replace(/\/$/, '');
 				// u += this.options.rules.urlPostfix.replace(/\/$/, '');
 				// u += this.options.rules.recipe.replace(/\/$/, '');
 
@@ -231,7 +229,7 @@
 				success : success,
 				error : error,
 				url : function(idx, opts) {
-					// var u = this.options.url[idx].replace(/\/$/, '');
+				// var u = this.options.url[idx].replace(/\/$/, '');
 				// u += this.options.rules.urlPostfix.replace(/\/$/, '');
 				// u += this.options.rules.recipe.replace(/\/$/, '');
 
@@ -251,7 +249,6 @@
 		}, // end of deleteRule
 
 		_deleteRule : function(url, args, success, error) {
-//			console.log("ajax call receives url: " + url)
 			jQuery.ajax( {
 				success : success,
 				error : error,
@@ -313,7 +310,7 @@
 				success : success,
 				error : error,
 				url : function(idx, opts) {
-					// var u = this.options.url[idx].replace(/\/$/, '');
+				// var u = this.options.url[idx].replace(/\/$/, '');
 				// u += this.options.rules.urlPostfix.replace(/\/$/, '');
 				// u += this.options.rules.recipe.replace(/\/$/, '');
 
@@ -391,7 +388,6 @@
 				methodNode : connector._findRuleNode,
 				success : success,
 				error : error,
-//				complete : complete,
 				url : function(idx, opts) {
 				// var u = this.options.url[idx].replace(/\/$/, '');
 				// u += this.options.rules.urlPostfix.replace(/\/$/, '');
@@ -413,12 +409,7 @@
 			jQuery.ajax( {
 				success : success,
 				error : error,
-//				complete : complete,
 				url : url + "?" + args.termType + "=" + args.term
-//				type : "GET",
-//				accepts : {
-//					"application/rdf+xml" : "application/rdf+xml"
-//				}
 
 			});
 		}, // end of _findRule
@@ -428,7 +419,6 @@
 			var r = request( {
 				method : "GET",
 				uri : url,
-				// body : args.content,
 				headers : {
 					Accept : "application/rdf+xml"
 				}
@@ -451,7 +441,7 @@
 				// can be done using either the name or some description of
 				// the rule. These can be specified in the options parameter
 				// as 'name' or 'description'. In the default case, i.e., if no
-				// options are specified, // TODO
+				// options are specified, //... TODO
 				// **Parameters**:
 				// *{function}* **success** The success callback.
 				// *{function}* **error** The error callback.
@@ -482,9 +472,8 @@
 						methodNode : connector._findRuleNode,
 						success : success,
 						error : error,
-//						complete : complete,
 						url : function(idx, opts) {
-							// var u = this.options.url[idx].replace(/\/$/, '');
+						// var u = this.options.url[idx].replace(/\/$/, '');
 						// u += this.options.rules.urlPostfix.replace(/\/$/, '');
 						// u += this.options.rules.recipe.replace(/\/$/, '');
 
@@ -513,7 +502,6 @@
 						},
 						success : success,
 						error : error,
-//						complete : complete,
 						url : url,
 						type : "GET",
 						accepts : {
@@ -528,7 +516,6 @@
 					var r = request( {
 						method : "GET",
 						uri : url,
-						// body : args.content,
 						headers : {
 							Accept : "text/turtle"
 						}
@@ -575,9 +562,8 @@
 						methodNode : connector._findRecipeNode,
 						success : success,
 						error : error,
-//						complete : complete,
 						url : function(idx, opts) {
-							// var u = this.options.url[idx].replace(/\/$/, '');
+						// var u = this.options.url[idx].replace(/\/$/, '');
 						// u += this.options.rules.urlPostfix.replace(/\/$/, '');
 						// u += this.options.rules.recipe.replace(/\/$/, '');
 
@@ -604,12 +590,7 @@
 						},
 						success : success,
 						error : error,
-//						complete : complete,
 						url : url
-//						type : "GET",
-//						accepts : {
-//							"text/turtle" : "text/turtle"
-//						}
 
 					});
 				}, // end of _findRecipe
@@ -619,7 +600,6 @@
 					var r = request( {
 						method : "GET",
 						uri : url,
-						// body : args.content,
 						headers : {
 							Accept : "text/turtle"
 						}
@@ -662,9 +642,8 @@
 				methodNode : connector._getRecipeNode,
 				success : success,
 				error : error,
-//				complete : complete,
 				url : function(idx, opts) {
-					// var u = this.options.url[idx].replace(/\/$/, '');
+				// var u = this.options.url[idx].replace(/\/$/, '');
 				// u += this.options.rules.urlPostfix.replace(/\/$/, '');
 				// u += this.options.rules.recipe.replace(/\/$/, '');
 
@@ -683,7 +662,6 @@
 			jQuery.ajax( {
 				success : success,
 				error : error,
-//				complete : complete,
 				url : url + "/" + args.id,
 				type : "GET",
 				accepts : {
@@ -698,7 +676,6 @@
 			var r = request( {
 				method : "GET",
 				uri : url,
-				// body : args.content,
 				headers : {
 					Accept : "text/turtle"
 				}
@@ -765,9 +742,6 @@
 			var data = new FormData();
 			data.append('recipe', recipe);
 			data.append('input', graph);
-
-//			console.log("the FormData object:")
-//			console.log(data)
 
 			connector._iterate( {
 				method : connector._refactor,
@@ -862,7 +836,6 @@
 				methodNode : connector._exportRecipeNode,
 				success : success,
 				error : error,
-//				complete : complete,
 				url : function(idx, opts) {
 
 //					var u = this.options.url[idx].replace(/\/$/, '');
@@ -885,7 +858,6 @@
 			jQuery.ajax( {
 				success : success,
 				error : error,
-//				complete : complete,
 				url : url,
 				type : "GET"
 

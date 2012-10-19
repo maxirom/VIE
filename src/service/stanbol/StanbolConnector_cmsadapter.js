@@ -13,9 +13,9 @@
 //
 // getReposSessionKey()
 // mapRDFtoRepository()
-// mapRepositoryToRDF() // does not work yet (see https://issues.apache.org/jira/browse/STANBOL-727)
+// mapRepositoryToRDF() // not available yet
 // submitRepositoryItem()
-// deleteRepositoryItem() // does not work yet (see https://issues.apache.org/jira/browse/STANBOL-727)
+// deleteRepositoryItem()
 //
 (function(){
 		
@@ -92,10 +92,6 @@
 			error : error,
 			url : url,
 			type : "GET"
-//			accepts : {
-//				text : "text/plain"
-//			}
-
 		});
 	}, // end of _getReposSessionKey
 
@@ -104,7 +100,6 @@
 		var r = request( {
 			method : "GET",
 			uri : url,
-			// body : args.content,
 			headers : {
 				Accept : "text/plain"
 			}
@@ -182,6 +177,8 @@
 		
 		if (rdfFile) {
 			
+			console.log("got as rdfFile: ")
+			console.log(rdfFile)
 			var info = (options.rdfFileInfo) ? options.rdfFileInfo : false;
 		}
 		
@@ -319,7 +316,7 @@
 	// **Returns**:
 	// *{VIE.StanbolConnector}* : The VIE.StanbolConnector
 	// instance itself.
-//	mapRepositoryToRDF : function(sessionKey, baseURI, success, error, options) {
+	//	mapRepositoryToRDF : function(sessionKey, baseURI, success, error, options) {
 		// TODO curl command is not correct yet
 		
 		// curl -i -X POST 
@@ -448,8 +445,6 @@
 		// curl -i -X POST 
 		//   --data "sessionKey=eeae036f-2e22-4a8e-8f1d-860a246f1750&path=/test&recursive=yes" 
 		//   http://lnv-89012.dfki.uni-sb.de:9001/cmsadapter/contenthubfeed
-
-
 		
 		options = (options) ? options : false;
 		
@@ -543,10 +538,7 @@
 			data : args.data,
 			uri : url,
 			body : args.content
-//			headers : {
-//				Accept : "application/rdf+xml",
-//				"Content-Type" : "text/plain"
-//			}
+
 		}, function(err, response, body) {
 			try {
 				success( {
@@ -585,78 +577,76 @@
 	// **Returns**:
 	// *{VIE.StanbolConnector}* : The VIE.StanbolConnector
 	// instance itself.
-//	deleteRepositoryItem : function(sessionKey, success, error, options) {
-		// TODO curl command is not correct yet
+	deleteRepositoryItem : function(sessionKey, success, error, options) {
 		
 		// curl -i -X DELETE 
 		// 	--data "sessionKey=5d934b53-dc33-4d9c-884f-c16c8ba872af&path=/contenthubfeedtest&recursive=true" 
 		//	http://lnv-89012.dfki.uni-sb.de:9001/cmsadapter/contenthubfeed
 
-
+		options = (options) ? options : false;
 		
-//		options = (options) ? options : false;
-//		
-//		if (! options) {
-//			return "Must specify at least a session key and one of path or id of the repository.";
-//		}
-//		
-//		var params = {};
-//		
-//		var id = (options.id) ? options.id : false;
-//			
-//		var path = (options.path) ? options.path : false;
-//			
-//		if (id && path) {
-//			params.id = id;
-//		} else if (id) {
-//			params.id = id;
-//		} else if(path) {
-//			params.path = path;	
-//			}
-//		
-//		if (path) {
-//			var recursive = (options.recursive) ? options.recursive : false;
-//			if (recursive) {
-//				params.recursive = recursive;
-//			}
-//		}
-//		
-//		var indexName = options.indexName;
-//			if (indexName) {
-//				params.indexName = indexName;
-//			}
-//		
-//		
-//		var connector = this;
-//
-//		var data = false;
-//		
-//		for (var key in params) {
-//			data += key + "=" + params[key] + "&";
-//		}
-//		
-//
-//		connector._iterate( {
-//			method : connector._deleteRepositoryItem,
-//			methodNode : connector._deleteRepositoryItemNode,
-//			success : success,
-//			error : error,
-//			url : function(idx, opts) {
-//				var u = this.options.url[idx].replace(
-//						/\/$/, '');
-//				u += this.options.cmsadapter.urlPostfix
-//						.replace(/\/$/, '');
-//				u += this.options.cmsadapter.contenthubfeed.replace(/\/$/, '');
-//				
-//				return u;
-//			},
-//			args : {
-//				data : data
-//			},
-//			urlIndex : 0
-//		});
-//
-//	}, // end of deleteRepositoryItem
+		if (! options) {
+			return "Must specify at least a session key and one of path or id of the repository.";
+		}
+		
+		var params = {};
+		params.sessionKey = sessionKey;
+		
+		var id = (options.id) ? options.id : false;
+			
+		var path = (options.path) ? options.path : false;
+			
+		if (id && path) {
+			params.id = id;
+		} else if (id) {
+			params.id = id;
+		} else if(path) {
+			params.path = path;	
+			}
+		
+		if (path) {
+			var recursive = (options.recursive) ? options.recursive : false;
+			
+			params.recursive = recursive;
+			
+		}
+		
+		var indexName = (options.indexName) ? options.indexName : false;
+			if (indexName) {
+				params.indexName = indexName;
+			}
+		
+		
+		var connector = this;
+
+		var data = "";
+		
+		for (var key in params) {
+			data += key + "=" + params[key] + "&";
+		}
+		
+
+		connector._iterate( {
+			method : connector._deleteRepositoryItem,
+			methodNode : connector._deleteRepositoryItemNode,
+			success : success,
+			error : error,
+			url : function(idx, opts) {
+				var u = this.options.url[idx].replace(
+						/\/$/, '');
+				u += this.options.cmsadapter.urlPostfix
+						.replace(/\/$/, '');
+				u += this.options.cmsadapter.contenthubfeed.replace(/\/$/, '');
+				
+				return u;
+			},
+			args : {
+				data : data
+			},
+			urlIndex : 0
+		});
+
+	}, // end of deleteRepositoryItem
 
 	_deleteRepositoryItem : function(url, args, success, error) {
 	

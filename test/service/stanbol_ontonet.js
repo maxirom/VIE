@@ -8,7 +8,6 @@ var stanbolRootUrl = (window.STANBOL_URLS) ? window.STANBOL_URLS : [
 // certain CMS-related set of concepts.
 // A library is an aggregate object of multiple ontology sources. 
 // A registry is the RDF graph that describes one or more libraries (or parts thereof). 
-
 //@author mere01
 test("VIE.js StanbolConnector - OntoNet Scope Manager", function() {
 	
@@ -23,7 +22,6 @@ test("VIE.js StanbolConnector - OntoNet Scope Manager", function() {
     });
     z.use(stanbol);
 
-    // core
     stop();
 	stanbol.connector.createScope(
 				scope,
@@ -64,13 +62,12 @@ test("VIE.js StanbolConnector - OntoNet Scope Manager", function() {
 			                stanbol.connector.getOntology(scope, ontID, function(success) {
 			                    ok(true, "03.B. Retrieved ontology " + ontology + " at scope " + scope);
 			                    console.log("03.B. Retrieved ontology " + ontology);
-//			                    console.log(success)	// TODO returns HTML page instead of RDF
-			                */ // TODO POST/redirect/GET    
+			                */ // POST/redirect/GET    
 			                    
 			                // we can get a list of all the registered scopes
 						    stanbol.connector.ontoScopes(function(success) {
 						        ok(true, "04. could retrieve list of all registered scopes");
-						        console.log("04. retrieved list of registered scopes:")
+						        console.log("04. retrieved list of registered scopes in format text/rdf+n3:")
 						        console.log(success);
 						        
 						        
@@ -91,6 +88,8 @@ test("VIE.js StanbolConnector - OntoNet Scope Manager", function() {
 						        console.log(err)
 						        start();
 						     
+						    }, {
+						    	accept: "text/rdf+n3"
 						    });
 			                    
 			                
@@ -140,7 +139,7 @@ test("VIE.js StanbolConnector - OntoNet Scope Manager", function() {
 						start();
 					},{
 						loc : 'scope'
-					}); */ // TODO POST/redirect/GET
+					}); */ // POST/redirect/GET
 					
 								
 				}, function(error) {	// error callback of createScope
@@ -220,7 +219,7 @@ test("VIE.js StanbolConnector - OntoNet Scope Manager", function() {
                     ],
           foo: 'http://somefoo.com',
           activate: true
-      });	*/ // TODO: back in as soon as the POST/redirect/GET problem is solved
+      });	*/ // back in as soon as the POST/redirect/GET problem is solved
     
 }); // end of test "OntoNet Scope Manager"
 
@@ -258,8 +257,8 @@ test("VIE.js StanbolConnector - OntoNet Session Manager", function() {
             stanbol.connector.getSession(session, function(success){
             	
             	ok(true, "02. getSession returned a value");
-            	console.log("02. getSession returned a value");
-//            	console.log(success);
+            	console.log("02. getSession returned a value in text/turtle:");
+            	console.log(success);
             	start();
             	
             }, function(error){
@@ -268,6 +267,27 @@ test("VIE.js StanbolConnector - OntoNet Session Manager", function() {
             	console.log("02. getSession failed with " + error);
             	start();
             });
+            
+            // get a list of all registered sessions
+            stop();
+            stanbol.connector.ontoSessions(
+            	function(success){
+            		ok(true, "Retrieved list of all registered sessions.")
+            		console.log("Returned list of all registered sessions in format text/owl-functional:")
+            		console.log(success)
+            		start();
+            	},
+            	function(error){
+            		ok(false, "Could not retrieve list of all registered sessions.");
+            		console.log("Could not retrieve list of all registered sessions.");
+            		console.log(error);
+            		start();
+            	},
+            	{
+            		accept: "text/owl-functional"
+            	}
+            
+            );
 
             // create a scope that  we'll load into our session
             stop();
@@ -279,7 +299,8 @@ test("VIE.js StanbolConnector - OntoNet Session Manager", function() {
                 // get this newly-created scope
                 stop();
                 stanbol.connector.getScope(scope, function(success) {
-                    console.log("04. getScope for " + scope + " returned a result.");
+                    console.log("04. getScope for " + scope + " returned a result in application/rdf+xml:");
+                    console.log(success);
                     ok(true, "04. getScope for " + scope + " returned a result.");
                     start();
                     
@@ -287,6 +308,8 @@ test("VIE.js StanbolConnector - OntoNet Session Manager", function() {
                     console.log("04. Scope " + scope + " does not exist.");
                     ok(true, "04. Scope " + scope + " does not exist.");
                     start();
+                }, {
+                	accept : "application/rdf+xml"
                 }); 
                 
                 // load the scope and an ontology upon this session
@@ -430,5 +453,48 @@ test("VIE.js StanbolConnector - OntoNet Session Manager", function() {
             start();
         }, session
         );
+        
+        
+        // small separate test for createSession(), in which we do not specify
+        // a session ID but wait for the session manager to create and return
+        // one for us
+        stop();
+        stanbol.connector.createSession(
+        	function(xml, status, xhr){
+        		ok(true, "Created nameless session.");
+        		console.log("Created nameless session with url:");
+        		var location = xhr.getResponseHeader('Location');
+        		console.log(location)
+        		
+        		// we get back something like 
+        		// http://dev.iks-project.eu:8081/ontonet/session/1349682593596
+        		// -> retrieve from this the id
+        		var idx = location.lastIndexOf('/') + 1;
+        		var id = location.substring(idx );
+        		console.log("id: " + id)
+        		
+        		stanbol.connector.deleteSession(
+        			function(success){
+        				ok(true, "Deleted nameless session.");
+        				console.log("Deleted nameless session " + id);
+        				start();
+        			},
+        			function(error){
+        				ok(false, "Could not delete nameless session.");
+        				console.log("Could not delete nameless session " + id);
+        				console.log(error);
+        				start();
+        			},
+        			id
+        		);
+        		        	},
+        	function(error){
+        		ok(false, "Could not create nameless session.");
+        		console.log("Could not create nameless session.");
+        		console.log(error);
+        		start();
+        	}
+        );
+        
 
     });	// end of test for Session Manager

@@ -37,6 +37,10 @@ test("VIE.js StanbolConnector - API", function() {
     // enhancer
     ok(stanbol.connector.analyze);
     equal(typeof stanbol.connector.analyze, "function");
+    ok(stanbol.connector.enhancers);
+    equal(typeof stanbol.connector.enhancers, "function");
+    ok(stanbol.connector.getExecutionPlan);
+    equal(typeof stanbol.connector.getExecutionPlan, "function");
     
     // sparql
     ok(stanbol.connector.sparql);
@@ -91,6 +95,8 @@ test("VIE.js StanbolConnector - API", function() {
     equal(typeof stanbol.connector.createFact, "function");
     ok(stanbol.connector.queryFact);
     equal(typeof stanbol.connector.queryFact, "function");
+    ok(stanbol.connector.getFactData);
+    equal(typeof stanbol.connector.getFactData, "function");
 
     // ontonet
     ok(stanbol.connector.createScope);
@@ -119,6 +125,8 @@ test("VIE.js StanbolConnector - API", function() {
     equal(typeof stanbol.connector.updateScopes, "function");
     ok(stanbol.connector.detachOntology);
     equal(typeof stanbol.connector.detachOntology, "function");
+    ok(stanbol.connector.ontoSessions);
+    equal(typeof stanbol.connector.ontoSessions, "function");
 
     // rules
     ok(stanbol.connector.getRecipe);

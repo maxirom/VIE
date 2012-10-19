@@ -10,6 +10,15 @@
 // The DBPedia service allows a VIE developer to directly query
 // the DBPedia database for entities and their properties. Obviously,
 // the service does not allow for saving, removing or analyzing methods.
+//
+// uploadContent()
+// getTextContentByID()
+// getMetadataByID()
+// createIndex()
+// deleteIndex()
+// contenthubIndices()
+// deleteContent()
+//
 (function() {
 
 	jQuery.extend(true, VIE.prototype.StanbolConnector.prototype, {
@@ -29,13 +38,74 @@
 		// stored to the default index (contenthub).
 		// Specify id: '<id>' as the ID under which your content item will be
 		// stored on the contenthub.
+		// Specify 'file: true' if the **content** you passed is not a string,
+		// but the name of a local file where your content is stored.
+		// Specify 'fe : {}' as the form elements to be used in uploading the
+		// content. As embedded keys of fe are possible: 
+		// fe.id: the id for the new item
+		// fe.url: URL where the actual content resides. If this parameter is 
+		// 		supplied (and content is null), then the content is retrieved 
+		//		from this url
+		// fe.constraints: Constraints in JSON format. Constraints are used to 
+		// 		add supplementary metadata to the content item. For example, 
+		// 		author of the content item may be supplied as 
+		//		{author: "John Doe"}. Then, this constraint is added to the Solr
+		//		and will be indexed if the corresponding Solr schema includes 
+		//		the author field.
+		// fe.title: The title for the content item.
 		// **Throws**:
 		// *nothing*
 		// **Returns**:
 		// *{VIE.StanbolConnector}* : The VIE.StanbolConnector instance itself.
 		uploadContent : function(content, success, error, options) {
+			
+			console.log("inside uploadContent")
+			
 			options = (options) ? options : {};
+			file = (options.file) ? options.file : false;
 			var connector = this;
+			
+			// construct form element request
+			var formEl = {};
+			if (options.fe) {
+				
+				formEl.title = (options.fe.title) ? options.fe.title : false;
+				formEl.constraints = (options.fe.constraints) ? options.fe.constraints : false;
+				formEl.url = (options.fe.url) ? options.fe.url : false;
+				formEl.id = (options.fe.id) ? options.fe.id : false;
+				
+			}
+			
+			// decide if we need to send a multipart-formdata request
+			var c = content;
+			if (file) {
+				console.log("got a file:")
+				console.log(c)
+				content = new FormData();
+				content.append('file', c);
+				
+				
+			} else {
+				
+				if (options.fe) {
+			
+					content = "content=" + c;
+					
+					if (formEl.title) {
+						content += "&title=" + formEl.title;
+					}
+					if (formEl.constraints) {
+						content += "&constraints=" + formEl.constraints;
+					}
+					if (formEl.url) {
+						content += "&url=" + formEl.url;
+					}
+					if (formEl.id) {
+						content += "&id=" + formEl.id;
+					}
+				}
+			}
+			
 
 			connector._iterate( {
 				method : connector._uploadContent,
@@ -60,23 +130,62 @@
 				},
 				args : {
 					content : content,
-					options : options
+					options : options,
+					file : file,
+					fe : options.fe
 				},
 				urlIndex : 0
 			});
 		},
 
 		_uploadContent : function(url, args, success, error) {
+			console.log("got as data: ")
+			console.log(args.content)
+			
+			// in case we want to upload data from a local file
+			if (args.file) {
+				console.log("ajax: sending multipart-formdata")
+			
 			jQuery.ajax( {
 				success : success,
 				error : error,
 				url : url,
 				type : "POST",
 				data : args.content,
-				contentType : "text/plain"
+				contentType : false,
+				processData : false,
+				cache : false
 			});
-		},
+			
+			// in case we have form elements specified
+			} else if (args.fe) {
+				
+				console.log("ajax: sending form elements")
+				jQuery.ajax( {
+				success : success,
+				error : error,
+				url : url,
+				type : "POST",
+				data : args.content,
+				contentType : "application/x-www-form-urlencoded",
+				accepts: {"application/rdf+json": "application/rdf+json"}
+				});
+				
+			} else {
+				
+				console.log("ajax: sending plain text as data")
+				jQuery.ajax( {
+				success : success,
+				error : error,
+				url : url,
+				type : "POST",
+				data : args.content,
+				contentType : "text/plain"
+				
+			});
+		}
 
+	},
 		_uploadContentNode : function(url, args, success, error) {
 			var request = require('request');
 			var r = request( {
@@ -97,7 +206,7 @@
 				}
 			});
 			r.end();
-		},
+		},	// end of _uploadContentNode
 
 		// ### getTextContentByID(id, success, error, options)
 		// @author mere01
@@ -362,9 +471,7 @@
 				method : "POST",
 				uri : url,
 				body : args.data
-//				headers : {
-//					Accept : args.format
-//				}
+
 			}, function(err, response, body) {
 				try {
 					success( {
@@ -565,6 +672,7 @@
 		// function (err) { ... });
 		deleteContent : function(itemURI, success, error, options) {
 
+			options = (options) ? options : {};
 			var index = (options.index) ? ("/" + options.index) : "/contenthub";
 			
 			var connector = this;
@@ -580,7 +688,6 @@
 					u += index;
 					u += "/store/";
 					
-
 					return u;
 				},
 				args : {
@@ -606,7 +713,7 @@
 			var request = require('request');
 			var r = request( {
 				method : "DELETE",
-				uri : url //+ args.index
+				uri : url
 
 			}, function(err, response, body) {
 				try {
