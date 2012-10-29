@@ -113,6 +113,9 @@ VIE.Util = {
 //     VIE.Util.toUri(scurie, ns);
 //          --> <http://dbpedia.org/ontology/Person>
     toUri : function (curie, namespaces) {
+        if (VIE.Util.isUri(curie)) {
+            return curie;
+        }
         var delim = ":";
         for (var prefix in namespaces.toObj()) {
             if (prefix !== "" && (curie.indexOf(prefix + ":") === 0 || curie.indexOf("[" + prefix + ":") === 0)) {
@@ -440,11 +443,11 @@ VIE.Util = {
         vie.namespaces.base("http://schema.org/");
         
         var datatypeMapping = {
-            'Time': 'xsd:dateTime',
-            'DateTime': 'xsd:dateTime',
             'DataType': 'xsd:anyType',
             'Boolean' : 'xsd:boolean',
             'Date'    : 'xsd:date',
+            'DateTime': 'xsd:dateTime',
+            'Time'    : 'xsd:time',
             'Float'   : 'xsd:float',
             'Integer' : 'xsd:integer',
             'Number'  : 'xsd:anySimpleType',
@@ -469,23 +472,45 @@ VIE.Util = {
                 dataTypeHelper.call(vie, ancestors, dt);
             }
         }
+
+        var metadataHelper = function (definition) {
+            var metadata = {};
+
+            if (definition.label) {
+              metadata.label = definition.label;
+            }
+
+            if (definition.url) {
+              metadata.url = definition.url;
+            }
+
+            if (definition.comment) {
+              metadata.comment = definition.comment;
+            }
+
+            if (definition.metadata) {
+              metadata = _.extend(metadata, definition.metadata);
+            }
+            return metadata;
+        };
         
         var typeProps = function (id) {
             var props = [];
-            var specProps = SchemaOrg["types"][id]["specific_properties"];
-            for (var p = 0; p < specProps.length; p++) {
-                var pId = specProps[p];
-                var range = SchemaOrg["properties"][pId]["ranges"];
+            _.each(SchemaOrg['types'][id]['specific_properties'], function (pId) {
+                var property = SchemaOrg['properties'][pId];
                 props.push({
-                    'id'    : pId,
-                    'range' : range
+                    'id'    : property.id,
+                    'range' : property.ranges,
+                    'min'   : property.min,
+                    'max'   : property.max,
+                    'metadata': metadataHelper(property)
                 });
-            }
+            });
             return props;
         };
         
-        var typeHelper = function (ancestors, id, props) {
-            var type = vie.types.add(id, props);
+        var typeHelper = function (ancestors, id, props, metadata) {
+            var type = vie.types.add(id, props, metadata);
            
             for (var i = 0; i < ancestors.length; i++) {
                 var supertype = (vie.types.get(ancestors[i]))? vie.types.get(ancestors[i]) :
@@ -498,14 +523,17 @@ VIE.Util = {
             type.locked = true;
             return type;
         };
-        
-        for (var t in SchemaOrg["types"]) {
-            if (!vie.types.get(t)) {
-                var ancestors = SchemaOrg["types"][t].supertypes;
-                typeHelper.call(vie, ancestors, t, typeProps.call(vie, t));
-            }
-        }
-        /* set the namespace(s) back to what they were before */
+       
+        _.each(SchemaOrg.types, function (typeDef) {
+            if (vie.types.get(typeDef.id)) {
+                return;
+            }        
+            var ancestors = typeDef.supertypes;
+            var metadata = metadataHelper(typeDef);
+            typeHelper.call(vie, ancestors, typeDef.id, typeProps.call(vie, typeDef.id), metadata);
+        });
+
+        /* set the namespace to either the old value or the provided baseNS value */
         vie.namespaces.base(baseNSBefore);
         if (baseNS !== "http://schema.org/")
             vie.namespaces.add("schema", "http://schema.org/");

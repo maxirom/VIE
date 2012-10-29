@@ -62,10 +62,11 @@ var VIE = root.VIE = function(config) {
     this.id = VIE.Util.UUIDGenerator();
     this.services = {};
     this.jQuery = jQuery;
-    this.entities = new this.Collection();
+    this.entities = new this.Collection([], {
+        vie: this
+    });
 
     this.Entity.prototype.entities = this.entities;
-    this.entities.vie = this;
     this.Entity.prototype.entityCollection = this.Collection;
     this.Entity.prototype.vie = this;
     
@@ -202,10 +203,24 @@ VIE.prototype.use = function(service, name) {
 //     vie.use(new vie.StanbolService(), "stanbol");
 //     var service = vie.service("stanbol");
 VIE.prototype.service = function(name) {
-  if (!this.services[name]) {
+  if (!this.hasService(name)) {
     throw "Undefined service " + name;
   }
   return this.services[name];
+};
+
+// ### hasService(name)
+// This method returns a boolean telling whether VIE has a particular
+// service loaded.
+// **Parameters**:
+// *{string}* **name**
+// **Returns**:
+// *{boolean}* whether service is available
+VIE.prototype.hasService = function(name) {
+  if (!this.services[name]) {
+    return false;
+  }
+  return true;
 };
 
 // ### getServicesArray()
@@ -381,9 +396,14 @@ VIE.prototype.loadSchema = function(url, options) {
         var vie = this;
         jQuery.getJSON(url)
         .success(function(data) {
-            VIE.Util.loadSchemaOrg(vie, data, options.baseNS);
-            if (options.success) {
-                options.success.call(vie);
+            try {
+                VIE.Util.loadSchemaOrg(vie, data, options.baseNS);
+                if (options.success) {
+                    options.success.call(vie);
+                }
+            } catch (e) {
+                options.error.call(vie, e);
+                return;
             }
          })
         .error(function(data, textStatus, jqXHR) { 

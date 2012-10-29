@@ -29,12 +29,37 @@ VIE.prototype.RdfaService = function(options) {
         subjectSelector : "[about],[typeof],[src],html",
         predicateSelector : "[property],[rel]",
         /* default rules that are shipped with this service */
-        rules : []
+        rules : [],
     };
     /* the options are merged with the default options */
     this.options = jQuery.extend(true, defaults, options ? options : {});
 
-    this.views = [],
+    this.views = [];
+    this.templates = {};
+
+    this.datatypeReaders = {
+      '<http://www.w3.org/2001/XMLSchema#boolean>': function (value) {
+        if (value === 'true' || value === 1 || value === true) {
+          return true;
+        }
+        return false;
+      },
+      '<http://www.w3.org/2001/XMLSchema#dateTime>': function (value) {
+        return new Date(value);
+      },
+      '<http://www.w3.org/2001/XMLSchema#integer>': function (value) {
+        return parseInt(value);
+      }
+    };
+
+    this.datatypeWriters = {
+      '<http://www.w3.org/2001/XMLSchema#dateTime>': function (value) {
+        if (!_.isDate(value)) {
+          return date;
+        }
+        return value.toISOString();
+      }
+    };
 
     this.vie = null; /* will be set via VIE.use(); */
     /* overwrite options.name if you want to set another name */
@@ -88,18 +113,8 @@ VIE.prototype.RdfaService.prototype = {
         } else {
             element = loadable.options.element;
         }
-    
-        var ns = this.xmlns(element);
-        for (var prefix in ns) {
-            this.vie.namespaces.addOrReplace(prefix, ns[prefix]);
-        }
-        var entities = [];
-        var entityElements = jQuery(this.options.subjectSelector, element).add(jQuery(element).filter(this.options.subjectSelector)).each(function() {
-            var entity = service._readEntity(jQuery(this));
-            if (entity) {
-                entities.push(entity);
-            }
-        });
+
+        entities = this.readEntities(element);
         loadable.resolve(entities);
     },
 
@@ -121,29 +136,45 @@ VIE.prototype.RdfaService.prototype = {
         this._writeEntity(savable.options.entity, savable.options.element);
         savable.resolve();
     },
+
+    readEntities : function (element) {
+        var service = this;
+        var ns = this.xmlns(element);
+        for (var prefix in ns) {
+            this.vie.namespaces.addOrReplace(prefix, ns[prefix]);
+        }
+        var entities = [];
+        var entityElements = jQuery(this.options.subjectSelector, element).add(jQuery(element).filter(this.options.subjectSelector)).each(function() {
+            var entity = service._readEntity(jQuery(this));
+            if (entity) {
+                entities.push(entity);
+            }
+        });
+        return entities;
+    },
     
     _readEntity : function(element) {
         var subject = this.getElementSubject(element);
         var type = this._getElementType(element);
-        var predicate, value, valueCollection;
         var entity = this._readEntityPredicates(subject, element, false);
         if (jQuery.isEmptyObject(entity)) {
             return null;
         }
         var vie = this.vie;
-        for (predicate in entity) {
-            value = entity[predicate];
+        _.each(entity, function (value, predicate) {
             if (!_.isArray(value)) {
-                continue;
+                return;
             }
-            valueCollection = new this.vie.Collection();
-            valueCollection.vie = this.vie;
-            _.each(value, function(valueItem) {
+            var valueCollection = new this.vie.Collection([], {
+              vie: vie,
+              predicate: predicate
+            });
+            _.each(value, function (valueItem) {
                 var linkedEntity = vie.entities.addOrUpdate({'@subject': valueItem});
                 valueCollection.addOrUpdate(linkedEntity);
             });
             entity[predicate] = valueCollection;
-        }
+        }, this);
         entity['@subject'] = subject;
         if (type) {
             entity['@type'] = type;
@@ -194,7 +225,7 @@ VIE.prototype.RdfaService.prototype = {
         return viewInstance;
     },
     
-    _registerEntityView : function(entity, element) {
+    _registerEntityView : function(entity, element, isNew) {
         if (!element.length) {
             return;
         }
@@ -213,6 +244,20 @@ VIE.prototype.RdfaService.prototype = {
             service: this.name
         });
         this.views.push(viewInstance);
+
+        // For new elements, ensure their relations are read from DOM
+        if (isNew) {
+          jQuery(element).find(this.options.predicateSelector).add(jQuery(element).filter(this.options.predicateSelector)).each(function () {
+            var predicate = jQuery(this).attr('rel');
+            if (!predicate) {
+              return;
+            }
+            entity.set(predicate, new service.vie.Collection([], {
+              vie: service.vie,
+              predicate: predicate
+            }));
+          });
+        }
     
         // Find collection elements and create collection views for them
         _.each(entity.attributes, function(value, predicate) {
@@ -225,6 +270,120 @@ VIE.prototype.RdfaService.prototype = {
         });
         return viewInstance;
     },
+
+    setTemplate: function (type, predicate, template) {
+      var templateFunc;
+
+      if (!template) {
+        template = predicate;
+        predicate = 'default';
+      }
+      type = this.vie.namespaces.isUri(type) ? type : this.vie.namespaces.uri(type);
+
+      if (_.isFunction(template)) {
+        templateFunc = template;
+      } else {
+        templateFunc = this.getElementTemplate(template);
+      }
+
+      if (!this.templates[type]) {
+        this.templates[type] = {};
+      }
+
+      this.templates[type][predicate] = templateFunc;
+
+      // Update existing Collection Views where this template applies
+      _.each(this.views, function (view) {
+        if (!(view instanceof this.vie.view.Collection)) {
+          return;
+        }
+
+        if (view.collection.predicate !== predicate) {
+          return;
+        }
+
+        view.templates[type] = templateFunc;
+      }, this);
+    },
+
+    getTemplate: function (type, predicate) {
+      if (!predicate) {
+        predicate = 'default';
+      }
+      type = this.vie.namespaces.isUri(type) ? type : this.vie.namespaces.uri(type);
+
+      if (!this.templates[type]) {
+        return;
+      }
+
+      return this.templates[type][predicate];
+    },
+
+    _getElementTemplates: function (element, entity, predicate) {
+      var templates = {};
+
+      var type = entity.get('@type');
+      if (type && type.attributes && type.attributes.get(predicate)) {
+        // Use type-specific templates, if any
+        var attribute = type.attributes.get(predicate);
+        _.each(attribute.range, function (childType) {
+          var template = this.getTemplate(childType, predicate);
+          if (template) {
+            var vieChildType = this.vie.types.get(childType);
+            templates[vieChildType.id] = template;
+          }
+        }, this);
+
+        if (!_.isEmpty(templates)) {
+          return templates;
+        }
+      }
+
+      // Try finding templates that have types
+      var self = this;
+      jQuery('[typeof]', element).each(function () {
+        var templateElement = jQuery(this);
+        var childType = templateElement.attr('typeof');
+        childType = self.vie.namespaces.isUri(childType) ? childType : self.vie.namespaces.uri(childType);
+        if (templates[childType]) {
+          return;
+        }
+        var templateFunc = self.getElementTemplate(templateElement);
+        templates[childType] = templateFunc;
+        templates['<http://www.w3.org/2002/07/owl#Thing>'] = templateFunc;
+      });
+
+      if (_.isEmpty(templates)) {
+        var defaultTemplate = element.children(':first-child');
+        if (defaultTemplate.length) {
+          templates['<http://www.w3.org/2002/07/owl#Thing>'] = self.getElementTemplate(defaultTemplate);
+        }
+      }
+
+      return templates;
+    },
+
+    // Return a template-generating function for given element
+    getElementTemplate: function (element) {
+        var service = this;
+        return function (entity, callback) {
+            var newElement = jQuery(element).clone(false);
+            if (newElement.attr('about') !== undefined) {
+                // Direct match with container element
+                newElement.attr('about', '');
+            }
+            newElement.find('[about]').attr('about', '');
+            var subject = service.findPredicateElements(subject, newElement, false).each(function () {
+                var predicateElement = jQuery(this);
+                var predicate = service.getElementPredicate(predicateElement);
+                if (entity.has(predicate) && entity.get(predicate).isCollection) {
+                    return true;
+                }
+                service.writeElementValue(null, predicateElement, '');
+            });
+            callback(newElement);
+        };
+    },
     
     _registerCollectionView : function(collection, element, entity) {
         var viewInstance = this._getViewForElement(element, true);
@@ -232,16 +391,13 @@ VIE.prototype.RdfaService.prototype = {
             return viewInstance;
         }
     
-        var entityTemplate = element.children(':first-child');
-    
         viewInstance = new this.vie.view.Collection({
             owner: entity,
             collection: collection,
             model: collection.model,
             el: element,
-            template: entityTemplate,
-            service: this,
-            tagName: element.get(0).nodeName
+            templates: this._getElementTemplates(element, entity, collection.predicate),
+            service: this
         });
         this.views.push(viewInstance);
         return viewInstance;
@@ -267,7 +423,7 @@ VIE.prototype.RdfaService.prototype = {
                 return document.baseURI;
             }
         }
-        var subject = undefined;
+        var subject;
         var matched = null;
         jQuery(element).closest(this.options.subjectSelector).each(function() {
             matched = this;
@@ -402,14 +558,36 @@ VIE.prototype.RdfaService.prototype = {
             return true;
         });
     },
-    
+
+    parseElementValue: function (value, element) {
+        if (!element.attr('datatype')) {
+            return value;
+        }
+        var datatype = this.vie.namespaces.uri(element.attr('datatype'));
+        if (!this.datatypeReaders[datatype]) {
+            return value;
+        }
+        return this.datatypeReaders[datatype](value);
+    },
+
+    generateElementValue: function (value, element) {
+        if (!element.attr('datatype')) {
+            return value;
+        }
+        var datatype = this.vie.namespaces.uri(element.attr('datatype'));
+        if (!this.datatypeWriters[datatype]) {
+            return value;
+        }
+        return this.datatypeWriters[datatype](value);
+    },
+
     readElementValue : function(predicate, element) {
         // The `content` attribute can be used for providing machine-readable
         // values for elements where the HTML presentation differs from the
         // actual value.
         var content = element.attr('content');
         if (content) {
-            return content;
+            return this.parseElementValue(content, element);
         }
                 
         // The `resource` attribute can be used to link a predicate to another
@@ -440,10 +618,12 @@ VIE.prototype.RdfaService.prototype = {
     
         // If none of the checks above matched we return the HTML contents of
         // the element as the literal value.
-        return element.html();
+        return this.parseElementValue(element.html(), element);
     },
     
     writeElementValue : function(predicate, element, value) {
+        value = this.generateElementValue(value, element);
+
         //TODO: this is a hack, please fix!
         if (_.isArray(value) && value.length > 0) {
             value = value[0];

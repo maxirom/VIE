@@ -11,6 +11,7 @@
         <script type="text/javascript" src="qunit.js"></script>
         <script type="text/javascript">
             QUnit.config.testTimeout = 30000; // 30 seconds
+            QUnit.config.updateRate = 0;
         </script>
         
         <script type="text/javascript" src="../lib/rdfquery/latest/jquery.rdfquery.debug.js"></script>
@@ -127,7 +128,58 @@
                           <li about="http://example.net/collectionreset/item"><span property="title">Title</span></li>
                       </ul>
                   </div>
-             </div>
+              </div>
+              <div class="rdfa-collection-twotemplates">
+                  <div about="http://example.net/mycollection">
+                      <div rel="section">
+                          <div about="foo" typeof="first">
+                            <h1 property="title">Content</h1>
+                          </div>
+                          <div about="bar" typeof="second">
+                            <h2 property="title">Content</h2>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+              <div class="rdfa-collection-scripttemplate">
+                  <script type="text/html" class="template">
+                      <div about="bar" typeof="second">
+                          <h2 property="title">Content</h2>
+                      </div>
+                  </script>
+                  <div about="http://example.net/mycollection">
+                      <div rel="section">
+                      </div>
+                  </div>
+              </div>
+              <div class="rdfa-collection-scripttemplate2">
+                  <script type="text/html" class="template">
+                      <div about="bar" typeof="second">
+                          <h2 property="title">Content</h2>
+                      </div>
+                  </script>
+                  <div about="http://example.net/mycollection">
+                      <div rel="section">
+                      </div>
+                  </div>
+              </div>
+              <div class="rdfa-collection-direct">
+                  <div about="http://example.net/mycollection" rel="section">
+                        <h1 property="title" about="foo" typeof="first">Content</h1>
+                        <div about="bar" typeof="second">
+                            <h2 property="title">Content</h2>
+                        </div>
+                  </div>
+              </div>
+              <div class="rdfa-datatypes">
+                    <div about="http://example.net/datatypes">
+                        <div property="boolean" datatype="xsd:boolean" content="false">False</div> 
+                        <div property="boolean2" datatype="xsd:boolean" content="true">Yes</div> 
+                        <div property="date" datatype="xsd:dateTime" content="2012-09-05T16:30:00Z">Back in September</div> 
+
+                        <div property="number" datatype="xsd:integer">123</div>
+                    </div>
+              </div>
         </div>
     </body>
 </html>

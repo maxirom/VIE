@@ -1,4 +1,5 @@
 var stanbolRootUrl = (window.STANBOL_URLS) ? window.STANBOL_URLS : [
+"http://lnv-89012.dfki.uni-sb.de:9001",
 "http://dev.iks-project.eu:8081",
 "http://dev.iks-project.eu/stanbolfull" ];
 

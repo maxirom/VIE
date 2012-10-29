@@ -41,7 +41,14 @@ test("Initialization", function() {
             equal(hospital.attributes.get('location').range[0], "PostalAddress");
             equal(hospital.attributes.get('location').range[1], "Place");
             
-            // this is an imported ontology and hence locked
+            // Test metadata
+            ok(hospital.metadata);
+            equal(hospital.metadata.label, 'Hospital');
+            equal(hospital.metadata.url, 'http://schema.org/Hospital');
+            
+            ok(hospital.attributes.get('description').metadata);
+            equal(hospital.attributes.get('description').metadata.label, 'Description');
+            
             raises(function () {
                 hospital.attributes.remove("description");
             });
@@ -52,6 +59,7 @@ test("Initialization", function() {
             });
             
             equal( hospital.attributes.list().length, 38);
+
             start();
         },
         error : function (msg) {

@@ -34,6 +34,7 @@ test("vie.js Entities API", function () {
     z.namespaces.add('dc', 'http://purl.org/dc/elements/1.1/');
     z.namespaces.add('iks', 'http://www.iks-project.eu/#');
     ok(z.entities instanceof z.Collection);
+    equal(z.entities.vie, z);
     equal(z.entities.length, 0);
     z.entities.add({
         '@subject': 'http://example.net/foo',
@@ -377,9 +378,12 @@ VIE.prototype.MockService.prototype.analyze = function(analyzable) {
     }
 };
 
-test("vie.js Service API", 8, function () {
+test("vie.js Service API", 10, function () {
     var z = new VIE();
+
+    equal(z.hasService('mock'), false);
     z.use(new z.MockService());
+    ok(z.hasService('mock'));
     ok(z.service('mock'));
     equal(typeof z.service('mock').load, 'function');
 

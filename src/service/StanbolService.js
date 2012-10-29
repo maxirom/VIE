@@ -184,6 +184,7 @@ VIE.prototype.StanbolService.prototype = {
                 analyzable.reject([]);
             }
 
+
         },
 
 //      ### find(findable)
@@ -336,6 +337,7 @@ VIE.prototype.StanbolService.prototype = {
 
             this.connector.query(query, success, error, options);
         },
+
 
         // ### save(savable)
         // This method saves the given entity to the Apache Stanbol installation.  
