@@ -18,52 +18,124 @@ function getXmlHttp() {
 	   return xmlhttp;
 	}
     
-//test("VIE.js StanbolService - ContentHub: Upload of content / Retrieval of enhancements",
-//  function() {
-//     if (navigator.userAgent === 'Zombie') {
-//        return;
-//    }
-//    
-//    var content = 'This is a small test, where Steve Jobs sings the song "We want to live forever!" song.';
-//	var sid = 'stevejobs'
-//    
-//    var z = new VIE();
-//     ok(z.StanbolService, "Stanbol Service exists.");
-//     equal(typeof z.StanbolService, "function");
-//
-//     var stanbol = new z.StanbolService( {
-//        url : stanbolRootUrl[0]
-//    });
-//    z.use(stanbol);
-//     
-//    stop();
-//    stanbol.connector.uploadContent(content,
-//       function(success) {
-//       	  start();
-//       	  ok(true, "Loaded up content to contenthub.")
-//       	  
-//          stop();
-//		  stanbol.connector.deleteContent(
-//		  	sid,
-//		  	function(succ){ 
-//		  		ok(true, "Deleted content item " + sid);
-//		  		start();
-//		  	},
-//		  	function(err){ 
-//		  		ok(false, "Could not delete content item " + sid);
-//		  		console.log(err);
-//		  		start();
-//		  	}	  		
-//		  );
-//         
-//		}, function(err) {
-//        	ok(false, "Could not load up content to contenthub: " + err)
-//        	console.log(err)
-//            start();
-//        },
-//        {
-//        	id : sid
-//        });
+test("VIE.js StanbolService - ContentHub: Upload of content / Retrieval of enhancements",
+  function() {
+     if (navigator.userAgent === 'Zombie') {
+        return;
+    }
+    
+    var content = 'This is a small test, where Steve Jobs sings the song "We want to live forever!" song.';
+	var sid = 'stevejobs'
+    
+    var z = new VIE();
+     ok(z.StanbolService, "Stanbol Service exists.");
+     equal(typeof z.StanbolService, "function");
+
+     var stanbol = new z.StanbolService( {
+        url : stanbolRootUrl[0]
+    });
+    z.use(stanbol);
+     
+    stop();
+    // testing of upload and update content with form elements, using text content
+    stanbol.connector.uploadContent(content,
+       function(success) {
+       	  
+       	  ok(true, "Loaded up content to contenthub.")
+       	  
+       	  // we can now update this content:
+       	  stanbol.connector.updateContent(
+       			  sid, 
+       			  function(xml, status, xhr){
+       				  
+       				  ok(true, "Updated content item with id " + sid);
+       				  console.log("Updated content item with id " + sid);
+       				  start();
+//       				  var location = xhr.getAllResponseHeaders('Location');
+//       				  console.log("headers:")
+//       				  var headers = xhr.getAllResponseHeaders();
+//       				  console.log(headers)
+//       				  console.log("location:" + location);
+//       				  newId = location;
+//       				  
+//       				  console.log("new id (of updated item) is: " + newId);
+//       			  
+//       				  stanbol.connector.deleteContent(
+//       				  	newId,
+//       				  	function(succ){
+//       				  		ok(true, "Deleted content item " + newId);
+//       				  		start();
+//       				  	},
+//       				  	function(err){
+//       				  		ok(false, "Could not delete content item " + newId);
+//       				  		console.log(err);
+//       				  		start();
+//       				  	});	// end of error case for deleteContent
+       				  
+       			  }, 
+       			  
+       			  function(error){	// error case for updateContent()
+       				  ok(false, "Could not update item " + sid);
+       				  console.log("Could not update item " + sid);
+       				  console.log(error);
+       				  start();
+       				  
+       			  }, {
+       				  fe: {
+	       				  content : "Paris is the capital of France.",
+	       				  constraints : "{type:city}",
+	       				  title : "France"       				  
+       				  }
+       			  }); // end of error case for updateContent()
+       	  
+
+    		
+		}, function(err) {
+        	ok(false, "Could not upload content to contenthub: " + err)
+        	console.log(err)
+            start();
+        },		// end of error case for uploadContent()
+        {
+        	id : sid
+        });
+    
+    
+    stop();
+    var url = "http://ontologydesignpatterns.org/wiki/Community:Causal_information_and_proportionality";
+    var uri = "ontos"
+    // testing of upload and update content with form elements, using url
+    stanbol.connector.uploadContent(null, 
+      function(success) {
+    	
+    	ok(true, "Uploaded content item \"" + uri + "\" from URL " + url);
+    	
+    	stanbol.connector.deleteContent(uri,
+    	  function(success){
+    		ok(true, "Deleted content item " + uri);
+    		start();
+    	}, function(error){
+    		  ok(false, "Could not delete content item " + uri);
+    		  start();
+    	  });
+    	
+    }, function(error) {
+    	
+    	ok(false, "Could not upload content item from URL " + url);
+    	start();
+    	
+    }, {
+    
+    	fe : {
+    		id : uri,
+    		title : uri,
+    		constraints: "{author:mere01}",
+    		url : url
+    	}
+    	
+    });
+    
+    
+    
 //        
 //        
 //	    stop();
@@ -157,9 +229,9 @@ function getXmlHttp() {
 ////    		id : "J-M-B",
 //    		file : true
 //    	});
-//    
-//       
-//});
+    
+       
+});		// end of test for Upload of content
 
 	
 // ### test for the /contenthub/contenthub/store/raw/<contentId>, the service to
@@ -336,7 +408,7 @@ test("VIE.js StanbolConnector - ContentHub CRD access on indices", function() {
         // program
 //        var ldpath = "name=melaniesIndex&program=@prefix rdf : <http://www.w3.org/1999/02/22-rdf-syntax-ns#>; @prefix rdfs : <http://www.w3.org/2000/01/rdf-schema#>; @prefix db-ont : <http://dbpedia.org/ontology/>; title = rdfs:label :: xsd:string; dbpediatype = rdf:type :: xsd:anyURI; population = db-ont:populationTotal :: xsd:int;";
         var name = "melaniesIndex";
-        var prog = "@prefix rdf : <http://www.w3.org/1999/02/22-rdf-syntax-ns#>; @prefix rdfs : <http://www.w3.org/2000/01/rdf-schema#>; @prefix db-ont : <http://dbpedia.org/ontology/>; title = rdfs:label :: xsd:string; dbpediatype = rdf:type :: xsd:anyURI; population = db-ont:populationTotal :: xsd:int;";
+        var prog = '@prefix rdf : <http://www.w3.org/1999/02/22-rdf-syntax-ns#>; @prefix rdfs : <http://www.w3.org/2000/01/rdf-schema#>; @prefix db-ont : <http://dbpedia.org/ontology/>; title = rdfs:label :: xsd:string; dbpediatype = rdf:type :: xsd:anyURI; population = db-ont:populationTotal :: xsd:int;';
         var index = name;
         console.log("index is: " + index);
         var lookfor = "name=" + index + "&program=";
@@ -345,7 +417,7 @@ test("VIE.js StanbolConnector - ContentHub CRD access on indices", function() {
         var z = new VIE();
         ok(z.StanbolService);
         equal(typeof z.StanbolService, "function");
-        var stanbol = new z.StanbolService( {
+        var stanbol = new z.StanbolService({
             url : stanbolRootUrl[0]
         });
         z.use(stanbol);
@@ -378,13 +450,13 @@ test("VIE.js StanbolConnector - ContentHub CRD access on indices", function() {
                          function(success) {
                             ok(true, "00. Index " + index + " was deleted from contenthub.");
                             console.log("00 deleted index " + index);
-                            start();
+//                            start();
                         },
                         function(err) {
                             ok(false, "00. Index " + index
                               + " could not be deleted from contenthub");
                             console.log("00 could not delete index");
-                            start();
+//                            start();
                         });
             } else {
             	ok(true, "00. Index " + index + " does not exist. Will be created.");
@@ -392,125 +464,126 @@ test("VIE.js StanbolConnector - ContentHub CRD access on indices", function() {
     
             
            start();
-        },
-        function(err) {
+           // ********************************************
+       	stop();
+       	// create a new, empty index
+       	stanbol.connector.createIndex(
+       			{
+       				name : name,
+       				program : prog
+       			},
+       			function(success) {
+       	
+       				ok(true, "success");
+//       				start();        				
+       	
+       				ok(true, "01. created new index on contenthub.");
+       				console.log("01. created new index on contenthub.");
+       				console.log(success);
+       	
+       				
+       	        	// we can now store new items unto our index
+       	            var item = "We are talking about huge cities such as Paris or New York, where life is an expensive experience.";
+       	            var id = 'myOwnIdToUseHere';
+       	            
+//       	            stop();
+       	            
+       	            stanbol.connector.uploadContent(item, function(success) {
+       	                  ok(true, "02. stored item to " + index);
+       	                  console.log("02 stored item " + item);
+       	                  
+       	       
+       	                  // we can then get back this newly created item by its id:
+       	                  var idToRetrieve = "urn:content-item-" + id;
+       	                                                
+       	                  // ... we can either retrieve its text content
+       	                  stanbol.connector.getTextContentByID(
+       	                        idToRetrieve,
+       	                        function(success) {
+       	                            ok(true, "03. retrieved item's raw text content.");
+       	                            console.log("03. retrieved content item: " + success);
+       	                                                      
+       	                        },
+       	                        function(err) {
+       	                            ok(false, "03. could not retrieve item's raw text content.");
+       	                     	   console.log("03. could not retrieve item's raw text content.");
+       	                            console.log(err);
+       	                                                      
+       	                        }, {
+       	                           index : index
+       	                        });
+       	                  
+       	                  
+       	                  // ... or its enhancements
+       	                  stanbol.connector.getMetadataByID(
+       	                        idToRetrieve,
+       	                        function(success) {
+       	                           ok(true,"04. retrieved content item's metadata.");
+       	                             console.log("04. retrieved content item's metadata.");
+       	                                      
+       	                          // finally, delete the test index
+//       	       	                  stop();
+       	       	                  stanbol.connector.deleteIndex(
+       	       	                   index,
+       	       	                   function(success) {
+       	       	                      ok(
+       	       	                        true, "06. Index " + index + " was deleted from contenthub.");
+       	       	                      console.log("06 deleted index " + index);
+       	       	                      start();
+       	       	                  },
+       	       	                  function(err) {	// error callback for deleteIndex()
+       	       	                      ok(false, "06. Index " + index
+       	       	                        + " could not be deleted from contenthub");
+       	       	                      console.log("06 could not delete index");
+       	       	                      start();
+       	       	                  });	
+       	                             
+       	                        },
+       	                        function(err) {	// error callback for getMetadataByID()
+       	                          ok(false, "04. could not retrieve content item's metadata.");
+       	                     	   console.log("04. could not retrieve content item's metadata.");
+       	                            console.log(err);
+       	                        start();              
+       	                        }, {
+       	                             index : index
+       	                        });                 
+       	                  
+//       	                  start();
+       	                  
+       	                  // end of success callback for uploadContent()
+       	                  
+       	            }, function(err) {	// error callback for uploadContent()
+       	                ok(false, "02. couldn't store item to "	+ id);
+       	                console.log("02 couldn't store item " + item);
+       	                console.log(err);
+       	                start();
+       	          }, {
+       	              index : index,
+       	              id : id
+       	         }); 	// end of success callback for createIndex()
+       	
+       			}, function(error) {	// error callback for createIndex()
+       	
+       				ok(false, "error");
+       	
+       				ok(false, "01. could not create index '" + index
+       						+ "' on contenthub.");
+       				console.log(error);
+       				console.log("01. could not create index '" + index + "' on contenthub.");
+       	
+       				start();
+       	
+       			});	// end of createIndex() call
+           
+           // ********************************************
+        },	// end of success callback for contenthubIndices()
+        
+        
+        function(err) { // error callback for contenthubIndices()
             ok(false, "00. No contenthub indices have been returned!");
             start();
         }, 
-        {},
-        function(complete) {
-        	
-
-        	stop();
-        	// create a new, empty index
-        	stanbol.connector.createIndex(
-        			{
-        				name : name,
-        				program : prog
-        			},
-        			function(success) { 
-        	
-        				ok(true, "success");
-        				start();        				
-        	
-        				ok(true, "01. created new index on contenthub.");
-        				console.log("01. created new index on contenthub.");
-        				console.log(success);
-        	
-        				
-        	        	// we can now store new items unto our index
-        	            var item = "We are talking about huge cities such as Paris or New York, where life is an expensive experience.";
-        	            var id = 'myOwnIdToUseHere';
-        	            
-        	            stop();
-        	            
-        	            stanbol.connector.uploadContent(item, function(success) {
-        	                  ok(true, "02. stored item to " + index);
-        	                  console.log("02 stored item " + item);
-        	                  
-        	       
-        	                  // we can then get back this newly created item by its id:
-        	                  var idToRetrieve = "urn:content-item-" + id;
-        	                                                
-        	                  // ... we can either retrieve its text content
-        	                  stanbol.connector.getTextContentByID(
-        	                        idToRetrieve,
-        	                        function(success) {
-        	                            ok(true, "03. retrieved item's raw text content.");
-        	                            console.log("03. retrieved content item: " + success);
-        	                                                      
-        	                        },
-        	                        function(err) {
-        	                            ok(false, "03. could not retrieve item's raw text content.");
-        	                     	   console.log("03. could not retrieve item's raw text content.");
-        	                            console.log(err);
-        	                                                      
-        	                        }, {
-        	                           index : index
-        	                        });
-        	                  
-        	                  
-        	                  // ... or its enhancements
-        	                  stanbol.connector.getMetadataByID(
-        	                        idToRetrieve,
-        	                        function(success) {
-        	                           ok(true,"04. retrieved content item's metadata.");
-        	                             console.log("04. retrieved content item's metadata.");
-        	                                      
-        	                        },
-        	                        function(err) {
-        	                          ok(false, "04. could not retrieve content item's metadata.");
-        	                     	   console.log("04. could not retrieve content item's metadata.");
-        	                            console.log(err);
-        	                                      
-        	                        }, {
-        	                             index : index
-        	                        });                 
-        	                  
-        	                  start();
-        	                  
-        	                 	// finally, delete the test index
-        	                  stop();
-        	                  stanbol.connector.deleteIndex(
-        	                   index,
-        	                   function(success) {
-        	                      ok(
-        	                        true, "06. Index " + index + " was deleted from contenthub.");
-        	                      console.log("06 deleted index " + index);
-        	                      start();
-        	                  },
-        	                  function(err) {
-        	                      ok(false, "06. Index " + index
-        	                        + " could not be deleted from contenthub");
-        	                      console.log("06 could not delete index");
-        	                      start();
-        	                  });
-        	                  
-        	            }, function(err) {
-        	                ok(false, "02. couldn't store item to "	+ id);
-        	                console.log("02 couldn't store item " + item);
-        	                console.log(err);
-        	                start();
-        	          }, {
-        	              index : index,
-        	              id : id
-        	         }); 
-        	
-        			}, function(error) {
-        	
-        				ok(false, "error");
-        	
-        				ok(false, "01. could not create index '" + index
-        						+ "' on contenthub.");
-        				console.log(error);
-        				console.log("01. could not create index '" + index + "' on contenthub.");
-        	
-        				start();
-        	
-        			});	// end of createIndex() call
-  
-            
-        });
+        {}); // end of call for contenthubIndices()
       
      
 

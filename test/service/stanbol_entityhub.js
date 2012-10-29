@@ -1339,7 +1339,9 @@ test(
       ok(true, "4. We will NOT delete entity " + entity + 
       	" since it has been there before"); 
 	   
-   }, function(error){ // end of success case of lookup (create : false)
+      // end of success case of lookup (create : false)
+      
+   }, function(error){
 	   
 	   ok(true, "1. Could not look up entity " + entity 
 	   	+ ". This entity apparently is not stored on the local entityhub. " +
@@ -1396,28 +1398,28 @@ test(
                 console.log("3. returned entities:")
                 console.log(entities)
                 	   
-				start();
+//				start();
+                // delete the entity again (now we don't need it anymore)
+                console.log("4. in case 'del'")
+//                stop();
+                stanbol.connector.deleteEntity(
+                	id,
+                   function(success) {
+                   	console.log("4. deleted entity " + entity + " from the local entityhub")
+                   	ok(true, "4. deleted entity " + entity + " from the local entityhub");
+                   	start();
+                   },
+                   function(err) {
+                   	console.log("4. could not delete entity " + entity + " from the local entityhub")
+                   	ok(false, "4. could not delete entity " + entity + " from the local entityhub");
+                   	start();
+                   },
+                   {});
                
          }).fail(function(f) {
          	ok(false, f.statusText);
             start();
-     	 });
-         // delete the entity again
-         console.log("4. in case 'del'")
-         stop();
-         stanbol.connector.deleteEntity(
-         	id,
-            function(success) {
-            	console.log("4. deleted entity " + entity + " from the local entityhub")
-            	ok(true, "4. deleted entity " + entity + " from the local entityhub");
-            	start();
-            },
-            function(err) {
-            	console.log("4. could not delete entity " + entity + " from the local entityhub")
-            	ok(false, "4. could not delete entity " + entity + " from the local entityhub");
-            	start();
-            },
-            {});
+     	 });	// end of error case for query()
    
             
 		   }, function(error){

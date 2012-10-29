@@ -75,6 +75,8 @@ test("VIE.js StanbolConnector - API", function() {
     // contenthub
     ok(stanbol.connector.uploadContent);
     equal(typeof stanbol.connector.uploadContent, "function");
+    ok(stanbol.connector.updateContent);
+    equal(typeof stanbol.connector.updateContent, "function");
     ok(stanbol.connector.getTextContentByID);
     equal(typeof stanbol.connector.getTextContentByID, "function");
     ok(stanbol.connector.getMetadataByID);

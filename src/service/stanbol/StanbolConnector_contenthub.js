@@ -12,6 +12,7 @@
 // the service does not allow for saving, removing or analyzing methods.
 //
 // uploadContent()
+// updateContent()
 // getTextContentByID()
 // getMetadataByID()
 // createIndex()
@@ -29,7 +30,8 @@
 		// to specify the ID under which the item will be stored.
 		// **Parameters**:
 		// *{string}* **content** The text content to be uploaded upon the
-		//		contenthub.
+		//		contenthub. Specify 'null' if you want to pass the content in
+		//		the form of a form element 'content' or 'url'. 
 		// *{function}* **success** The success callback.
 		// *{function}* **error** The error callback.
 		// *{object}* **options** Options: Possible parameters:
@@ -37,12 +39,12 @@
 		// up items to a specific index. If none is specified, the item will be
 		// stored to the default index (contenthub).
 		// Specify id: '<id>' as the ID under which your content item will be
-		// stored on the contenthub.
-		// Specify 'file: true' if the **content** you passed is not a string,
-		// but the name of a local file where your content is stored.
+		// stored on the contenthub. (if you specify a form element parameter, 
+		// - fe - , then this option will be ignored.
 		// Specify 'fe : {}' as the form elements to be used in uploading the
 		// content. As embedded keys of fe are possible: 
-		// fe.id: the id for the new item
+		// fe.id: the id for the new item. NOTE: If an item with this ID already
+		//		exists, it will be overridden. 
 		// fe.url: URL where the actual content resides. If this parameter is 
 		// 		supplied (and content is null), then the content is retrieved 
 		//		from this url
@@ -62,7 +64,10 @@
 			console.log("inside uploadContent")
 			
 			options = (options) ? options : {};
-			file = (options.file) ? options.file : false;
+			
+			// Specify 'file: true' if the **content** you passed is not a string,	TODO
+			// but the name of a local file where your content is stored.
+//			file = (options.file) ? options.file : false;
 			var connector = this;
 			
 			// construct form element request
@@ -77,15 +82,15 @@
 			}
 			
 			// decide if we need to send a multipart-formdata request
-			var c = content;
-			if (file) {
-				console.log("got a file:")
-				console.log(c)
-				content = new FormData();
-				content.append('file', c);
-				
-				
-			} else {
+			var c = (content !== null) ? content : "";
+//			if (file) {
+//				console.log("got a file:")
+//				console.log(c)
+//				content = new FormData();
+//				content.append('file', c);
+//				
+//				
+//			} else {
 				
 				if (options.fe) {
 			
@@ -104,10 +109,10 @@
 						content += "&id=" + formEl.id;
 					}
 				}
-			}
+//			}
 			
 
-			connector._iterate( {
+			connector._iterate({
 				method : connector._uploadContent,
 				methodNode : connector._uploadContentNode,
 				success : success,
@@ -122,16 +127,21 @@
 					u += "/" + index.replace(/\/$/, '');
 					u += "/store";
 
-					var id = (opts.id) ? "/" + opts.id : '';
-
-					u += id;
+					// can append uri to the URL only if we're not dealing with
+					// form elements
+					if (!(options.fe))
+					{
+						var id = (opts.id) ? "/" + opts.id : '';
+						u += id;
+					}
+					
 
 					return u;
 				},
 				args : {
 					content : content,
 					options : options,
-					file : file,
+//					file : file,
 					fe : options.fe
 				},
 				urlIndex : 0
@@ -143,22 +153,25 @@
 			console.log(args.content)
 			
 			// in case we want to upload data from a local file
-			if (args.file) {
-				console.log("ajax: sending multipart-formdata")
-			
-			jQuery.ajax( {
-				success : success,
-				error : error,
-				url : url,
-				type : "POST",
-				data : args.content,
-				contentType : false,
-				processData : false,
-				cache : false
-			});
+//			if (args.file) {
+//				console.log("ajax: sending multipart-formdata")
+//			
+//			jQuery.ajax( {
+//				success : success,
+//				error : error,
+//				url : url,
+//				type : "POST",
+//				data : args.content,
+//				contentType : false,
+//				processData : false,
+//				cache : false
+//			});
+//			
+//			
+//			} else 
 			
 			// in case we have form elements specified
-			} else if (args.fe) {
+				if (args.fe) {
 				
 				console.log("ajax: sending form elements")
 				jQuery.ajax( {
@@ -207,6 +220,206 @@
 			});
 			r.end();
 		},	// end of _uploadContentNode
+		
+		// ### udpateContent(id, success, error, options)
+		// Updates a content item on an index on the contenthub. If no index is
+		// specified, the item is assumed to be located at the default index 
+		// (contenthub). It is possible to specify the ID under which the 
+		// updated item will be stored (the old item will be deleted in this
+		// case, and will no longer be reachable under its old id). In case no
+		// new id is specified, the update will be stored to the old id, 
+		// namely **id**, which means that the old item will be overridden.
+		// **Parameters**:
+		// *{string}* **id** The uri of the content item that is to be updated.	
+		//		Note that after the update, the item will not be available under
+		//		this item any more, but will be assigned a new uri automatically
+		//		by the contenthub.
+		// *{function}* **success** The success callback.
+		// *{function}* **error** The error callback.
+		// *{object}* **options** Options: Possible parameters:
+		// Specify index: '<indexName>' to update an item on a specific index. 
+		// If none is specified, the item will be assumed to reside on the 
+		// default index (contenthub).
+		// Specify 'fe : {}' as the form elements to be used in uploading the
+		// content. As embedded keys of fe are possible: 
+		// fe.content: the content of the updated item (the old content will be
+		// 		overridden by this).
+		// fe.url: URL where the actual content resides. If this parameter is 
+		// 		supplied (and content is null), then the content is retrieved 
+		//		from this url (instead of **content**).
+		// fe.constraints: Constraints in JSON format. Constraints are used to 
+		// 		add supplementary metadata to the content item. For example, 
+		// 		author of the content item may be supplied as 
+		//		{author: "John Doe"}. Then, this constraint is added to the Solr
+		//		and will be indexed if the corresponding Solr schema includes 
+		//		the author field.
+		// fe.title: The title for the content item.
+		// **Throws**:
+		// *nothing*
+		// **Returns**:
+		// *{VIE.StanbolConnector}* : The VIE.StanbolConnector instance itself.
+		updateContent : function(id, success, error, options) {
+			
+			console.log("inside uploadContent")
+			
+			options = (options) ? options : {};
+			
+			// Specify 'file: true' if the **content** you passed is not a string,		TODO
+			// but the name of a local file where your content is stored.
+//			file = (options.file) ? options.file : false;
+			
+			var connector = this;
+			var content = "";
+			
+			// construct form element request
+			var formEl = {};
+			if (options.fe) {
+				
+				formEl.content = (options.fe.content) ? options.fe.content : false;
+				formEl.title = (options.fe.title) ? options.fe.title : false;
+				formEl.constraints = (options.fe.constraints) ? options.fe.constraints : false;
+				formEl.url = (options.fe.url) ? options.fe.url : false;
+//				formEl.id = (options.fe.id) ? options.fe.id : false;
+				formEl.content = (options.fe.content) ? options.fe.content : false;
+				
+			}
+			
+			// decide if we need to send a multipart-formdata request
+			var c = (formEl.content) ? (formEl.content) : "";
+//			if (file) {
+//				console.log("got a file:")
+//				console.log(c)
+//				content = new FormData();
+//				content.append('file', c);
+//				
+//				
+//			} else {
+				
+				if (options.fe) {
+			
+					content += "id=" + id; // this id identifies our update-target
+					
+					if (formEl.content) {
+						content = "&content=" + formEl.content;
+					}
+					if (formEl.title) {
+						content += "&title=" + formEl.title;
+					}
+					if (formEl.constraints) {
+						content += "&constraints=" + formEl.constraints;
+					}
+					if (formEl.url) {
+						content += "&url=" + formEl.url;
+					}
+
+				}
+			
+//		}
+			connector._iterate( {
+				method : connector._updateContent,
+				methodNode : connector._updateContentNode,
+				success : success,
+				error : error,
+				url : function(idx, opts) {
+					var u = this.options.url[idx].replace(/\/$/, '');
+					u += this.options.contenthub.urlPostfix.replace(/\/$/, '');
+
+					var index = (opts.index) ? opts.index
+							: this.options.contenthub.index;
+
+					u += "/" + index.replace(/\/$/, '');
+					u += "/store/update";
+
+//					var id = (opts.id) ? "/" + opts.id : ''; // won't work
+
+//					u += id;
+
+					return u;
+				},
+				args : {
+					content : content,
+					options : options,
+//					file : file,
+					fe : options.fe
+				},
+				urlIndex : 0
+			});
+			
+			},
+
+		
+		_updateContent : function(url, args, success, error) {
+			console.log("got as data: ")
+			console.log(args.content)
+			
+			// in case we want to upload data from a local file
+//			if (args.file) {
+//				console.log("ajax: sending multipart-formdata")
+//			
+//			$.ajax( {
+//				success : success,
+//				error : error,
+//				url : url,
+//				type : "POST",
+//				data : args.content,
+//				contentType : false,
+//				processData : false,
+//				cache : false
+//			});
+//			
+//			
+//			} else 
+				// in case we have form elements specified
+				if (args.fe) {
+				
+				console.log("ajax: sending form elements")
+				$.ajax( {
+				success : success,
+				error : error,
+				url : url,
+				type : "POST",
+				data : args.content,
+				contentType : "application/x-www-form-urlencoded",
+				accepts: {"application/rdf+json": "application/rdf+json"}
+				});
+				
+			} else {
+				
+				console.log("ajax: sending plain text as data")
+				$.ajax( {
+				success : success,
+				error : error,
+				url : url,
+				type : "POST",
+				data : args.content,
+				contentType : "text/plain"
+				
+			});
+		}
+
+	},	// end of _updateContent
+	
+		_updateContentNode : function(url, args, success, error) {
+			var request = require('request');
+			var r = request( {
+				method : "POST",
+				uri : url,
+				body : args.content,
+				headers : {
+					Accept : "application/rdf+xml",
+					"Content-Type" : "text/plain"
+				}
+			}, function(err, response, body) {
+				try {
+					success( {
+						results : JSON.parse(body)
+					});
+				} catch (e) {
+					error(e);
+				}
+			});
+			r.end();
+		},	// end of _updateContentNode
 
 		// ### getTextContentByID(id, success, error, options)
 		// @author mere01
@@ -432,6 +645,7 @@
 			submit += ldpath.name.replace(/\/$/, '');
 			submit += "&program=";
 			submit += ldpath.program.replace(/\/$/, '');
+			console.log("submitting: " + submit)
 
 			connector._iterate( {
 				method : connector._createIndex,
