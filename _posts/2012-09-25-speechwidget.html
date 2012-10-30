@@ -12,20 +12,20 @@ js_extras:
 github: "https://github.com/2529742/SpeechWidget"
 ---
 <p>
-VIE SpeechWidget allows to use speech input in semantic web applications in order to query for entities.
+VIE SpeechWidget allows to use speech input in semantic web applications in order to query for entities. It utilizes Google Speech Recognition, which is available so far only in Google Chrome.
 </p>
-
+<p>The following example demonstrates how to use speech input for the image annotation. <ul><li>Image click calls the dialog, where you can start the annotation: speech recording is initialized by microphone button click;</li><li>the entities, related to the recognized input will be listed in a new dialog;</li><li>the chosen entity ID will be used for the image annotation.</li></ul></p>
 
 <div id="warning"></div>
 <div id="wrapper">
-	<article>
-		<h2 class="title">The Beatles</h2>
-		<section>
+	<article style="border:dotted">
+		<h2 class="title" style="text-align:center">The Beatles</h2>
+		<section style="margin: 5px">
 			The Beatles were an English rock band formed in Liverpool in 1960, and one of the most commercially successful and critically acclaimed acts in the history of popular music. The group's best-known lineup consisted of <span about="http://dbpedia.org/resource/John_Lennon" typeof="Person"> John Lennon </span> (rhythm guitar, vocals),<span about="http://dbpedia.org/resource/Paul_McCartney" typeof="Person"> Paul McCartney </span> (bass guitar, vocals),<span about="http://dbpedia.org/resource/George_Harrison" typeof="Person"> George Harrison </span>(lead guitar, vocals) and <span about="http://dbpedia.org/resource/Ringo_Starr" typeof="Person"> Ringo Starr </span>(drums, vocals). Rooted in skiffle and 1950s rock and roll, the group later worked in many genres ranging from pop ballad s to psychedelic rock, often incorporating classical and other elements in innovative ways. Their enormous popularity first emerged as "Beatlemania"; as their songwriting grew in sophistication by the late 1960s, they came to be perceived by many fans and cultural observers as an embodiment of the ideals shared by the era's sociocultural revolutions.
 		</section>
 		<br/>
-		<div id="photos">
-			<img id="sample_img" src="http://upload.wikimedia.org/wikipedia/commons/thumb/d/df/The_Fabs.JPG/600px-The_Fabs.JPG"/>
+		<div id="photos" style="text-align:center">
+			<img id="sample_img" src="http://upload.wikimedia.org/wikipedia/commons/thumb/d/df/The_Fabs.JPG/600px-The_Fabs.JPG" style="height:300px;"/>
 		</div>
 	</article>	
     
@@ -47,7 +47,9 @@ VIE SpeechWidget allows to use speech input in semantic web applications in orde
 	myVIE.use(new myVIE.DBPediaService, 'dbpedia');
 	
 	//call SpeechWidget on a sample image click
-	$('#sample_img').click(function(){
+	$('#sample_img')
+	.attr("title", "Click to open the speech dialog.")
+	.click(function(){
 		var image = $(this);
 		image.vieSpeechWidget({
 			vie: myVIE,
@@ -65,9 +67,11 @@ VIE SpeechWidget allows to use speech input in semantic web applications in orde
 		});
 
 		var radiobox = $('<div>')
+		.css({'background-color': 'steelblue', height: '300px'})
 		.append(resultsBox)
 		.dialog({
 			title: 'Please choose the entity',
+			width: '700px',
 			buttons:[
 				{
 					text: "OK",
@@ -79,6 +83,7 @@ VIE SpeechWidget allows to use speech input in semantic web applications in orde
 							if(this.checked){
 								var url = this.nextSibling.data;
 								var a = $('<a href="' + url + '" target="_blank">');
+								image.attr("title", "Click to open the corresponding DBPedia page.");
 								image.wrap(a);
 								$(dialog).dialog('close');
 							}
@@ -96,10 +101,4 @@ VIE SpeechWidget allows to use speech input in semantic web applications in orde
 	};
   </textarea>
 </div>
-<div style="margin-top:20px;">
-     <span style="text-align:center;" class="tellmemore finalMenuItem">
-      <h3>Tutorial</h3>
-      Click <a style="color:#31e;" href="">here</a> for the tutorial.
-    </span>
-    </div>
-    </div>
+</div>
