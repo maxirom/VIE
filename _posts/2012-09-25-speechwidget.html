@@ -62,11 +62,11 @@ VIE SpeechWidget allows to use speech input in semantic web applications in orde
 	var annotateImage = function(entities,image){
 		var resultsBox = $('<ul id="speechWidgetDialogResultsBox">');
 		$(entities).each(function(){
-			resultsBox.append('<li><input type="radio" name="entity">' + this.getSubjectUri() + '</li>');
+			resultsBox.append('<li><input type="radio" name="entity"> ' + this.getSubjectUri() + '</li>');
 		});
 
 		var radiobox = $('<div>')
-		.css({'background-color': 'steelblue', height: '300px'})
+		.css({'background-color': 'gray', height: '300px'})
 		.append(resultsBox)
 		.dialog({
 			title: 'Please choose the entity',
