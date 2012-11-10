@@ -13,11 +13,15 @@
 //
 // uploadContent()
 // updateContent()
+// downloadContent()
+// editContent()
 // getTextContentByID()
 // getMetadataByID()
 // createIndex()
 // deleteIndex()
 // contenthubIndices()
+// getIndex()
+// existsIndex()
 // deleteContent()
 //
 (function() {
@@ -421,6 +425,198 @@
 			r.end();
 		},	// end of _updateContentNode
 
+
+		// ### downloadContent(id, success, error, options)
+		// Download raw data or metadata of a content item. The downloaded
+		// content is returned in the success callback.
+		// **Parameters**:
+		// *{string}* **id** The uri of the content item that is to be downloaded.
+		// *{function}* **success** The success callback.
+		// *{function}* **error** The error callback.
+		// *{object}* **options** Options: Possible parameters:
+		//		type: {metadata,raw}. If no type is specified, "raw" will be
+		//			used as default.
+		//		format: Rdf serialization format of metadata, e.g. 
+		//			"application/json", or "application/rdf/xml". If no format
+		//			is specified, "application/json" will be used as default.
+		// **Throws**:
+		// *nothing*
+		// **Returns**:
+		// *{VIE.StanbolConnector}* : The VIE.StanbolConnector instance itself.
+		downloadContent : function(id, success, error, options) {
+			
+			console.log("inside downloadContent")
+			console.log("got as options:")
+			console.log(options)
+			
+			options = (options) ? options : {};
+			
+			var connector = this;
+			
+			var type = (options.type) ? options.type : "raw";
+			var format = (options.format) ? options.format : "application/json";
+
+//			curl -O "http://lnv-89012.dfki.uni-sb.de:9001/contenthub/contenthub/store/download/raw/rep5364768269159563506tmp?format=application%2Fjson"
+			
+			connector._iterate({
+				method : connector._downloadContent,
+				methodNode : connector._downloadContentNode,
+				success : success,
+				error : error,
+				url : function(idx, opts) {
+					var u = this.options.url[idx].replace(/\/$/, '');
+					u += this.options.contenthub.urlPostfix.replace(/\/$/, '');
+
+					var index = (opts.index) ? opts.index : this.options.contenthub.index;
+
+					u += "/" + index.replace(/\/$/, '');
+					u += "/store/download/";
+
+					u += type;
+					u += "/" + id + "?";
+					u += "format=" + format;
+					
+					return u;
+				},
+				args : {
+//					content : content,
+					options : options		// !!! needed by the _iterator to assign opts
+////					file : file,
+//					fe : options.fe
+				},
+				urlIndex : 0
+			});
+			
+			}, // end of downloadContent()
+
+		
+		_downloadContent : function(url, args, success, error) {
+		
+				$.ajax( {
+				success : success,
+				error : error,
+				url : url,
+				type : "GET",
+//				data : args.content,
+				contentType : "application/x-www-form-urlencoded",
+				accepts: {"application/rdf+json": "application/rdf+json"}
+				});
+
+
+	},	// end of _downloadContent
+	
+		_downloadContentNode : function(url, args, success, error) {
+			var request = require('request');
+			var r = request( {
+				method : "GET",
+				uri : url,
+				body : args.content,
+				headers : {
+					Accept : "application/rdf+xml",
+					"Content-Type" : "text/plain"
+				}
+			}, function(err, response, body) {
+				try {
+					success( {
+						results : JSON.parse(body)
+					});
+				} catch (e) {
+					error(e);
+				}
+			});
+			r.end();
+		},	// end of _downloadContentNode
+		
+
+		// ### editContent(id, success, error)
+		// Creates the JSON string of a content item (to be edited) to display 
+		// it in the HTML view. The JSON string is returned in the success
+		// callback.
+		// **Parameters**:
+		// *{string}* **id** The uri of the content item.
+		// *{function}* **success** The success callback.
+		// *{function}* **error** The error callback.
+		// *{object}* **options** Options: not specified here.
+		// **Throws**:
+		// *nothing*
+		// **Returns**:
+		// *{VIE.StanbolConnector}* : The VIE.StanbolConnector instance itself.
+		editContent : function(id, success, error) {
+			
+			var connector = this;
+			
+//			curl http://lnv-89012.dfki.uni-sb.de:9001/contenthub/contenthub/store/edit/{id}
+			
+			connector._iterate({
+				method : connector._editContent,
+				methodNode : connector._editContentNode,
+				success : success,
+				error : error,
+				url : function(idx, opts) {
+					var u = this.options.url[idx].replace(/\/$/, '');
+					u += this.options.contenthub.urlPostfix.replace(/\/$/, '');
+
+					var index = (opts.index) ? opts.index : this.options.contenthub.index;
+
+					u += "/" + index.replace(/\/$/, '');
+					u += "/store/edit";
+
+	
+					u += "/" + id;
+					
+					return u;
+				},
+				args : {
+//					content : content,
+					options : {}		// !!! needed by the _iterator to assign opts
+////					file : file,
+//					fe : options.fe
+				},
+				urlIndex : 0
+			});
+			
+			}, // end of editContent()
+
+		
+		_editContent : function(url, args, success, error) {
+		
+				$.ajax( {
+				success : success,
+				error : error,
+				url : url,
+				type : "GET",
+//				data : args.content,
+				contentType : "application/x-www-form-urlencoded",
+				accepts: {"application/rdf+json": "application/rdf+json"}
+				});
+
+
+	},	// end of _editContent
+	
+		_editContentNode : function(url, args, success, error) {
+			var request = require('request');
+			var r = request( {
+				method : "GET",
+				uri : url,
+				body : args.content,
+				headers : {
+					Accept : "application/rdf+xml",
+					"Content-Type" : "text/plain"
+				}
+			}, function(err, response, body) {
+				try {
+					success( {
+						results : JSON.parse(body)
+					});
+				} catch (e) {
+					error(e);
+				}
+			});
+			r.end();
+		},	// end of _editContentNode
+		
+		
+		
 		// ### getTextContentByID(id, success, error, options)
 		// @author mere01
 		// This method queries the Apache Stanbol contenthub for the text
@@ -861,7 +1057,165 @@
 			});
 			r.end();
 		}, // end of _contenthubIndicesNode
+		
+		// ### getIndex(name, success, error)
+		// @author mere01
+		// This method retrieves an ldpath program (index) by its name. The
+		// function returns the program in the success callback if the program 
+		// exists. If not, it goes into the error callback.
+		// is stored on the contenthub.
+		// **Parameters**:
+		// *{string}* **name** the name of the ldpath program (index) to be
+		// 		retrieved.
+		// *{function}* **success** The success callback.
+		// *{function}* **error** The error callback.
+		// **Throws**:
+		// *nothing*
+		// **Returns**:
+		// *{VIE.StanbolConnector}* : The VIE.StanbolConnector instance itself.
+		// **Example usage**:
+		//
+		// var stnblConn = new vie.StanbolConnector(opts);
+		// stnblConn.contenthubIndices(
+		// function (res) { ... },
+		// function (err) { ... });
+		getIndex : function(name, success, error) {
+			
+			var connector = this;
 
+			connector._iterate( {
+				method : connector._getIndex,
+				methodNode : connector._getIndexNode,
+				success : success,
+				error : error,
+//				complete : complete,
+				url : function(idx, opts) {
+					var u = this.options.url[idx].replace(/\/$/, '');
+					u += this.options.contenthub.urlPostfix + "/ldpath/program?name=";
+					u += name;
+
+					return u;
+				},
+				args : {
+					options : {}
+				},
+				urlIndex : 0
+			});
+		},	// end of getIndex()
+
+		_getIndex : function(url, args, success, error) {
+			jQuery.ajax( {
+				success : success,
+				error : error,
+//				complete : complete,
+				url : url,
+				type : "GET",
+				accepts : {
+					"application/rdf+json" : "application/rdf+json"
+				}
+			});
+		}, // end of _getIndex
+
+		_getIndexNode : function(url, args, success, error) {
+			var request = require('request');
+			var r = request( {
+				method : "GET",
+				uri : url,
+				headers : {
+					Accept : "application/rdf+json"
+				}
+			}, function(err, response, body) {
+				try {
+					success( {
+						results : JSON.parse(body)
+					});
+				} catch (e) {
+					error(e);
+				}
+			});
+			r.end();
+		}, // end of _getIndexNode		
+
+		
+		// ### existsIndex(name, success, error)
+		// @author mere01
+		// This method checks if an ldpath program (index) is stored on the
+		// contenthub/ldpath. The function returns in success callback if the 
+		// program exists. If not, it goes into the error callback.
+		// is stored on the contenthub.
+		// **Parameters**:
+		// *{string}* **name** the name of the ldpath program (index) to be
+		// 		checked.
+		// *{function}* **success** The success callback.
+		// *{function}* **error** The error callback.
+		// **Throws**:
+		// *nothing*
+		// **Returns**:
+		// *{VIE.StanbolConnector}* : The VIE.StanbolConnector instance itself.
+		// **Example usage**:
+		//
+		// var stnblConn = new vie.StanbolConnector(opts);
+		// stnblConn.contenthubIndices(
+		// function (res) { ... },
+		// function (err) { ... });
+		existsIndex : function(name, success, error) {
+			
+			var connector = this;
+
+			connector._iterate( {
+				method : connector._existsIndex,
+				methodNode : connector._existsIndexNode,
+				success : success,
+				error : error,
+//				complete : complete,
+				url : function(idx, opts) {
+					var u = this.options.url[idx].replace(/\/$/, '');
+					u += this.options.contenthub.urlPostfix + "/ldpath/exists?name=";
+					u += name;
+
+					return u;
+				},
+				args : {
+					options : {}
+				},
+				urlIndex : 0
+			});
+		},	// end of existsIndex()
+
+		_existsIndex : function(url, args, success, error) {
+			jQuery.ajax( {
+				success : success,
+				error : error,
+//				complete : complete,
+				url : url,
+				type : "GET",
+				accepts : {
+					"application/rdf+json" : "application/rdf+json"
+				}
+			});
+		}, // end of _existsIndex
+
+		_existsIndexNode : function(url, args, success, error) {
+			var request = require('request');
+			var r = request( {
+				method : "GET",
+				uri : url,
+				headers : {
+					Accept : "application/rdf+json"
+				}
+			}, function(err, response, body) {
+				try {
+					success( {
+						results : JSON.parse(body)
+					});
+				} catch (e) {
+					error(e);
+				}
+			});
+			r.end();
+		}, // end of _existsIndexNode		
+		
+		
 
 		// ### deleteContent(itemURI, success, error, options)
 		// @author mere01

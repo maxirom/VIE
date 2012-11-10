@@ -89,6 +89,12 @@ test("VIE.js StanbolConnector - API", function() {
     equal(typeof stanbol.connector.deleteIndex, "function");
     ok(stanbol.connector.deleteContent);
     equal(typeof stanbol.connector.deleteContent, "function");
+    ok(stanbol.connector.downloadContent);
+    equal(typeof stanbol.connector.downloadContent, "function");
+    ok(stanbol.connector.existsIndex);
+    equal(typeof stanbol.connector.existsIndex, "function");
+    ok(stanbol.connector.getIndex);
+    equal(typeof stanbol.connector.getIndex, "function");
     
     // factstore
     ok(stanbol.connector.createFactSchema);
