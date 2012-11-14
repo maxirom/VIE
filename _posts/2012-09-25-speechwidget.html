@@ -13,13 +13,13 @@ github: "https://github.com/2529742/SpeechWidget"
 <p>
 VIE SpeechWidget allows to use speech input in semantic web applications in order to query for entities. It utilizes Google Speech Recognition, which is available so far only in Google Chrome.
 </p>
-<p>The following example demonstrates how to use speech input for the image annotation. <ul><li>Image click calls the dialog, where you can start the annotation: speech recording is initialized by microphone button click;</li><li>the entities, related to the recognized input will be listed in a new dialog;</li><li>the chosen entity ID will be used for the image annotation.</li></ul></p>
+<p>The following example demonstrates how to use speech input for the image annotation. <ul><li>Image click calls the dialog, where you can start the annotation: speech recording is initialized by microphone button click;</li><li>the entities, related to the recognized input will be listed in a new dialog;</li><li>the chosen entity ID will be used for the image annotation:</br> the image tag will obtain a new attribute - "about" with the value containing the corresponding entity ID.</li><li>after the annotation we highlight the annotated element.</li></ul></p>
 
 <div id="warning"></div>
 <div id="wrapper">
-	<article style="border:dotted">
+	<article class="well">
 		<h2 class="title" style="text-align:center">The Beatles</h2>
-		<section style="margin: 5px">
+		<section style="margin: 5px; text-align: justify">
 			The Beatles were an English rock band formed in Liverpool in 1960, and one of the most commercially successful and critically acclaimed acts in the history of popular music. The group's best-known lineup consisted of <span about="http://dbpedia.org/resource/John_Lennon" typeof="Person"> John Lennon </span> (rhythm guitar, vocals),<span about="http://dbpedia.org/resource/Paul_McCartney" typeof="Person"> Paul McCartney </span> (bass guitar, vocals),<span about="http://dbpedia.org/resource/George_Harrison" typeof="Person"> George Harrison </span>(lead guitar, vocals) and <span about="http://dbpedia.org/resource/Ringo_Starr" typeof="Person"> Ringo Starr </span>(drums, vocals). Rooted in skiffle and 1950s rock and roll, the group later worked in many genres ranging from pop ballad s to psychedelic rock, often incorporating classical and other elements in innovative ways. Their enormous popularity first emerged as "Beatlemania"; as their songwriting grew in sophistication by the late 1960s, they came to be perceived by many fans and cultural observers as an embodiment of the ideals shared by the era's sociocultural revolutions.
 		</section>
 		<br/>
@@ -82,7 +82,10 @@ VIE SpeechWidget allows to use speech input in semantic web applications in orde
 							if(this.checked){
 								var url = this.nextSibling.data;
 								var a = $('<a href="' + url + '" target="_blank">');
-								image.attr("title", "Click to open the corresponding DBPedia page.");
+								image
+								.attr("about", url.trim())
+								.attr("title", "Click to open the corresponding DBPedia page.")
+								.css({"box-shadow": "0px 0px 10px lightGreen"});
 								image.wrap(a);
 								$(dialog).dialog('close');
 							}
