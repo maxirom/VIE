@@ -5,22 +5,9 @@ var stanbolRootUrl = (window.STANBOL_URLS) ? window.STANBOL_URLS : [
 var repo = (window.CMS_REPO) ? window.CMS_REPO : false;
 var rdf = (window.CMS_rdf) ? window.CMS_rdf : false;
 var rdfURL = (window.CMS_rdfURL) ? window.CMS_rdfURL : false;
-var rdfFile = (window.CMS_rdfFile) ? window.CMS_rdfFile : false;
+var rdfFile = false; //(window.CMS_rdfFile) ? window.CMS_rdfFile : false;
 var path = (window.CMS_path) ? window.CMS_path : false;
 
-// helper function needed in order to read from files
-// shamelessly inspired by http://snipplr.com/view/4021/
-function getXmlHttp() {
-	   if (window.XMLHttpRequest) {
-	      xmlhttp=new XMLHttpRequest();
-	   } else if (window.ActiveXObject) {
-	      xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
-	   }
-	   if (xmlhttp == null) {
-	      alert("Your browser does not support XMLHTTP.");
-	   }
-	   return xmlhttp;
-	}
 
 //### test for the cmsadapter/ endpoint, the component that connects stanbol to
 // content management systems and their data repositories.
@@ -43,44 +30,34 @@ test("VIE.js StanbolConnector - CMS Adapter", function() {
     z.use(stanbol);
     
     stop();
-    var file;
-    var xmlhttp = getXmlHttp();
-    xmlhttp.onreadystatechange = function() {
-       if (xmlhttp.readyState==4) { 
-           file = xmlhttp.responseText;
-           console.log("in if-case")
-       }
-    }
-    xmlhttp.open("GET", rdfFile, true);
-    xmlhttp.send(null);
-    console.log(xmlhttp);
-    console.log("file :")
-    console.log(file);
-    
+       
    
 	stanbol.connector.getReposSessionKey(repo, 
 			"admin", "admin", "JCR", function(key){
 		
 		ok(true, "Obtained session key for repository.");
 		console.log("Obtained session key for repository: " + key);
+		start();
 		
 		///* this test is depending on the local file system
 		if (rdfFile) {
 			ok(true, "Parameter 'rdfFile' is set to " + rdfFile);
+		stop();
 		stanbol.connector.mapRDFtoRepository(
 				   key,  
 				   function(success) {
 					   
 					 ok(true, "Mapped local RDF data to repository.");
 					 console.log("Mapped RDF from file " + rdfFile + " to repo at " + repo);
+					 start();
 					
 				}, function(error){
 					
 					ok(false, "Could not map local RDF data to repository.");
 					console.log("Could not map RDF from File " + rdfFile + " to repo at " + repo);
-					
+					start();
 				}, 
-						{rdfFile : file}
+						{rdfFile : rdfFile}
 						);
 		} else {
 			ok(true, "Parameter 'rdfFile' is *NOT* set. Not testing mapping of a local rdf file to your repository");
@@ -89,19 +66,21 @@ test("VIE.js StanbolConnector - CMS Adapter", function() {
 		
 		if (rdf) {
 			
-			ok(true, "Parameter 'rdf' is set.");
+		ok(true, "Parameter 'rdf' is set.");
+		stop();
 		stanbol.connector.mapRDFtoRepository(
 				   key,  
 				   function(success) {
 					   
 					 ok(true, "Mapped RDF string data to repository.");
 					 console.log("Mapped RDF to repo at " + repo);
-					
+					 start();
+					 
 				}, function(error){
 					
 					ok(false, "Could not map RDF string data to repository.");
 					console.log("Could not map RDF to repo at " + repo);
-					
+					start();
 				}, 
 						{rdf : escape(rdf)}
 						);
@@ -111,7 +90,8 @@ test("VIE.js StanbolConnector - CMS Adapter", function() {
 		
 		if (rdfURL) {
 			
-			ok(true, "Parameter 'rdfURL' is set to " + rdfURL);
+		ok(true, "Parameter 'rdfURL' is set to " + rdfURL);
+		stop();
 		stanbol.connector.mapRDFtoRepository(
 		   key,  
 		   function(success) {
@@ -136,7 +116,7 @@ test("VIE.js StanbolConnector - CMS Adapter", function() {
 		// now submit the subtree stored in our repo at path /test to the contenthub
 		if (path) {
 			
-			ok(true, "Parameter 'path' is set to " + path);
+		ok(true, "Parameter 'path' is set to " + path);
 			
 		stop();
 		stanbol.connector.submitRepositoryItem(
@@ -204,9 +184,32 @@ test("VIE.js StanbolConnector - CMS Adapter", function() {
 				}
 		);
 		
+		
+		
 		} else {
 			ok(true, "Parameter 'path' is *NOT* set. Not testing submission of repository items to the Stanbol contenthub.");
 		}
+		
+		// and finally map our repository to RDF
+		stop();
+		stanbol.connector.mapRepositoryToRDF(
+				key,
+				"http://www.apache.org/stanbol/cms",
+				function(success){
+					ok(true, "Mapped repository path " + path + " to RDF.");
+					console.log("Mapped repository path " + path + " to RDF.")
+					console.log(success)
+					start();
+				},
+				function(error){
+					ok(false, "Could not map repository path " + path + " to RDF.");
+					console.log("Could not map repository path " + path + " to RDF.");
+					console.log(error);
+					start();
+				}, {
+					store : true,
+					update : true
+				});
 		
 	}, function(error){
 		

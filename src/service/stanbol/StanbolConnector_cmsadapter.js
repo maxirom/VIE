@@ -12,8 +12,8 @@
 // the service does not allow for saving, removing or analyzing methods.
 //
 // getReposSessionKey()
-// mapRDFtoRepository()
-// mapRepositoryToRDF() // not available yet
+// mapRDFtoRepository()		(**upload of local files is not supported yet**)
+// mapRepositoryToRDF()
 // submitRepositoryItem()
 // deleteRepositoryItem()
 //
@@ -132,7 +132,7 @@
 	//		RDF data:
 	//		{rdfURL : '<rdfURL>'} to specify the URL of some remote RDF file
 	//		{rdfFile : '<rdfFile>'} to specify a local RDF file to be loaded
-	//			by the cmsadapter
+	//			by the cmsadapter. **NOT supported yet**.
 	// 		Optionally, in case that a local RDF file is specified, a parameter
 	//		'rdfFileInfo' can be specified to carry information about the
 	//		submitted RDF file.
@@ -253,9 +253,18 @@
 			contentType : false,
 			processData : false,
 			cache : false
-			
-			
 		});
+			
+			// try something else:
+//			var xhr = new XMLHttpRequest();
+//			xhr.open("POST", url);
+//			xhr.onload = function() {
+//				console.log("in onload function");
+////				JSON.parse(xhr.responseText);
+//			}
+			
+//			xhr.send(args.data);
+		
 		} else {
 		
 			$.ajax( {
@@ -316,59 +325,58 @@
 	// **Returns**:
 	// *{VIE.StanbolConnector}* : The VIE.StanbolConnector
 	// instance itself.
-	//	mapRepositoryToRDF : function(sessionKey, baseURI, success, error, options) {
-		// TODO curl command is not correct yet
+		mapRepositoryToRDF : function(sessionKey, baseURI, success, error, options) {
 		
 		// curl -i -X POST 
-		//	-d "sessionKey=eec8ff46-aaf9-485f-a7b5-452c1d7197d0&baseURI=http://www.apache.org/stanbol/cms&store=true" 
+		//	-d "sessionKey=70d925b7-3438-4232-b850-d91d10a58dc&baseURI=http://www.apache.org/stanbol/cms&store=true" 
 		//	http://lnv-89012.dfki.uni-sb.de:9001/cmsadapter/map/cms
 
-//		options = (options) ? options : false;
-//		
-//		if (options) {
-//			var store = (options.store) ? options.store : false;
-//			if (store) {
-//				var update = (options.update) ? options.update : true;
-//			}
-//		}
-//		
-//		
-//		var connector = this;
-//
-//		var data = false;
-//		
-//		data = "sessionKey=" + sessionKey;
-//		data += "&baseURI=" + baseURI;
-//		
-//		if (store) {
-//			u += "&store=" + store;
-//			if (update) {
-//				u += "&update=" + update;
-//			}
-//		}
-//
-//		connector._iterate( {
-//			method : connector._mapRepositoryToRDF,
-//			methodNode : connector._mapRepositoryToRDFNode,
-//			success : success,
-//			error : error,
-//			url : function(idx, opts) {
-//				var u = this.options.url[idx].replace(
-//						/\/$/, '');
-//				u += this.options.cmsadapter.urlPostfix
-//						.replace(/\/$/, '');
-//				u += this.options.cmsadapter.map.replace(/\/$/, '');
-//				u += "/cms";
-//				
-//				return u;
-//			},
-//			args : {
-//				data : data
-//			},
-//			urlIndex : 0
-//		});
-//
-//	}, // end of mapRepositoryToRDF
+		options = (options) ? options : false;
+		
+		if (options) {
+			var store = (options.store) ? options.store : false;
+			if (store) {
+				var update = (options.update) ? options.update : true;
+			}
+		}
+		
+		
+		var connector = this;
+
+		var data = false;
+		
+		data = "sessionKey=" + sessionKey;
+		data += "&baseURI=" + baseURI;
+		
+		if (store) {
+			data += "&store=" + store;
+			if (update) {
+				data += "&update=" + update;
+			}
+		}
+
+		connector._iterate( {
+			method : connector._mapRepositoryToRDF,
+			methodNode : connector._mapRepositoryToRDFNode,
+			success : success,
+			error : error,
+			url : function(idx, opts) {
+				var u = this.options.url[idx].replace(
+						/\/$/, '');
+				u += this.options.cmsadapter.urlPostfix
+						.replace(/\/$/, '');
+				u += this.options.cmsadapter.map.replace(/\/$/, '');
+				u += "/cms";
+				
+				return u;
+			},
+			args : {
+				data : data
+			},
+			urlIndex : 0
+		});
+
+	}, // end of mapRepositoryToRDF
 
 	_mapRepositoryToRDF : function(url, args, success, error) {
 	

@@ -419,7 +419,7 @@
         // *nothing*  
         // **Returns**:  
         // *{VIE.StanbolConnector}* : The VIE.StanbolConnector instance itself.  
-        query: function(query, success, error, options) {
+        query : function(query, success, error, options) {
             options = (options)? options :  {};
             var connector = this;
 
@@ -588,7 +588,8 @@
         },
 
         // ### readEntity(uri, success, error, options)
-        // This method loads all properties from an entity and returns the result by the success callback.  
+        // This method loads all properties from an entity and returns the 
+        // result by the success callback.  
         // **Parameters**:  
         // *{string}* **uri** The URI of the entity to be loaded.  
         // *{function}* **success** The success callback.  
@@ -634,6 +635,7 @@
                 methodNode : connector._readEntityNode,
                 success : success,
                 error : error,
+                
                 url : function (idx, opts) {
                     var site = (opts.site)? opts.site : this.options.entityhub.site;
                     site = (site)? "/" + site : "s";

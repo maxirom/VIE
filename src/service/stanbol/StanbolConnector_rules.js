@@ -10,6 +10,17 @@
 // The DBPedia service allows a VIE developer to directly query
 // the DBPedia database for entities and their properties. Obviously,
 // the service does not allow for saving, removing or analyzing methods.
+//
+// createRule()
+// createRecipe()
+// deleteRule()
+// deleteRecipe()
+// findRule()
+// findRecipe()
+// getRecipe()
+// refactor()		Uses the specified recipe to transform the specified RDF graph
+// exportRecipe()	export to a specific format
+//
 (function() {
 
 	jQuery.extend(true, VIE.prototype.StanbolConnector.prototype, {
@@ -533,16 +544,16 @@
 				
 				// ### findRecipe(success, error, options)
 				// @author mere01
-				// retrieves a rule from the /rules/find/ endpoint. The retrieval
+				// retrieves a recipe from the /rules/find/ endpoint. The retrieval
 				// can be done using the some description of the recipe. This 
 				// description must have been specified at creation of the recipe. 
 				// **Parameters**:
 				// *{function}* **success** The success callback.
 				// *{function}* **error** The error callback.
 				// *{object}* **options** Options to specify what we're looking
-				//		for. Specify e.g. {name : 'myRule'} if you want to search
+				//		for. Specify e.g. {name : 'myRecipe'} if you want to search
 				//		for a rule by its name; specify {description : 'transitive'}
-				//		if you want to search rules by their descriptions.
+				//		if you want to search a recipe by its description.
 				//		If a name is specified, any given description will be
 				//		ignored.
 				// **Throws**:
