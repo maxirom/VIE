@@ -156,11 +156,12 @@ test("VIE.js StanbolConnector - Rules Manager", function() {
 		rec : 'syntax' 
 		});
 	
+	// TODO:
 	// independent testing of /refactor/apply
 	// first create a recipe
 	// then use it to refactor our graph
 
-	
+		
     
 });		// end of test for Rules Manager
 
@@ -203,12 +204,12 @@ stanbol.connector.exportRecipe(recipe, format, function(success){
 
 }); // end of test for Rules Manager - rules/adapters
 
+
 //### test for the /rules/find service, the component that allows to find rules
 //	and recipes by names and descriptions
 //
 //@author mere01
 test("VIE.js StanbolConnector - Rules Manager - rules/find", function() {
-//test the rules/adapters service to convert recipes into another format
 
 var z = new VIE();
 ok(z.StanbolService);

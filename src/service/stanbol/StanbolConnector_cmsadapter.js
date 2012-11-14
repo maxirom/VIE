@@ -12,9 +12,10 @@
 // the service does not allow for saving, removing or analyzing methods.
 //
 // getReposSessionKey()
-// mapRDFtoRepository()
+// mapRDFtoRepository()		(**upload of local files is not supported yet**)
 // mapRepositoryToRDF()
-//
+// submitRepositoryItem()
+// deleteRepositoryItem()
 //
 (function(){
 		
@@ -91,10 +92,6 @@
 			error : error,
 			url : url,
 			type : "GET"
-//			accepts : {
-//				text : "text/plain"
-//			}
-
 		});
 	}, // end of _getReposSessionKey
 
@@ -103,7 +100,6 @@
 		var r = request( {
 			method : "GET",
 			uri : url,
-			// body : args.content,
 			headers : {
 				Accept : "text/plain"
 			}
@@ -136,7 +132,7 @@
 	//		RDF data:
 	//		{rdfURL : '<rdfURL>'} to specify the URL of some remote RDF file
 	//		{rdfFile : '<rdfFile>'} to specify a local RDF file to be loaded
-	//			by the cmsadapter
+	//			by the cmsadapter. **NOT supported yet**.
 	// 		Optionally, in case that a local RDF file is specified, a parameter
 	//		'rdfFileInfo' can be specified to carry information about the
 	//		submitted RDF file.
@@ -181,6 +177,8 @@
 		
 		if (rdfFile) {
 			
+			console.log("got as rdfFile: ")
+			console.log(rdfFile)
 			var info = (options.rdfFileInfo) ? options.rdfFileInfo : false;
 		}
 		
@@ -255,9 +253,18 @@
 			contentType : false,
 			processData : false,
 			cache : false
-			
-			
 		});
+			
+			// try something else:
+//			var xhr = new XMLHttpRequest();
+//			xhr.open("POST", url);
+//			xhr.onload = function() {
+//				console.log("in onload function");
+////				JSON.parse(xhr.responseText);
+//			}
+			
+//			xhr.send(args.data);
+		
 		} else {
 		
 			$.ajax( {
@@ -318,11 +325,10 @@
 	// **Returns**:
 	// *{VIE.StanbolConnector}* : The VIE.StanbolConnector
 	// instance itself.
-	mapRepositoryToRDF : function(sessionKey, baseURI, success, error, options) {
-		// TODO curl command is not correct yet
+		mapRepositoryToRDF : function(sessionKey, baseURI, success, error, options) {
 		
 		// curl -i -X POST 
-		//	-d "sessionKey=eec8ff46-aaf9-485f-a7b5-452c1d7197d0&baseURI=http://www.apache.org/stanbol/cms&store=true" 
+		//	-d "sessionKey=70d925b7-3438-4232-b850-d91d10a58dc&baseURI=http://www.apache.org/stanbol/cms&store=true" 
 		//	http://lnv-89012.dfki.uni-sb.de:9001/cmsadapter/map/cms
 
 		options = (options) ? options : false;
@@ -343,9 +349,9 @@
 		data += "&baseURI=" + baseURI;
 		
 		if (store) {
-			u += "&store=" + store;
+			data += "&store=" + store;
 			if (update) {
-				u += "&update=" + update;
+				data += "&update=" + update;
 			}
 		}
 
@@ -447,8 +453,6 @@
 		// curl -i -X POST 
 		//   --data "sessionKey=eeae036f-2e22-4a8e-8f1d-860a246f1750&path=/test&recursive=yes" 
 		//   http://lnv-89012.dfki.uni-sb.de:9001/cmsadapter/contenthubfeed
-
-
 		
 		options = (options) ? options : false;
 		
@@ -542,10 +546,7 @@
 			data : args.data,
 			uri : url,
 			body : args.content
-//			headers : {
-//				Accept : "application/rdf+xml",
-//				"Content-Type" : "text/plain"
-//			}
+
 		}, function(err, response, body) {
 			try {
 				success( {
@@ -585,14 +586,11 @@
 	// *{VIE.StanbolConnector}* : The VIE.StanbolConnector
 	// instance itself.
 	deleteRepositoryItem : function(sessionKey, success, error, options) {
-		// TODO curl command is not correct yet
 		
 		// curl -i -X DELETE 
 		// 	--data "sessionKey=5d934b53-dc33-4d9c-884f-c16c8ba872af&path=/contenthubfeedtest&recursive=true" 
 		//	http://lnv-89012.dfki.uni-sb.de:9001/cmsadapter/contenthubfeed
 
-
-		
 		options = (options) ? options : false;
 		
 		if (! options) {
@@ -600,6 +598,7 @@
 		}
 		
 		var params = {};
+		params.sessionKey = sessionKey;
 		
 		var id = (options.id) ? options.id : false;
 			
@@ -615,12 +614,12 @@
 		
 		if (path) {
 			var recursive = (options.recursive) ? options.recursive : false;
-			if (recursive) {
-				params.recursive = recursive;
-			}
+			
+			params.recursive = recursive;
+			
 		}
 		
-		var indexName = options.indexName;
+		var indexName = (options.indexName) ? options.indexName : false;
 			if (indexName) {
 				params.indexName = indexName;
 			}
@@ -628,7 +627,7 @@
 		
 		var connector = this;
 
-		var data = false;
+		var data = "";
 		
 		for (var key in params) {
 			data += key + "=" + params[key] + "&";

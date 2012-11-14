@@ -10,6 +10,17 @@
 // The DBPedia service allows a VIE developer to directly query
 // the DBPedia database for entities and their properties. Obviously,
 // the service does not allow for saving, removing or analyzing methods.
+//
+// createRule()
+// createRecipe()
+// deleteRule()
+// deleteRecipe()
+// findRule()
+// findRecipe()
+// getRecipe()
+// refactor()		Uses the specified recipe to transform the specified RDF graph
+// exportRecipe()	export to a specific format
+//
 (function() {
 
 	jQuery.extend(true, VIE.prototype.StanbolConnector.prototype, {
@@ -53,8 +64,6 @@
 				data.append('description', options.desc);
 			}
 
-//			console.log("the FormData object:")
-//			console.log(data)
 
 			connector._iterate( {
 				method : connector._createRule,
@@ -65,8 +74,8 @@
 				// var u = this.options.url[idx].replace(/\/$/, '');
 				// u += this.options.rules.urlPostfix.replace(/\/$/, '');
 				// u += this.options.rules.recipe.replace(/\/$/, '');
-
 				// return u;
+					
 				return "http://lnv-89012.dfki.uni-sb.de:9001/rules/recipe"
 			},
 			args : {
@@ -151,7 +160,7 @@
 				success : success,
 				error : error,
 				url : function(idx, opts) {
-					// var u = this.options.url[idx].replace(/\/$/, '');
+				// var u = this.options.url[idx].replace(/\/$/, '');
 				// u += this.options.rules.urlPostfix.replace(/\/$/, '');
 				// u += this.options.rules.recipe.replace(/\/$/, '');
 
@@ -231,7 +240,7 @@
 				success : success,
 				error : error,
 				url : function(idx, opts) {
-					// var u = this.options.url[idx].replace(/\/$/, '');
+				// var u = this.options.url[idx].replace(/\/$/, '');
 				// u += this.options.rules.urlPostfix.replace(/\/$/, '');
 				// u += this.options.rules.recipe.replace(/\/$/, '');
 
@@ -251,7 +260,6 @@
 		}, // end of deleteRule
 
 		_deleteRule : function(url, args, success, error) {
-//			console.log("ajax call receives url: " + url)
 			jQuery.ajax( {
 				success : success,
 				error : error,
@@ -313,7 +321,7 @@
 				success : success,
 				error : error,
 				url : function(idx, opts) {
-					// var u = this.options.url[idx].replace(/\/$/, '');
+				// var u = this.options.url[idx].replace(/\/$/, '');
 				// u += this.options.rules.urlPostfix.replace(/\/$/, '');
 				// u += this.options.rules.recipe.replace(/\/$/, '');
 
@@ -391,7 +399,6 @@
 				methodNode : connector._findRuleNode,
 				success : success,
 				error : error,
-//				complete : complete,
 				url : function(idx, opts) {
 				// var u = this.options.url[idx].replace(/\/$/, '');
 				// u += this.options.rules.urlPostfix.replace(/\/$/, '');
@@ -413,12 +420,7 @@
 			jQuery.ajax( {
 				success : success,
 				error : error,
-//				complete : complete,
 				url : url + "?" + args.termType + "=" + args.term
-//				type : "GET",
-//				accepts : {
-//					"application/rdf+xml" : "application/rdf+xml"
-//				}
 
 			});
 		}, // end of _findRule
@@ -428,7 +430,6 @@
 			var r = request( {
 				method : "GET",
 				uri : url,
-				// body : args.content,
 				headers : {
 					Accept : "application/rdf+xml"
 				}
@@ -451,7 +452,7 @@
 				// can be done using either the name or some description of
 				// the rule. These can be specified in the options parameter
 				// as 'name' or 'description'. In the default case, i.e., if no
-				// options are specified, // TODO
+				// options are specified, //... TODO
 				// **Parameters**:
 				// *{function}* **success** The success callback.
 				// *{function}* **error** The error callback.
@@ -482,9 +483,8 @@
 						methodNode : connector._findRuleNode,
 						success : success,
 						error : error,
-//						complete : complete,
 						url : function(idx, opts) {
-							// var u = this.options.url[idx].replace(/\/$/, '');
+						// var u = this.options.url[idx].replace(/\/$/, '');
 						// u += this.options.rules.urlPostfix.replace(/\/$/, '');
 						// u += this.options.rules.recipe.replace(/\/$/, '');
 
@@ -513,7 +513,6 @@
 						},
 						success : success,
 						error : error,
-//						complete : complete,
 						url : url,
 						type : "GET",
 						accepts : {
@@ -528,7 +527,6 @@
 					var r = request( {
 						method : "GET",
 						uri : url,
-						// body : args.content,
 						headers : {
 							Accept : "text/turtle"
 						}
@@ -546,16 +544,16 @@
 				
 				// ### findRecipe(success, error, options)
 				// @author mere01
-				// retrieves a rule from the /rules/find/ endpoint. The retrieval
+				// retrieves a recipe from the /rules/find/ endpoint. The retrieval
 				// can be done using the some description of the recipe. This 
 				// description must have been specified at creation of the recipe. 
 				// **Parameters**:
 				// *{function}* **success** The success callback.
 				// *{function}* **error** The error callback.
 				// *{object}* **options** Options to specify what we're looking
-				//		for. Specify e.g. {name : 'myRule'} if you want to search
+				//		for. Specify e.g. {name : 'myRecipe'} if you want to search
 				//		for a rule by its name; specify {description : 'transitive'}
-				//		if you want to search rules by their descriptions.
+				//		if you want to search a recipe by its description.
 				//		If a name is specified, any given description will be
 				//		ignored.
 				// **Throws**:
@@ -575,9 +573,8 @@
 						methodNode : connector._findRecipeNode,
 						success : success,
 						error : error,
-//						complete : complete,
 						url : function(idx, opts) {
-							// var u = this.options.url[idx].replace(/\/$/, '');
+						// var u = this.options.url[idx].replace(/\/$/, '');
 						// u += this.options.rules.urlPostfix.replace(/\/$/, '');
 						// u += this.options.rules.recipe.replace(/\/$/, '');
 
@@ -604,12 +601,7 @@
 						},
 						success : success,
 						error : error,
-//						complete : complete,
 						url : url
-//						type : "GET",
-//						accepts : {
-//							"text/turtle" : "text/turtle"
-//						}
 
 					});
 				}, // end of _findRecipe
@@ -619,7 +611,6 @@
 					var r = request( {
 						method : "GET",
 						uri : url,
-						// body : args.content,
 						headers : {
 							Accept : "text/turtle"
 						}
@@ -662,9 +653,8 @@
 				methodNode : connector._getRecipeNode,
 				success : success,
 				error : error,
-//				complete : complete,
 				url : function(idx, opts) {
-					// var u = this.options.url[idx].replace(/\/$/, '');
+				// var u = this.options.url[idx].replace(/\/$/, '');
 				// u += this.options.rules.urlPostfix.replace(/\/$/, '');
 				// u += this.options.rules.recipe.replace(/\/$/, '');
 
@@ -683,7 +673,6 @@
 			jQuery.ajax( {
 				success : success,
 				error : error,
-//				complete : complete,
 				url : url + "/" + args.id,
 				type : "GET",
 				accepts : {
@@ -698,7 +687,6 @@
 			var r = request( {
 				method : "GET",
 				uri : url,
-				// body : args.content,
 				headers : {
 					Accept : "text/turtle"
 				}
@@ -765,9 +753,6 @@
 			var data = new FormData();
 			data.append('recipe', recipe);
 			data.append('input', graph);
-
-//			console.log("the FormData object:")
-//			console.log(data)
 
 			connector._iterate( {
 				method : connector._refactor,
@@ -862,7 +847,6 @@
 				methodNode : connector._exportRecipeNode,
 				success : success,
 				error : error,
-//				complete : complete,
 				url : function(idx, opts) {
 
 //					var u = this.options.url[idx].replace(/\/$/, '');
@@ -885,7 +869,6 @@
 			jQuery.ajax( {
 				success : success,
 				error : error,
-//				complete : complete,
 				url : url,
 				type : "GET"
 

@@ -4,29 +4,32 @@ var stanbolRootUrl = (window.STANBOL_URLS) ? window.STANBOL_URLS : [
 
 
 test("VIE.js StanbolConnector - Get all referenced sites", function() {
-    if (navigator.userAgent === 'Zombie') {
+	if (navigator.userAgent === 'Zombie') {
         return;
     }
     // Sending a an example with double quotation marks.
-  var z = new VIE();
-  ok(z.StanbolService);
-  equal(typeof z.StanbolService, "function");
-  var stanbol = new z.StanbolService( {
+	var z = new VIE();
+  	ok(z.StanbolService);
+  	equal(typeof z.StanbolService, "function");
+  	var stanbol = new z.StanbolService( {
 
      url : stanbolRootUrl[0]
 
- });
-  z.use(stanbol);
-  stop();
-  stanbol.connector.referenced(function(sites) {
-     ok(_.isArray(sites));
-     ok(sites.length > 0);
-     start();
- }, function(err) {
-     ok(false, "No referenced site has been returned!");
-     start();
- });
-});
+ 	});
+	z.use(stanbol);
+  	stop();
+  	stanbol.connector.referenced(
+  		function(sites) {
+     		ok(_.isArray(sites));
+     		ok(sites.length > 0);
+     		start();
+ 		}, 
+ 		function(err) {
+     		ok(false, "No referenced site has been returned!");
+     		start();
+ 		});
+	});
+	
 test(
   "VIE.js StanbolService - Find",
   function() {
@@ -46,12 +49,11 @@ test(
     }));
     stop();
 
-    z
-    .find( {
+    z.find( {
       term : term,
       limit : limit,
       offset : offset
-  })
+  	})
     .using('stanbol')
     .execute()
     .done(
@@ -61,12 +63,17 @@ test(
         ok(entities.length > 0);
         ok(entities instanceof Array);
         var allEntities = true;
+        
+        console.log("hier klappts als Array:")
+        console.log(entities)
+        
         for ( var i = 0; i < entities.length; i++) {
            var entity = entities[i];
            if (!(entity instanceof Backbone.Model)) {
               allEntities = false;
               ok(false,
-                "VIE.js StanbolService - Find: Entity is not a Backbone model!");
+                "VIE.js StanbolService - Find: Entity is not a " +
+                "Backbone model!");
               console
               .error(
                   "VIE.js StanbolService - Find: ",
@@ -83,9 +90,8 @@ test(
 
   stop();
             // search only in local entities
-            z
-           .find( {
-              term : "P*",
+  z.find( {
+         	  term : "Pad*", // P* or Par* will throw a geo exception
               limit : limit,
               offset : offset,
               local : true
@@ -104,7 +110,8 @@ test(
                    if (!(entity instanceof Backbone.Model)) {
                       allEntities = false;
                       ok(false,
-                        "VIE.js StanbolService - Find: Entity is not a Backbone model!");
+                        "VIE.js StanbolService - Find: Entity is not a " +
+                        "Backbone model!");
                       console
                       .error(
                           "VIE.js StanbolService - Find: ",
@@ -139,7 +146,8 @@ test(
                            if (!(entity instanceof Backbone.Model)) {
                               allEntities = false;
                               ok(false,
-                                "VIE.js StanbolService - Find: Entity is not a Backbone model!");
+                                "VIE.js StanbolService - Find: Entity is " +
+                                "not a Backbone model!");
                               console
                               .error(
                                   "VIE.js StanbolService - Find: ",
@@ -180,7 +188,8 @@ test(
                         offset : offset
                     }).using('stanbol').execute().done(function(entities) {
 
-                        ok(false, "this should fail, as there is no term given!");
+                        ok(false, "this should fail, as there is no " +
+                        		"term given!");
                         start();
                     }).fail(function(f) {
                         ok(true, f.statusText);
@@ -221,7 +230,8 @@ test(
            if (!(entity instanceof Backbone.Model)) {
               allEntities = false;
               ok(false,
-                "VIE.js StanbolService - Load: Entity is not a Backbone model!");
+                "VIE.js StanbolService - Load: Entity is not a " +
+                "Backbone model!");
               console
               .error(
                   "VIE.js StanbolService - Analyze: ",
@@ -319,11 +329,50 @@ test(
 */
 
 
-/*
- * test("VIE.js StanbolService - EntityHub: Lookup", function () { if
- * (navigator.userAgent === 'Zombie') { return; }
- * 
- * var entity = 'http://dbpedia.org/resource/Paris';
+
+  test("VIE.js StanbolService - EntityHub: Lookup", function () { 
+  	if (navigator.userAgent === 'Zombie') { return; }
+  
+  	var z = new VIE();
+  	ok(z.StanbolService);
+    equal(typeof z.StanbolService, "function");
+    var stanbol = new z.StanbolService( {
+
+        url : stanbolRootUrl[0]
+
+    });
+    z.use(stanbol);
+    
+    var entity = 'http://dbpedia.org/resource/Germany'; // Paris will throw an exception
+    
+    // ** briefly test the accept parameter
+               stop();
+               stanbol.connector.lookup(entity, 
+               	function(success) {
+               		ok(true, "Retrieved newly-referenced entity in " +
+               				"rdf+nt syntax");
+               		console.log("Retrieved newly-referenced entity in " +
+               				"rdf+nt syntax");
+               		console.log(success)
+               		start();
+               	}, 
+               	function(error) {
+               		ok(false, "Could not retrieve newly-referenced entity " +
+               				"in rdf+nt syntax");
+               		console.log("Could not retrieve newly-referenced entity " +
+               				"in rdf+nt syntax");
+               		console.log(error);
+               		start();
+               	}, 
+               	{
+               		create : "true",
+               		accept : "text/rdf+nt"
+               	});
+               	// **
+  	
+  });
+  
+/* var entity = 'http://dbpedia.org/resource/Paris';
  * 
  * var z = new VIE(); z.namespaces.add("cc", "http://creativecommons.org/ns#");
  * ok (z.StanbolService); equal(typeof z.StanbolService, "function"); var
@@ -338,6 +387,7 @@ test(
  * VIE.Util.rdf2Entities(stanbol, response); ok(entities.length > 0, "Without
  * 'create'"); start(); }, function (err) { ok(false, err); start(); }); });
 */
+
 test(
   "VIE.js StanbolService - LDPath",
   function() {
@@ -429,96 +479,86 @@ test(
             // create a new entity
             var id = 'http://developer.yahoo.com/javascript/howto-proxy.html';
             var ent = '<?xml version="1.0" encoding="UTF-8"?><rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"><rdf:Description rdf:about="http://developer.yahoo.com/javascript/howto-proxy.html"><rdfs:label>Howto-Proxy</rdfs:label></rdf:Description></rdf:RDF>';
-            // var entity = z.entities.addOrUpdate({entity: ent, update: true,
-            // local: true});
-var entity = {
-    entity : ent,
-    update : true,
-    local : true
-};
-var entity2 = {
-    entity : ent,
-    local : true
-};
+            
+	var entity = {
+	    entity : ent,
+	    update : true,
+	    local : true
+	};
+	var entity2 = {
+	    entity : ent,
+	    local : true
+	};
+	
+	stop();
+	z.save(entity)
+    // option to allow repeated testing with same entity
+    	.using("stanbol")
+        .execute()
+        .done(
+        	function(response) {
 
-stop();
-z
-.save(entity)
-                    // option to allow repeated testing with same entity
-                    .using("stanbol")
-                    .execute()
-                    .done(
-                     function(response) {
+            	ok(true, "E1: new entity " + id
+                	+ " created in entityhub/entity/ (using option update)");
+                // if an Entities already exists within the
+                // Entityhub, the request should fail with BAD REQUEST
+                start();
+                stop();
+                z.save(entity2)
+                 // do NOT allow updating of already
+                 // existing entities (no options)
+                 .using("stanbol")
+                 .execute()
+                 .done(
+                 	function(response) {
+                    	ok(false, "E2: entityhub/entity: created " +
+                    			"already existing entity " + id
+								+ ". (using no option)");
+                        console.log(response);
+                        start();
+                    })
+				 .fail(
+					function(err) {
+						ok(true, "E2: already-existing entity could not " +
+							"be created in the entityhub! (using no option) " +
+							"Received error message: " + err);
+						start();
+					});
+			})
+		.fail(
+			function(err) {
+				ok(false, "E1: entity could not be created in the " +
+						"entityhub! (using option update)");
+    			start();
+			}
+		);
 
-                        ok(
-                          true,
-                          "E1: new entity "
-                          + id
-                          + " created in entityhub/entity/ (using option update)");
-                                // if an Entities already exists within the
-                                // Entityhub, the request should fail with BAD
-                                // REQUEST
-                                start();
-                                stop();
-                                z
-                              .save(entity2)
-                                        // do NOT allow updating of already
-                                        // existing entities (no options)
-                                        .using("stanbol")
-                                        .execute()
-                                        .done(
-                                            function(response) {
-                                               ok(
-                                                 false,
-                                                 "E2: entityhub/entity: created already existing entity "
-                                                 + id
-                                                 + ". (using no option)");
-                                               console.log(response);
-                                               start();
-                                           })
-                                        .fail(
-                                            function(err) {
-                                               ok(
-                                                 true,
-                                                 "E2: already-existing entity could not be created in the entityhub! (using no option) Received error message: "
-                                                 + err);
-                                               start();
-                                           });
-//                              start();
-})
-.fail(
- function(err) {
-    ok(false,
-      "E1: entity could not be created in the entityhub! (using option update)");
-    start();
-});
+	// create should fail due to invalid syntax (forgot quotation marks
+    // for xmlns:rdf entry)
+	var entF = '<?xml version="1.0" encoding="UTF-8"?><rdf:RDF xmlns:rdf=http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"><rdf:Description rdf:about="http://developer.yahoo.com/javascript/howto-proxy.html"><rdfs:label>Howto-Proxy</rdfs:label></rdf:Description></rdf:RDF>';
+	stop();
+	z.save( {
+	    entity : entF,
+	    local : true
+	}).using("stanbol").execute().done(
+	function(response) {
+	  ok(false,
+	    "E3: created entity on entityhub in spite of faulty syntax. "
+	    + response)
+	  console.log("E3 got response:");
+	  console.log(response);
+	  start();
+	}).fail(
+	function(err) {
+	  ok(true,
+	    "E3: entity creation failed due to erroneous syntax. Received error message: "
+	    + err);
+	  console.log("E3:");
+	  console.log(err);
+	  start();
+	});
 
-            // create should fail due to invalid syntax (forgot quotation marks
-            // for xmlns:rdf entry)
-var entF = '<?xml version="1.0" encoding="UTF-8"?><rdf:RDF xmlns:rdf=http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"><rdf:Description rdf:about="http://developer.yahoo.com/javascript/howto-proxy.html"><rdfs:label>Howto-Proxy</rdfs:label></rdf:Description></rdf:RDF>';
-stop();
-z.save( {
-    entity : entF,
-    local : true
-}).using("stanbol").execute().done(
-function(response) {
-  ok(false,
-    "E3: created entity on entityhub in spite of faulty syntax. "
-    + response)
-  console.log("E3 got response:");
-  console.log(response);
-  start();
-}).fail(
-function(err) {
-  ok(true,
-    "E3: entity creation failed due to erroneous syntax. Received error message: "
-    + err);
-  console.log("E3:");
-  console.log(err);
-  start();
-});
-
-        }); // end of save test for entityhub/entity
+}); // end of save test for entityhub/entity
 
 // ### test for the entityhub/entity, the service to get/create/update and
 // delete Entities managed on the Entityhub.
@@ -553,177 +593,126 @@ test(
              function(response) {
                 
                 ok(
-                  true,
-                  "E1: new entity "
-                  + id
+                  true, "E1: new entity " + id
                   + " created in entityhub/entity/ (using option update)");
                 start();
-                                // if an Entities already exists within the
-                                // Entityhub, the request should fail with BAD
-                                // REQUEST
-                                stop();
-                                stanbol.connector
-                              .createEntity(
-                                entity,
-                                function(response) {
-                                   ok(
-                                     false,
-                                     "E2: entityhub/entity: created already existing entity "
-                                     + id
-                                     + ". (using no option)");
-                                   console.log(response);
-                                   start();
-                               },
-                               function(err) {
-                                   ok(
-                                     true,
-                                     "E2: already-existing entity could not be created in the entityhub! (using no option) Received error message: "
-                                     + err);
-                                   start();
-                                                }); // do NOT allow updating of
-                                // already existing entities
+				// if an Entities already exists within the
+                // Entityhub, the request should fail with BAD REQUEST
+				stop();
+                stanbol.connector.createEntity(
+	  				entity,
+	                function(response) {
+	                	ok(false, "E2: entityhub/entity: created already " +
+	                			"existing entity " + id + ". (using no option)");
+						console.log(response);
+	                    start();
+	                },
+	                function(err) {
+	                	ok(true, "E2: already-existing entity could not be " +
+	                			"created in the entityhub! (using no option) " +
+	                			"Received error message: " + err);
+						start();
+	                }); // do NOT allow updating of already existing entities
 
-                                // retrieve the entity that's just been created
-                                stop();
-                                stanbol.connector
-                              .readEntity(
-                                id,
-                                function(response) {
-                                   var first = null;
-                                   for ( var key in response)
-                                                    // grab just the first key
-                                                    // of the returned object
-                                                    {
-                                                        console.log(key);
-                                                        first = response[key];
-                                                        if (typeof (first) !== 'function') {
-                                                            console.log(key);
-                                                            first = key;
-                                                            break;
-                                                        }
-                                                    }
-                                                    ok(true,
-                                                     "E3: got entity from entityhub/entity: "
-                                                     + first);
-                                                    console
-                                                 .log("E3: got entity:");
-                                                 console.log(first);
-                                                 start();
-                                             },
-                                             function(err) {
-                                               ok(false,
-                                                 "E3: could not get entity from the entityhub!");
-                                               console.log(err);
-                                               start();
-                                           }, {
-                                               local : 'true'
-                                                }); // to denote that this is a
-                                // local entity
+               // retrieve the entity that's just been created
+               stop();
+               stanbol.connector.readEntity(
+				id,
+                function(response) {
+                	ok(true,"E3: got entity from entityhub/entity.");
+                    console.log("E3: got entity:");
+                    console.log(response);
+                    start();
+                },
+                function(err) {
+                	ok(false,
+					"E3: could not get entity from the entityhub!");
+                    console.log(err);
+                    start();
+                }, 
+                {
+                 	local : 'true',
+                    accept : 'application/x-turtle',
+                    format : 'text'
+				}); // to denote that this is a local entity
 
-                                // update the entity that's just been created
-                                // (modify the label)
-                                stop();
-                                console
-                              .log("sending id to updateEntity: "
-                                + id);
-                              stanbol.connector
-                              .updateEntity(
-                                modifEntity,
-                                function(response) {
-                                   ok(response);
-                                   if (response && response.id)
-                                      ok(
-                                        true,
-                                        "E4: entity  "
-                                        + response.id
-                                        + " was updated successfully in the entityhub.");
-                                  start();
-                              },
-                              function(err) {
-                               ok(
-                                 false,
-                                 "E4: could not update entity "
-                                 + id
-                                 + " in the entityhub! Received error message: "
-                                 + err);
-                               console
-                               .log("E4: could not update entity "
-                                   + id);
-                               console.log(err);
-                               start();
-                           }, {}, id);
+  				// update the entity that's just been created
+                // (modify the label)
+                stop();
+                console.log("sending id to updateEntity: "+ id);
+				stanbol.connector.updateEntity(
+					modifEntity,
+                    function(response) {
+                    	ok(response);
+                        if (response && response.id)
+                        	ok(true, "E4: entity  " + response.id
+                               + " was updated successfully in the entityhub.");
+                        start();
+                    },
+                    function(err) {
+                    ok(false, "E4: could not update entity " + id
+						+ " in the entityhub! Received error message: " + err);
+					console.log("E4: could not update entity " + id);
+					console.log(err);
+                    start();
+                    }, {}, id);
 
-                                // delete our entity
-                                stop();
-                                stanbol.connector
-                              .deleteEntity(
-                                id,
-                                function(response) {
-                                   ok(response);
-                                   if (response && response.id)
-                                      ok(
-                                        true,
-                                        "E6: entity  "
-                                        + response.id
-                                        + " was deleted successfully from the entityhub.");
-                                  start();
-                              },
-                              function(err) {
-                               ok(
-                                 false,
-                                 "E6: could not delete entity "
-                                 + id
-                                 + " from the entityhub! Received error message: "
-                                 + err);
-                               console
-                               .log("E6: could not delete entity "
-                                   + id);
-                               console.log(err);
-                               start();
-                           });
+                // delete our entity
+                stop();
+                stanbol.connector.deleteEntity(
+					id,
+                    function(response) {
+                    	ok(response);
+                        if (response && response.id)
+                        ok(true, "E6: entity  " + response.id
+                             + " was deleted successfully from the entityhub.");
+                        start();
+					},
+                    function(err) {
+                    	ok(false, "E6: could not delete entity " + id
+                        	+ " from the entityhub! Received error message: "
+                            + err);
+						console.log("E6: could not delete entity " + id);
+                        console.log(err);
+                        start();
+					});
 
-                                // the deleted entity cannot be retrieved
-                                // anymore
-                                stop();
-                                stanbol.connector
-                              .readEntity(
-                                id,
-                                function(response) {
-                                   console
-                                   .log("E7: got entity:");
-                                   var first = null;
-                                   for ( var key in response)
-                                                    // grab just the first key
-                                                    // of the returned object
-                                                    {
-                                                        first = response[key]
-                                                        if (typeof (first) !== 'function') {
-                                                            console.log(key);
-                                                            first = key;
-                                                            break;
-                                                        }
-                                                    }
-                                                    ok(false,
-                                                     "E7: got non-existing entity from entityhub/entity: "
-                                                     + first);
-                                                    start();
-                                                },
-                                                function(err) {
-                                                    ok(true,
-                                                     "E7: could not get non-existing entity from the entityhub!");
-                                                    console.log("E7:");
-                                                    console.log(err);
-                                                    start();
-                                                });
-},
-function(err) {
-    ok(false,
-      "E1: entity could not be created in the entityhub! (using option update)");
-    start();
-}, {
-                                update : 'true' // option to allow repeated
-                        // testing with same entity
-                  });
+                // the deleted entity cannot be retrieved anymore
+                stop();
+                stanbol.connector.readEntity(
+					id,
+                    function(response) {
+                    	console.log("E7: got entity:");
+						var first = null;
+                        for ( var key in response)
+                        // grab just the first key of the returned object
+						{
+							first = response[key]
+                            if (typeof (first) !== 'function') {
+                            	console.log(key);
+                               	first = key;
+                                break;
+                            }
+                        }
+                        ok(false, "E7: got non-existing entity from " +
+                        		"entityhub/entity: " + first);
+						start();
+                    },
+                    function(err) {
+                    	ok(true, "E7: could not get non-existing entity " +
+                    			"from the entityhub!");
+                        console.log("E7:");
+                        console.log(err);
+                        start();
+					});
+			},
+			function(err) {
+    			ok(false, "E1: entity could not be created in the " +
+    					"entityhub! (using option update)");
+    			start();
+			}, {
+                update : 'true' // option for repeated testing with same entity
+            });
 
             // we should be unable to update a non-existing entity
             var modifId = 'http://developer.yahoo.com/javascript/howto-proxy-falseaddress.html';
@@ -748,25 +737,107 @@ function(err) {
 
             // create should fail due to invalid syntax (forgot quotation marks
             // for xmlns:rdf entry)
-var entity = '<?xml version="1.0" encoding="UTF-8"?><rdf:RDF xmlns:rdf=http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"><rdf:Description rdf:about="http://developer.yahoo.com/javascript/howto-proxy.html"><rdfs:label>Howto-Proxy</rdfs:label></rdf:Description></rdf:RDF>';
-stop();
-stanbol.connector.createEntity(entity, function(response) {
-    ok(false,
-      "E8: created entity on entityhub in spite of faulty syntax. "
-      + response)
-    console.log("E8 got response:");
-    console.log(response);
-    start();
-}, function(err) {
-    ok(true,
-      "E8: entity creation failed due to erroneous syntax. Received error message: "
-      + err);
-    console.log("E8:");
-    console.log(err);
-    start();
-});
+	var entity = '<?xml version="1.0" encoding="UTF-8"?><rdf:RDF xmlns:rdf=http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"><rdf:Description rdf:about="http://developer.yahoo.com/javascript/howto-ajax.html"><rdfs:label>Howto-Ajax</rdfs:label></rdf:Description></rdf:RDF>';
+	stop();
+	stanbol.connector.createEntity(entity, function(response) {
+	    ok(false,
+	      "E8: created entity on entityhub in spite of faulty syntax. "
+	      + response)
+	    console.log("E8 got response:");
+	    console.log(response);
+	    start();
+	}, function(err) {
+	    ok(true,
+	      "E8: entity creation failed due to erroneous syntax. Received error message: "
+	      + err);
+	    console.log("E8:");
+	    console.log(err);
+	    start();
+	});
 
-        }); // end of test for CRUD entityhub/entity
+	
+	// testing new parameters on the enityhub/find service
+	// curl -X POST -d "name=Bisho&limit=10&offset=0&lang=en&field=http://www.w3.org/2000/01/rdf-schema#label&select=http://www.w3.org/2000/01/rdf-schema#domain&ldpath=name%20%3D%20rdfs%3Alabel%5B%40en%5D%3B" http://dev.iks-project.eu:8081/entityhub/sites/find
+	var name = "P*";
+	var limit = 10;
+	var offset = 0;
+	var lang = "en";
+	var field = "http://www.w3.org/2000/01/rdf-schema#label";
+	var select = "http://www.w3.org/2000/01/rdf-schema#domain";
+	var ldpath = "name%20%3D%20rdfs%3Alabel%5B%40en%5D%3B";
+	stop()
+	z
+    .find( {
+      term : name,
+      limit : limit,
+      offset : offset
+  })
+    .using('stanbol')
+    .execute()
+    .done(
+     function(entities) {
+
+     	ok(true, "Found entity " + name + " with new parameters.");
+		console.log("Found entity " + name + " with new parameters.");
+		console.log(entities)
+        ok(entities);
+        ok(entities.length > 0);
+        ok(entities instanceof Array);
+        var allEntities = true;
+        
+        console.log("hier klappts als Array:")
+        console.log(entities)
+        
+        for ( var i = 0; i < entities.length; i++) {
+           var entity = entities[i];
+           if (!(entity instanceof Backbone.Model)) {
+              allEntities = false;
+              ok(false,
+                "VIE.js StanbolService - Find: Entity is not a Backbone model!");
+              console
+              .error(
+                  "VIE.js StanbolService - Find: ",
+                  entity,
+                  "is not a Backbone model!");
+          }
+      }
+      ok(allEntities);
+      start();
+  }).fail(function(f) {
+  	ok(false, "Could not find entity " + name + " with new parameters.");
+	console.log("Could not find entity" + name + " with new parameters.");
+	console.log(f);
+      ok(false, f.statusText);
+      start();
+  },
+  {
+			lang : lang,
+			field : field,
+			select : select,
+			ldpath : ldpath
+		});
+	
+	
+
+
+	// delete all the entities at once (this must never be tested on some
+	// stanbol server that is used by other clients than ourselves !)
+//	stop();
+//	stanbol.connector.deleteEntity("*", 
+//		function(success){
+//			ok(true, "Deleted all the entities from local entityhub.");
+//			console.log("Deleted all the entities local from entityhub.");
+//			console.log(success)
+//			start();
+//		},
+//		function(error){
+//			ok(false, "Could not delete all the entities from local entityhub.");
+//			console.log("Could not delete all the entities from local entityhub.");
+//			console.log(error);
+//			start();
+//		})
+
+}); // end of test for CRUD entityhub/entity
 
 
 // ### test for the /entityhub/mapping endpoint, checking the retrieval of
@@ -781,7 +852,7 @@ test("VIE.js StanbolConnector - entityhub/mapping", function() {
     }
 
     	// we can look for an entity's mapping
-    	var entity = "http://dbpedia.org/resource/Paris";
+    	var entity = "http://dbpedia.org/resource/Germany"; // Paris will throw an exception
         // or for the mapping itself by its ID
         var mapping = ""; // e.g.
         // "urn:org.apache.stanbol:entityhub:mapping.996b1d77-674d-bf3d-f426-f496c87b5ea7";
@@ -804,63 +875,60 @@ test("VIE.js StanbolConnector - entityhub/mapping", function() {
         var there = false;
         var del = true;
         stop();
-        stanbol.connector
-        .lookup(
+        stanbol.connector.lookup(
           entity,
           function(succ) {
-                            // so the entity is already referenced locally
-                            there = true;
-                            console.log("set 'there' to " + there)
-                            // this means we must NOT delete it after tests are
-                            // done
-                            del = false;
-                            console.log("set 'del' to " + del)
-                            console.log("looked up entity " + entity);
-                            console.log(succ);
-                            console.log("picking from lookup:");
-                            var counter = 0;
-                            // get the symbol for this entity
-                            for ( var key in succ) {
-                                counter += 1;
-                                console.log(key);
-                                console.log(succ[key]);
-                                // pick the urn, but not the .meta info
-                                var suffix = ".meta";
-                                if (key.indexOf(suffix, key.length
-                                  - suffix.length) === -1) {
-                                    symbol = key;
-                            }
-                                // function endsWith(str, suffix) {
-                                // return str.indexOf(suffix, str.length -
-                                // suffix.length) !== -1;
-                                // }
-                            }
+			// so the entity is already referenced locally
+            there = true;
+            console.log("set 'there' to " + there)
+            // this means we must NOT delete it after tests are done
+			del = false;
+            console.log("set 'del' to " + del)
+            console.log("looked up entity " + entity);
+            console.log(succ);
+            console.log("picking from lookup:");
+            var counter = 0;
+            // get the symbol for this entity
+            // pick the urn, but not the .meta info
+            var suffix = ".meta";
+//                            for ( var key in succ) {
+//                                counter += 1;
+//                                console.log(key);
+//                                console.log(succ[key]);
+//                                
+//                                if (key.indexOf(suffix, key.length
+//                                  - suffix.length) === -1) {
+//                                    symbol = key;
+//                            }
+//          				}
 
-                            start();
+           symbol = succ["id"];
+                            
+           start();
 
-                            /** * */
-                            console.log("'there' is true: " + there)
+           /** * */
+           console.log("'there' is true: " + there)
                            
-                            // execute the following tests only if we have
-                            // an entity Paris on the local entityhub
-                            console.log("do request for mapping of " + entity)
-                            stop();
-                            stanbol.connector.getMapping(entity,
-                                function(success) {
-                                   ok(true, "retrieved Mapping for entity " + entity);
-                                   console.log("retrieved Mapping for entity " + entity);
-                                   console.log(success);
-                                   start();
-
-                               },
-                               function(err) {
-                                   ok(false, "couldn't retrieve mapping for entity" + entity);
-                                   console.log("couldn't retrieve mapping for entity" + entity);
-                                   console.log(err);
-                                   start();
-                               }, {
-                                   entity : true
-                               });
+           // execute the following tests only if we have
+           // an entity Paris on the local entityhub
+           console.log("do request for mapping of " + entity)
+           stop();
+           stanbol.connector.getMapping(entity,
+           	function(success) {
+            	ok(true, "retrieved Mapping for entity " + entity);
+               	console.log("retrieved Mapping for entity (in text/rdf+n3 syntax) " + entity);
+                console.log(success);
+                start();
+			},
+            function(err) {
+            	ok(false, "couldn't retrieve mapping for entity " + entity);
+                console.log("couldn't retrieve mapping for entity (in text/rdf+n3 syntax) " + entity);
+                console.log(err);
+                start();
+            }, {
+            	entity : true,
+                accept : "text/rdf+n3"
+            });
 
 		stop();
 		console.log("do request for symbol " + symbol);
@@ -920,21 +988,22 @@ test("VIE.js StanbolConnector - entityhub/mapping", function() {
                  there = true;
                  ok(true, "newly referenced entity " + entity);
                  console.log("newly referenced entity " + entity)
+                 console.log(succ)
                  console.log("set 'there' to " + there)
                  console.log("picking from lookup:");
                  var counter = 0;
                  // get the symbol for this entity
-                 for ( var key in succ) {
-                     counter += 1;
-                     console.log(key);
-                     console.log(succ[key]);
-                     // pick the urn, but not the .meta info
-                     var suffix = ".meta";
-                     if (key.indexOf(suffix, key.length - suffix.length) === -1) {
-                          symbol = key;
-                     }
-                 }
-
+//                 for ( var key in succ) {
+//                     counter += 1;
+//                     console.log(key);
+//                     console.log(succ[key]);
+//                     // pick the urn, but not the .meta info
+//                     var suffix = ".meta";
+//                     if (key.indexOf(suffix, key.length - suffix.length) === -1) {
+//                          symbol = key;
+//                     }
+//                 }
+				symbol = succ["id"];
                 
 
                  /** * */
@@ -942,21 +1011,24 @@ test("VIE.js StanbolConnector - entityhub/mapping", function() {
                     // execute the following tests only if we have an entity Paris on the local entityhub
                     console.log("starting to do the rest")
                     console.log("do request for mapping of " + entity)
-                    stanbol.connector.getMapping(entity, function(success) {
+                    
+                    stanbol.connector.getMapping(entity, 
+                    function(success) {
                         ok(true, "retrieved Mapping for entity " + entity);
-                        console.log("retrieved Mapping for entity " + entity);
+                        console.log("retrieved Mapping for entity (in text/rdf+n3 syntax) " + entity);
                         console.log(success);
                         start();
 
                     	},
                     	function(err) {
                              ok(false, "couldn't retrieve mapping for entity" + entity);
-                             console.log("couldn't retrieve mapping for entity" + entity);
+                             console.log("couldn't retrieve mapping for entity (in text/rdf+n3 syntax) " + entity);
                              console.log(err);
                              start();
                        },
                        {
-                             entity : true
+                             entity : true,
+                             accept : "text/rdf+n3"
                         });
 
     stop();
@@ -1013,10 +1085,6 @@ test("VIE.js StanbolConnector - entityhub/mapping", function() {
 			 symbol : true
 			});
 
-			
-
-
-	/** * */
 
     },
     function(err) {
@@ -1026,15 +1094,14 @@ test("VIE.js StanbolConnector - entityhub/mapping", function() {
     	start();
 
     }, {
-    	'create' : true
+    	create : true
     });
 
 
  },
 
  {
-  'create' : false
-                        // do NOT create new references/mappings
+  'create' : false  // do NOT create *new* references/mappings
  });
 });
 
@@ -1066,71 +1133,67 @@ test(
      } ]
  };
 
- var query = {
-    "selected" : [ "http:\/\/www.w3.org\/2000\/01\/rdf-schema#label" ],
-    "offset" : "0",
-    "limit" : "3",
-    "constraints" : [ {
-       "type" : "text",
-       "xml:lang" : "de",
-       "patternType" : "wildcard",
-       "field" : "http:\/\/www.w3.org\/2000\/01\/rdf-schema#label",
-       "text" : "Frankf*"
-   } ]
-};
+	 var query = {
+	    "selected" : [ "http:\/\/www.w3.org\/2000\/01\/rdf-schema#label" ],
+	    "offset" : "0",
+	    "limit" : "3",
+	    "constraints" : [ {
+	       "type" : "text",
+	       "xml:lang" : "de",
+	       "patternType" : "wildcard",
+	       "field" : "http:\/\/www.w3.org\/2000\/01\/rdf-schema#label",
+	       "text" : "Frankf*"
+	   } ]
+	};
 
-var z = new VIE();
-z.use(new z.StanbolService( {
-
-    url : stanbolRootUrl[0]
-
-}));
-stop();
-            // query all referenced sites (entityhub/sites/query)
-            z
-           .query( {
-              query : query,
-              local : false
-          })
-           .using('stanbol')
-           .execute()
-           .done(
-             function(entities) {
-                ok(entities);
-                if (!entities.length > 0) {
-                   ok(false,
+	var z = new VIE();
+	z.use(new z.StanbolService( {
+	
+	    url : stanbolRootUrl[0]
+	
+	}));
+	stop();
+    // query all referenced sites (entityhub/sites/query)
+    z.query( {
+    	query : query,
+        local : false
+	})
+    .using('stanbol')
+    .execute()
+    .done(
+    	function(entities) {
+        	ok(entities);
+            if (!entities.length > 0) {
+            	ok(false,
                      "no entitites found on all referenced sites.");
-               } else {
-                   ok(true,
+            } else {
+            	ok(true,
                      "at least one entity was found on all referenced sites.");
-               }
-               ok(entities instanceof Array);
-               console.log("all referenced sites:")
-               console.log(entities)
-               start();
-           })
-                    // TODO: at this place, some strange parse exception is
-                    // thrown in spite of
-                    // valid query and valid URI.
-                    // cf e.g.
-                    // curl -X POST -H "Content-Type:application/json" --data
-                    // "@fieldQuery2.json"
-                    // http://lnv-89012.dfki.uni-sb.de:9001/entityhub/sites/query
-                    // to
-                    // curl
-                    // "http://lnv-89012.dfki.uni-sb.de:9001/entityhub/sites/entity?id=http://dbpedia.org/resource/Frankfurt
-                    .fail(function(f) {
-                        ok(false, f.statusText);
-                        start();
-                    });
+            }
+            ok(entities instanceof Array);
+            console.log("all referenced sites:")
+            console.log(entities)
+            start();
+        })
+	
+        // cf e.g.
+        // curl -X POST -H "Content-Type:application/json" --data
+        // "@fieldQuery2.json"
+        // http://lnv-89012.dfki.uni-sb.de:9001/entityhub/sites/query
+        // to
+        // curl "http://lnv-89012.dfki.uni-sb.de:9001/entityhub/sites/entity?id=http://dbpedia.org/resource/Frankfurt
+	 .fail(function(f) {
+      	ok(false, f.statusText);
+        start();
+     });
 
-                 /** mere01 * */
-                 stop();
-            // query only entities on referenced site dbpedia
-            // (entityhub/site/dbpedia/query)
-            z.query( {
-                query : query,
-                site : "dbpedia"
+ 	/** mere01 * */
+	stop();
+	// query only entities on referenced site dbpedia
+ 	// (entityhub/site/dbpedia/query)
+	z.query( {
+ 		query : query,
+        site : "dbpedia"
             }).using('stanbol').execute().done(function(entities) {
                 ok(entities);
                 if (!entities.length > 0) {
@@ -1151,7 +1214,7 @@ stop();
 
 
 test(
-  "VIE.js StanbolService - Query (local)", 8,
+  "VIE.js StanbolService - Query (local)", //8,
   function() {
      if (navigator.userAgent === 'Zombie') {
         return;
@@ -1198,7 +1261,7 @@ test(
            "xml:lang" : "de",
            "patternType" : "wildcard",
            "field" : "http:\/\/www.w3.org\/2000\/01\/rdf-schema#label",
-           "text" : "Frankf*"
+           "text" : "Germ*" // Frankf* will throw an error
        } ]
    };
 
@@ -1206,14 +1269,15 @@ test(
    // first we decide whether we need to reference an entity for the following test
    var there = false;
    var del = true;
-   entity = "http://dbpedia.org/resource/Frankfurt";
+   entity = "http://dbpedia.org/resource/Germany"; // Frankfurt will throw an exception
 	   
    stop();
    console.log("startin")
    stanbol.connector.lookup(entity, 
 	  function(success){
 	   
-	   ok(true, "1. Looked up entity " + entity + ". This entity apparently is already stored on the local entityhub.");
+	   ok(true, "1. Looked up entity " + entity + ". This entity apparently " +
+	   		"is already stored on the local entityhub.");
 	   ok(true, "2. No need to reference entity " + entity);
 	   
 	   // so the entity is already referenced locally
@@ -1224,7 +1288,7 @@ test(
        console.log("1. set 'del' to " + del)
        console.log("1. looked up entity " + entity);
        
-
+      
       // execute the following tests only if we have an entity Frankf* on the local entityhub
       console.log("1. starting the query")
       z.query( {
@@ -1243,85 +1307,119 @@ test(
             	   ok(entities instanceof Array);
             	   console.log("3. returned entities:")
             	   console.log(entities)
-            	   start();
+            	   
+//            	   start();
+            	   
+            	   // ** briefly test the accept parameter
+               stanbol.connector.lookup(entity, 
+               	function(success) {
+               		ok(true, "Retrieved newly-referenced entity in rdf+nt syntax");
+               		console.log("Retrieved newly-referenced entity in rdf+nt syntax");
+               		console.log(success)
+               		start();
+               	}, 
+               	function(error) {
+               		ok(false, "Could not retrieve newly-referenced entity in rdf+nt syntax");
+               		console.log("Retrieved newly-referenced entity in rdf+nt syntax");
+               		console.log(error);
+               		start();
+               	}, 
+               	{
+               		create : "false",
+               		accept : "text/rdf+nt"
+               	});
+               	// **
+            	   
+            	   
             }).fail(function(f) {
             	ok(false, f.statusText);
             	start();
             });
      
-      ok(true, "4. We will NOT delete entity " + entity + " since it has been there before"); 
+      ok(true, "4. We will NOT delete entity " + entity + 
+      	" since it has been there before"); 
 	   
-   }, function(error){ // end of success case of lookup (create : false)
+      // end of success case of lookup (create : false)
+      
+   }, function(error){
 	   
-	   ok(true, "1. Could not look up entity " + entity + ". This entity apparently is not stored on the local entityhub. I will temporarily create this entity until tests are completed.");
+	   ok(true, "1. Could not look up entity " + entity 
+	   	+ ". This entity apparently is not stored on the local entityhub. " +
+	   			"I will temporarily create this entity until tests " +
+	   			"are completed.");
 	   console.log("1. Could not look up entity " + entity)
 
 	   // if the entity is not already there -> create it temporarily
-		   console.log("1. in case '!there'")
+	   console.log("1. in case '!there'")
 		   
-		   stanbol.connector.lookup(entity, function(success){
+	   stanbol.connector.lookup(entity, function(success){
 			   
-			   there = true;
-               ok(true, "2. newly referenced entity " + entity);
-               console.log("2. newly referenced entity " + entity)
-               console.log("2. set 'there' to " + there)
+	   	there = true;
+        ok(true, "2. newly referenced entity " + entity);
+        console.log("2. newly referenced entity " + entity)
+        console.log("2. set 'there' to " + there)
                
-               // in order to delete the entity again, we need to find its id:
-               console.log(success)
-               var id;
-               var counter = 0;
-               for ( var key in success) {
-                  counter += 1;
-                  console.log(key);
-                  console.log(success[key]);
-                  // pick the urn, but not the .meta info
-                  var suffix = ".meta";
-                  if (key.indexOf(suffix, key.length - suffix.length) === -1) {
-                     id = key;
-                  }
+               
+               
+        // in order to delete the entity again, we need to find its id:
+        console.log(success)
+        var id;
+        var counter = 0;
+        for ( var key in success) {
+        	counter += 1;
+            console.log(key);
+            console.log(success[key]);
+            // pick the urn, but not the .meta info
+            var suffix = ".meta";
+            if (key.indexOf(suffix, key.length - suffix.length) === -1) {
+            	id = key;
+            }
                                 
-              }
+        }
               
  
-                   // execute the following tests only if we have an entity Frankf* on the local entityhub
-                   console.log("2. the query:")
-                   z.query( {
-                	    query : query,
-                	    local : true
-                	}).using('stanbol').execute().done( // using(stanbol)
+		// execute the following tests only if we have an entity Frankf* on the local entityhub
+        console.log("2. the query:")
+        z.query( {
+        	query : query,
+            local : true
+        }).using('stanbol').execute().done( // using(stanbol)
 
-                	function(entities) {
-                	    ok(true, "3. Retrieved entities according to query Frankf*");
-                	    ok(entities);
-                	    if (!entities.length > 0) {
-                	       ok(false, "3. no entitites found.");
-                	   } else {
-                	       ok(true, "3. at least one entity was found.");
-                	   }
-                	   ok(entities instanceof Array);
-                	   console.log("3. returned entities:")
-                	   console.log(entities)
-                	   start();
-                	}).fail(function(f) {
-                	    ok(false, f.statusText);
-                	    start();
-                	});
-               // delete the entity again
-            	   console.log("4. in case 'del'")
-            	   stop();
-            	   stanbol.connector.deleteEntity(
-            	       id,
-            	       function(success) {
-            	          console.log("4. deleted entity " + entity + " from the local entityhub")
-            	          ok(true, "4. deleted entity " + entity + " from the local entityhub");
-            	          start();
-            	      },
-            	      function(err) {
-            	          console.log("4. could not delete entity " + entity + " from the local entityhub")
-            	          ok(false, "4. could not delete entity " + entity + " from the local entityhub");
-            	          start();
-            	      },
-            	      {});
+        	function(entities) {
+            	ok(true, "3. Retrieved entities according to query Frankf*");
+                ok(entities);
+                if (!entities.length > 0) {
+                	ok(false, "3. no entitites found.");
+                } else {
+                	ok(true, "3. at least one entity was found.");
+                }
+                	   
+                ok(entities instanceof Array);
+                console.log("3. returned entities:")
+                console.log(entities)
+                	   
+//				start();
+                // delete the entity again (now we don't need it anymore)
+                console.log("4. in case 'del'")
+//                stop();
+                stanbol.connector.deleteEntity(
+                	id,
+                   function(success) {
+                   	console.log("4. deleted entity " + entity + " from the local entityhub")
+                   	ok(true, "4. deleted entity " + entity + " from the local entityhub");
+                   	start();
+                   },
+                   function(err) {
+                   	console.log("4. could not delete entity " + entity + " from the local entityhub")
+                   	ok(false, "4. could not delete entity " + entity + " from the local entityhub");
+                   	start();
+                   },
+                   {});
+               
+         }).fail(function(f) {
+         	ok(false, f.statusText);
+            start();
+     	 });	// end of error case for query()
    
             
 		   }, function(error){
@@ -1331,7 +1429,8 @@ test(
 			   start();
 			   
 		   }, {
-			   create : true
+			   create : true,
+			   accept : "application/rdf+json"
 		   });
 	
 	   

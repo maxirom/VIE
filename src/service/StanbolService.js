@@ -154,6 +154,7 @@ VIE.prototype.StanbolService.prototype = {
             if (!correct) {throw "Invalid Analyzable passed";}
 
             var element = analyzable.options.element ? analyzable.options.element : jQuery('body');
+            var params = analyzable.options.params ? analyzable.options.params : {};
 
             var text = service._extractText(element);
 
@@ -170,10 +171,13 @@ VIE.prototype.StanbolService.prototype = {
                 };
 
                 var options = {
-                        chain : (analyzable.options.chain)? analyzable.options.chain : service.options.enhancer.chain
+                        chain : (analyzable.options.chain)? analyzable.options.chain : service.options.enhancer.chain,
+                        format : (analyzable.options.format) ? analyzable.options.format : "application/rdf+json",
+                        accept : (analyzable.options.accept) ? analyzable.options.accept : "application/rdf+json",
+                        contentType : (analyzable.options.contentType) ? analyzable.options.contentType : "text/html; charset=UTF-8"
                 };
 
-                this.connector.analyze(text, success, error, options);
+                this.connector.analyze(text, success, error, options, params);
 
             } else {
                 console.warn("No text found in element.");
