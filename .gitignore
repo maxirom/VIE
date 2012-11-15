@@ -2,6 +2,7 @@
 CNAME
 demo
 .project
+.metadata
 dist
 docs
 target
