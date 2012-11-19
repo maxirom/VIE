@@ -10,6 +10,20 @@
 // The DBPedia service allows a VIE developer to directly query
 // the DBPedia database for entities and their properties. Obviously,
 // the service does not allow for saving, removing or analyzing methods.
+//
+// uploadContent()
+// updateContent()
+// downloadContent()
+// editContent()
+// getTextContentByID()
+// getMetadataByID()
+// createIndex()
+// deleteIndex()
+// contenthubIndices()
+// getIndex()
+// existsIndex()
+// deleteContent()
+//
 (function() {
 
 	jQuery.extend(true, VIE.prototype.StanbolConnector.prototype, {
@@ -20,7 +34,8 @@
 		// to specify the ID under which the item will be stored.
 		// **Parameters**:
 		// *{string}* **content** The text content to be uploaded upon the
-		//		contenthub.
+		//		contenthub. Specify 'null' if you want to pass the content in
+		//		the form of a form element 'content' or 'url'. 
 		// *{function}* **success** The success callback.
 		// *{function}* **error** The error callback.
 		// *{object}* **options** Options: Possible parameters:
@@ -28,16 +43,80 @@
 		// up items to a specific index. If none is specified, the item will be
 		// stored to the default index (contenthub).
 		// Specify id: '<id>' as the ID under which your content item will be
-		// stored on the contenthub.
+		// stored on the contenthub. (if you specify a form element parameter, 
+		// - fe - , then this option will be ignored.
+		// Specify 'fe : {}' as the form elements to be used in uploading the
+		// content. As embedded keys of fe are possible: 
+		// fe.id: the id for the new item. NOTE: If an item with this ID already
+		//		exists, it will be overridden. 
+		// fe.url: URL where the actual content resides. If this parameter is 
+		// 		supplied (and content is null), then the content is retrieved 
+		//		from this url
+		// fe.constraints: Constraints in JSON format. Constraints are used to 
+		// 		add supplementary metadata to the content item. For example, 
+		// 		author of the content item may be supplied as 
+		//		{author: "John Doe"}. Then, this constraint is added to the Solr
+		//		and will be indexed if the corresponding Solr schema includes 
+		//		the author field.
+		// fe.title: The title for the content item.
 		// **Throws**:
 		// *nothing*
 		// **Returns**:
 		// *{VIE.StanbolConnector}* : The VIE.StanbolConnector instance itself.
 		uploadContent : function(content, success, error, options) {
+			
+			console.log("inside uploadContent")
+			
 			options = (options) ? options : {};
+			
+			// Specify 'file: true' if the **content** you passed is not a string,	TODO
+			// but the name of a local file where your content is stored.
+//			file = (options.file) ? options.file : false;
 			var connector = this;
+			
+			// construct form element request
+			var formEl = {};
+			if (options.fe) {
+				
+				formEl.title = (options.fe.title) ? options.fe.title : false;
+				formEl.constraints = (options.fe.constraints) ? options.fe.constraints : false;
+				formEl.url = (options.fe.url) ? options.fe.url : false;
+				formEl.id = (options.fe.id) ? options.fe.id : false;
+				
+			}
+			
+			// decide if we need to send a multipart-formdata request
+			var c = (content !== null) ? content : "";
+//			if (file) {
+//				console.log("got a file:")
+//				console.log(c)
+//				content = new FormData();
+//				content.append('file', c);
+//				
+//				
+//			} else {
+				
+				if (options.fe) {
+			
+					content = "content=" + c;
+					
+					if (formEl.title) {
+						content += "&title=" + formEl.title;
+					}
+					if (formEl.constraints) {
+						content += "&constraints=" + formEl.constraints;
+					}
+					if (formEl.url) {
+						content += "&url=" + formEl.url;
+					}
+					if (formEl.id) {
+						content += "&id=" + formEl.id;
+					}
+				}
+//			}
+			
 
-			connector._iterate( {
+			connector._iterate({
 				method : connector._uploadContent,
 				methodNode : connector._uploadContentNode,
 				success : success,
@@ -52,31 +131,78 @@
 					u += "/" + index.replace(/\/$/, '');
 					u += "/store";
 
-					var id = (opts.id) ? "/" + opts.id : '';
-
-					u += id;
+					// can append uri to the URL only if we're not dealing with
+					// form elements
+					if (!(options.fe))
+					{
+						var id = (opts.id) ? "/" + opts.id : '';
+						u += id;
+					}
+					
 
 					return u;
 				},
 				args : {
 					content : content,
-					options : options
+					options : options,
+//					file : file,
+					fe : options.fe
 				},
 				urlIndex : 0
 			});
 		},
 
 		_uploadContent : function(url, args, success, error) {
-			jQuery.ajax( {
+			console.log("got as data: ")
+			console.log(args.content)
+			
+			// in case we want to upload data from a local file
+//			if (args.file) {
+//				console.log("ajax: sending multipart-formdata")
+//			
+//			jQuery.ajax( {
+//				success : success,
+//				error : error,
+//				url : url,
+//				type : "POST",
+//				data : args.content,
+//				contentType : false,
+//				processData : false,
+//				cache : false
+//			});
+//			
+//			
+//			} else 
+			
+			// in case we have form elements specified
+				if (args.fe) {
+				
+				console.log("ajax: sending form elements")
+				jQuery.ajax( {
+				success : success,
+				error : error,
+				url : url,
+				type : "POST",
+				data : args.content,
+				contentType : "application/x-www-form-urlencoded",
+				accepts: {"application/rdf+json": "application/rdf+json"}
+				});
+				
+			} else {
+				
+				console.log("ajax: sending plain text as data")
+				jQuery.ajax( {
 				success : success,
 				error : error,
 				url : url,
 				type : "POST",
 				data : args.content,
 				contentType : "text/plain"
+				
 			});
-		},
+		}
 
+	},
 		_uploadContentNode : function(url, args, success, error) {
 			var request = require('request');
 			var r = request( {
@@ -97,8 +223,400 @@
 				}
 			});
 			r.end();
-		},
+		},	// end of _uploadContentNode
+		
+		// ### udpateContent(id, success, error, options)
+		// Updates a content item on an index on the contenthub. If no index is
+		// specified, the item is assumed to be located at the default index 
+		// (contenthub). It is possible to specify the ID under which the 
+		// updated item will be stored (the old item will be deleted in this
+		// case, and will no longer be reachable under its old id). In case no
+		// new id is specified, the update will be stored to the old id, 
+		// namely **id**, which means that the old item will be overridden.
+		// **Parameters**:
+		// *{string}* **id** The uri of the content item that is to be updated.	
+		//		Note that after the update, the item will not be available under
+		//		this item any more, but will be assigned a new uri automatically
+		//		by the contenthub.
+		// *{function}* **success** The success callback.
+		// *{function}* **error** The error callback.
+		// *{object}* **options** Options: Possible parameters:
+		// Specify index: '<indexName>' to update an item on a specific index. 
+		// If none is specified, the item will be assumed to reside on the 
+		// default index (contenthub).
+		// Specify 'fe : {}' as the form elements to be used in uploading the
+		// content. As embedded keys of fe are possible: 
+		// fe.content: the content of the updated item (the old content will be
+		// 		overridden by this).
+		// fe.url: URL where the actual content resides. If this parameter is 
+		// 		supplied (and content is null), then the content is retrieved 
+		//		from this url (instead of **content**).
+		// fe.constraints: Constraints in JSON format. Constraints are used to 
+		// 		add supplementary metadata to the content item. For example, 
+		// 		author of the content item may be supplied as 
+		//		{author: "John Doe"}. Then, this constraint is added to the Solr
+		//		and will be indexed if the corresponding Solr schema includes 
+		//		the author field.
+		// fe.title: The title for the content item.
+		// **Throws**:
+		// *nothing*
+		// **Returns**:
+		// *{VIE.StanbolConnector}* : The VIE.StanbolConnector instance itself.
+		updateContent : function(id, success, error, options) {
+			
+			console.log("inside uploadContent")
+			
+			options = (options) ? options : {};
+			
+			// Specify 'file: true' if the **content** you passed is not a string,		TODO
+			// but the name of a local file where your content is stored.
+//			file = (options.file) ? options.file : false;
+			
+			var connector = this;
+			var content = "";
+			
+			// construct form element request
+			var formEl = {};
+			if (options.fe) {
+				
+				formEl.content = (options.fe.content) ? options.fe.content : false;
+				formEl.title = (options.fe.title) ? options.fe.title : false;
+				formEl.constraints = (options.fe.constraints) ? options.fe.constraints : false;
+				formEl.url = (options.fe.url) ? options.fe.url : false;
+//				formEl.id = (options.fe.id) ? options.fe.id : false;
+				formEl.content = (options.fe.content) ? options.fe.content : false;
+				
+			}
+			
+			// decide if we need to send a multipart-formdata request
+			var c = (formEl.content) ? (formEl.content) : "";
+//			if (file) {
+//				console.log("got a file:")
+//				console.log(c)
+//				content = new FormData();
+//				content.append('file', c);
+//				
+//				
+//			} else {
+				
+				if (options.fe) {
+			
+					content += "id=" + id; // this id identifies our update-target
+					
+					if (formEl.content) {
+						content = "&content=" + formEl.content;
+					}
+					if (formEl.title) {
+						content += "&title=" + formEl.title;
+					}
+					if (formEl.constraints) {
+						content += "&constraints=" + formEl.constraints;
+					}
+					if (formEl.url) {
+						content += "&url=" + formEl.url;
+					}
 
+				}
+			
+//		}
+			connector._iterate( {
+				method : connector._updateContent,
+				methodNode : connector._updateContentNode,
+				success : success,
+				error : error,
+				url : function(idx, opts) {
+					var u = this.options.url[idx].replace(/\/$/, '');
+					u += this.options.contenthub.urlPostfix.replace(/\/$/, '');
+
+					var index = (opts.index) ? opts.index
+							: this.options.contenthub.index;
+
+					u += "/" + index.replace(/\/$/, '');
+					u += "/store/update";
+
+//					var id = (opts.id) ? "/" + opts.id : ''; // won't work
+
+//					u += id;
+
+					return u;
+				},
+				args : {
+					content : content,
+					options : options,
+//					file : file,
+					fe : options.fe
+				},
+				urlIndex : 0
+			});
+			
+			},
+
+		
+		_updateContent : function(url, args, success, error) {
+			console.log("got as data: ")
+			console.log(args.content)
+			
+			// in case we want to upload data from a local file
+//			if (args.file) {
+//				console.log("ajax: sending multipart-formdata")
+//			
+//			$.ajax( {
+//				success : success,
+//				error : error,
+//				url : url,
+//				type : "POST",
+//				data : args.content,
+//				contentType : false,
+//				processData : false,
+//				cache : false
+//			});
+//			
+//			
+//			} else 
+				// in case we have form elements specified
+				if (args.fe) {
+				
+				console.log("ajax: sending form elements")
+				$.ajax( {
+				success : success,
+				error : error,
+				url : url,
+				type : "POST",
+				data : args.content,
+				contentType : "application/x-www-form-urlencoded",
+				accepts: {"application/rdf+json": "application/rdf+json"}
+				});
+				
+			} else {
+				
+				console.log("ajax: sending plain text as data")
+				$.ajax( {
+				success : success,
+				error : error,
+				url : url,
+				type : "POST",
+				data : args.content,
+				contentType : "text/plain"
+				
+			});
+		}
+
+	},	// end of _updateContent
+	
+		_updateContentNode : function(url, args, success, error) {
+			var request = require('request');
+			var r = request( {
+				method : "POST",
+				uri : url,
+				body : args.content,
+				headers : {
+					Accept : "application/rdf+xml",
+					"Content-Type" : "text/plain"
+				}
+			}, function(err, response, body) {
+				try {
+					success( {
+						results : JSON.parse(body)
+					});
+				} catch (e) {
+					error(e);
+				}
+			});
+			r.end();
+		},	// end of _updateContentNode
+
+
+		// ### downloadContent(id, success, error, options)
+		// Download raw data or metadata of a content item. The downloaded
+		// content is returned in the success callback.
+		// **Parameters**:
+		// *{string}* **id** The uri of the content item that is to be downloaded.
+		// *{function}* **success** The success callback.
+		// *{function}* **error** The error callback.
+		// *{object}* **options** Options: Possible parameters:
+		//		type: {metadata,raw}. If no type is specified, "raw" will be
+		//			used as default.
+		//		format: Rdf serialization format of metadata, e.g. 
+		//			"application/json", or "application/rdf/xml". If no format
+		//			is specified, "application/json" will be used as default.
+		// **Throws**:
+		// *nothing*
+		// **Returns**:
+		// *{VIE.StanbolConnector}* : The VIE.StanbolConnector instance itself.
+		downloadContent : function(id, success, error, options) {
+			
+			console.log("inside downloadContent")
+			console.log("got as options:")
+			console.log(options)
+			
+			options = (options) ? options : {};
+			
+			var connector = this;
+			
+			var type = (options.type) ? options.type : "raw";
+			var format = (options.format) ? options.format : "application/json";
+
+//			curl -O "http://lnv-89012.dfki.uni-sb.de:9001/contenthub/contenthub/store/download/raw/rep5364768269159563506tmp?format=application%2Fjson"
+			
+			connector._iterate({
+				method : connector._downloadContent,
+				methodNode : connector._downloadContentNode,
+				success : success,
+				error : error,
+				url : function(idx, opts) {
+					var u = this.options.url[idx].replace(/\/$/, '');
+					u += this.options.contenthub.urlPostfix.replace(/\/$/, '');
+
+					var index = (opts.index) ? opts.index : this.options.contenthub.index;
+
+					u += "/" + index.replace(/\/$/, '');
+					u += "/store/download/";
+
+					u += type;
+					u += "/" + id + "?";
+					u += "format=" + format;
+					
+					return u;
+				},
+				args : {
+//					content : content,
+					options : options		// !!! needed by the _iterator to assign opts
+////					file : file,
+//					fe : options.fe
+				},
+				urlIndex : 0
+			});
+			
+			}, // end of downloadContent()
+
+		
+		_downloadContent : function(url, args, success, error) {
+		
+				$.ajax( {
+				success : success,
+				error : error,
+				url : url,
+				type : "GET",
+//				data : args.content,
+				contentType : "application/x-www-form-urlencoded",
+				accepts: {"application/rdf+json": "application/rdf+json"}
+				});
+
+
+	},	// end of _downloadContent
+	
+		_downloadContentNode : function(url, args, success, error) {
+			var request = require('request');
+			var r = request( {
+				method : "GET",
+				uri : url,
+				body : args.content,
+				headers : {
+					Accept : "application/rdf+xml",
+					"Content-Type" : "text/plain"
+				}
+			}, function(err, response, body) {
+				try {
+					success( {
+						results : JSON.parse(body)
+					});
+				} catch (e) {
+					error(e);
+				}
+			});
+			r.end();
+		},	// end of _downloadContentNode
+		
+
+		// ### editContent(id, success, error)
+		// Creates the JSON string of a content item (to be edited) to display 
+		// it in the HTML view. The JSON string is returned in the success
+		// callback.
+		// **Parameters**:
+		// *{string}* **id** The uri of the content item.
+		// *{function}* **success** The success callback.
+		// *{function}* **error** The error callback.
+		// *{object}* **options** Options: not specified here.
+		// **Throws**:
+		// *nothing*
+		// **Returns**:
+		// *{VIE.StanbolConnector}* : The VIE.StanbolConnector instance itself.
+		editContent : function(id, success, error) {
+			
+			var connector = this;
+			
+//			curl http://lnv-89012.dfki.uni-sb.de:9001/contenthub/contenthub/store/edit/{id}
+			
+			connector._iterate({
+				method : connector._editContent,
+				methodNode : connector._editContentNode,
+				success : success,
+				error : error,
+				url : function(idx, opts) {
+					var u = this.options.url[idx].replace(/\/$/, '');
+					u += this.options.contenthub.urlPostfix.replace(/\/$/, '');
+
+					var index = (opts.index) ? opts.index : this.options.contenthub.index;
+
+					u += "/" + index.replace(/\/$/, '');
+					u += "/store/edit";
+
+	
+					u += "/" + id;
+					
+					return u;
+				},
+				args : {
+//					content : content,
+					options : {}		// !!! needed by the _iterator to assign opts
+////					file : file,
+//					fe : options.fe
+				},
+				urlIndex : 0
+			});
+			
+			}, // end of editContent()
+
+		
+		_editContent : function(url, args, success, error) {
+		
+				$.ajax( {
+				success : success,
+				error : error,
+				url : url,
+				type : "GET",
+//				data : args.content,
+				contentType : "application/x-www-form-urlencoded",
+				accepts: {"application/rdf+json": "application/rdf+json"}
+				});
+
+
+	},	// end of _editContent
+	
+		_editContentNode : function(url, args, success, error) {
+			var request = require('request');
+			var r = request( {
+				method : "GET",
+				uri : url,
+				body : args.content,
+				headers : {
+					Accept : "application/rdf+xml",
+					"Content-Type" : "text/plain"
+				}
+			}, function(err, response, body) {
+				try {
+					success( {
+						results : JSON.parse(body)
+					});
+				} catch (e) {
+					error(e);
+				}
+			});
+			r.end();
+		},	// end of _editContentNode
+		
+		
+		
 		// ### getTextContentByID(id, success, error, options)
 		// @author mere01
 		// This method queries the Apache Stanbol contenthub for the text
@@ -273,7 +791,7 @@
 				uri : url,
 				body : args.text,
 				headers : {
-					Accept : args.format,
+					Accept : 'text/plain',
 					'Content-Type' : 'text/plain'
 				}
 			}, function(err, response, body) {
@@ -323,6 +841,7 @@
 			submit += ldpath.name.replace(/\/$/, '');
 			submit += "&program=";
 			submit += ldpath.program.replace(/\/$/, '');
+			console.log("submitting: " + submit)
 
 			connector._iterate( {
 				method : connector._createIndex,
@@ -361,10 +880,8 @@
 			var r = request( {
 				method : "POST",
 				uri : url,
-				body : args.data,
-				headers : {
-					Accept : args.format
-				}
+				body : args.data
+
 			}, function(err, response, body) {
 				try {
 					success( {
@@ -527,7 +1044,7 @@
 				method : "GET",
 				uri : url,
 				headers : {
-					Accept : args.format
+					Accept : "application/rdf+json"
 				}
 			}, function(err, response, body) {
 				try {
@@ -540,7 +1057,165 @@
 			});
 			r.end();
 		}, // end of _contenthubIndicesNode
+		
+		// ### getIndex(name, success, error)
+		// @author mere01
+		// This method retrieves an ldpath program (index) by its name. The
+		// function returns the program in the success callback if the program 
+		// exists. If not, it goes into the error callback.
+		// is stored on the contenthub.
+		// **Parameters**:
+		// *{string}* **name** the name of the ldpath program (index) to be
+		// 		retrieved.
+		// *{function}* **success** The success callback.
+		// *{function}* **error** The error callback.
+		// **Throws**:
+		// *nothing*
+		// **Returns**:
+		// *{VIE.StanbolConnector}* : The VIE.StanbolConnector instance itself.
+		// **Example usage**:
+		//
+		// var stnblConn = new vie.StanbolConnector(opts);
+		// stnblConn.contenthubIndices(
+		// function (res) { ... },
+		// function (err) { ... });
+		getIndex : function(name, success, error) {
+			
+			var connector = this;
 
+			connector._iterate( {
+				method : connector._getIndex,
+				methodNode : connector._getIndexNode,
+				success : success,
+				error : error,
+//				complete : complete,
+				url : function(idx, opts) {
+					var u = this.options.url[idx].replace(/\/$/, '');
+					u += this.options.contenthub.urlPostfix + "/ldpath/program?name=";
+					u += name;
+
+					return u;
+				},
+				args : {
+					options : {}
+				},
+				urlIndex : 0
+			});
+		},	// end of getIndex()
+
+		_getIndex : function(url, args, success, error) {
+			jQuery.ajax( {
+				success : success,
+				error : error,
+//				complete : complete,
+				url : url,
+				type : "GET",
+				accepts : {
+					"application/rdf+json" : "application/rdf+json"
+				}
+			});
+		}, // end of _getIndex
+
+		_getIndexNode : function(url, args, success, error) {
+			var request = require('request');
+			var r = request( {
+				method : "GET",
+				uri : url,
+				headers : {
+					Accept : "application/rdf+json"
+				}
+			}, function(err, response, body) {
+				try {
+					success( {
+						results : JSON.parse(body)
+					});
+				} catch (e) {
+					error(e);
+				}
+			});
+			r.end();
+		}, // end of _getIndexNode		
+
+		
+		// ### existsIndex(name, success, error)
+		// @author mere01
+		// This method checks if an ldpath program (index) is stored on the
+		// contenthub/ldpath. The function returns in success callback if the 
+		// program exists. If not, it goes into the error callback.
+		// is stored on the contenthub.
+		// **Parameters**:
+		// *{string}* **name** the name of the ldpath program (index) to be
+		// 		checked.
+		// *{function}* **success** The success callback.
+		// *{function}* **error** The error callback.
+		// **Throws**:
+		// *nothing*
+		// **Returns**:
+		// *{VIE.StanbolConnector}* : The VIE.StanbolConnector instance itself.
+		// **Example usage**:
+		//
+		// var stnblConn = new vie.StanbolConnector(opts);
+		// stnblConn.contenthubIndices(
+		// function (res) { ... },
+		// function (err) { ... });
+		existsIndex : function(name, success, error) {
+			
+			var connector = this;
+
+			connector._iterate( {
+				method : connector._existsIndex,
+				methodNode : connector._existsIndexNode,
+				success : success,
+				error : error,
+//				complete : complete,
+				url : function(idx, opts) {
+					var u = this.options.url[idx].replace(/\/$/, '');
+					u += this.options.contenthub.urlPostfix + "/ldpath/exists?name=";
+					u += name;
+
+					return u;
+				},
+				args : {
+					options : {}
+				},
+				urlIndex : 0
+			});
+		},	// end of existsIndex()
+
+		_existsIndex : function(url, args, success, error) {
+			jQuery.ajax( {
+				success : success,
+				error : error,
+//				complete : complete,
+				url : url,
+				type : "GET",
+				accepts : {
+					"application/rdf+json" : "application/rdf+json"
+				}
+			});
+		}, // end of _existsIndex
+
+		_existsIndexNode : function(url, args, success, error) {
+			var request = require('request');
+			var r = request( {
+				method : "GET",
+				uri : url,
+				headers : {
+					Accept : "application/rdf+json"
+				}
+			}, function(err, response, body) {
+				try {
+					success( {
+						results : JSON.parse(body)
+					});
+				} catch (e) {
+					error(e);
+				}
+			});
+			r.end();
+		}, // end of _existsIndexNode		
+		
+		
 
 		// ### deleteContent(itemURI, success, error, options)
 		// @author mere01
@@ -565,6 +1240,7 @@
 		// function (err) { ... });
 		deleteContent : function(itemURI, success, error, options) {
 
+			options = (options) ? options : {};
 			var index = (options.index) ? ("/" + options.index) : "/contenthub";
 			
 			var connector = this;
@@ -580,7 +1256,6 @@
 					u += index;
 					u += "/store/";
 					
-
 					return u;
 				},
 				args : {
@@ -606,7 +1281,7 @@
 			var request = require('request');
 			var r = request( {
 				method : "DELETE",
-				uri : url + args.index
+				uri : url
 
 			}, function(err, response, body) {
 				try {
