@@ -1,20 +1,13 @@
-//     VIE - Vienna IKS Editables
-//     (c) 2011 Henri Bergius, IKS Consortium
-//     (c) 2011 Sebastian Germesin, IKS Consortium
-//     (c) 2011 Szaby Grünwald, IKS Consortium
-//     VIE may be freely distributed under the MIT license.
-//     For all details and documentation:
-//     http://viejs.org/
-
-// ## VIE - DBPedia service
-// The DBPedia service allows a VIE developer to directly query
-// the DBPedia database for entities and their properties. Obviously,
-// the service does not allow for saving, removing or analyzing methods.
+// for more documentation,
+// cf. http://dev.iks-project.eu:8081/factstore#
 //
 // createFactSchema()
 // createFact()
 // queryFact()
 // getFactSchema()
+//
+// NOTE: a method for deleting facts and fact schemata is not implemented yet on
+// the Stanbol side.
 
 (function(){
 
@@ -30,7 +23,9 @@
     	// defined in the "@types" section of the JSON-LD "#context". Each 
     	// element is specified using a unique role name for that entity plus 
     	// the entity type specified by an URN.
-		//**Parameters**:
+		//**Parameters**: 
+    	//*{string}* **url**
+    	//*{string}* **schema**
 		//*{function}* **success** The success callback.  
 		//*{function}* **error** The error callback.  
 		//*{object}* **options** Options, unused here.   
@@ -58,7 +53,6 @@
 					return u;
 				},
 				args : {
-					url : url,
 					schema : schema,
 					options : options
 				},
@@ -69,7 +63,7 @@
 		_createFactSchema : function (url, args, success, error) {
 			jQuery.ajax({
 				beforeSend: function(xhrObj) {
-				xhrObj.setRequestHeader("Content-type", "application/json");
+					xhrObj.setRequestHeader("Content-type", "application/json");
 				},
 				success: success,
 				error: error,
@@ -87,8 +81,8 @@
 				uri: url,
 				body : args.schema,
 				headers: {
-					Accept: "text/plain",
-					"Content-Type" : "application/json"
+					"Content-Type" : "application/json",
+					"Data-Type": "text"
 				}
 			}, function(err, response, body) {
 				try {
@@ -102,8 +96,8 @@
 
 		
 		//### createFact(fact, success, error, options)
-		// Allows clients to store a new facts according to a defined fact 
-		// schema that was previously published to the FactStore. Each new fact 
+		// Allows clients to store a new fact according to a defined fact schema that was 
+		// previously published to the FactStore. Each new fact 
 		// is an n-tuple according to its schema where each tuple element 
 		// identifies an entity using its unique IRI. 
 		// The facts are sent as the POST payload in JSON-LD format referring to
@@ -111,13 +105,16 @@
 		// "@profile" element of the JSON-LD object. The JSON-LD object contains
 		// a list of facts under the attribute "facts" where each element of 
 		// that list is an n-tuple of entity instances according to the fact 
-		// schema. The instance of an entity can be specified either by its 
-		// unique IRI or by specifying the instance by example.
-		// Using the instance by example variant requires the FactStore to 
-		// resolve the entity in an EntityHub. An entity by example is specified
-		// by defining attributes and required values of the searched entity. A 
-		// fact can only be stored if all entities can be uniquely identified 
-		// either by their IRI or by example.
+		// schema. 
+		//**Parameters**:
+		//*{string}* **fact**
+		//*{function}* **success** The success callback.  
+		//*{function}* **error** The error callback.  
+		//*{object}* **options** Options, unused here.   
+		//**Throws**:  
+		//*nothing*  
+		//**Returns**:  
+		//*{VIE.StanbolConnector}* : The VIE.StanbolConnector instance itself.
 		createFact: function(fact, success, error, options) {
 			options = (options)? options :  {};
 			var connector = this;
@@ -162,8 +159,8 @@
 				uri: url,
 				body : args.fact,
 				headers: {
-					Accept: "application/json",
-					"Content-Type" : "application/json"
+					"Content-Type" : "application/json",
+					"Data-Type": "text"
 				}
 			}, function(err, response, body) {
 				try {
@@ -174,7 +171,8 @@
 			});
 			r.end();
 		},
-
+		
+		//###queryFact(query, success, error, options)
 		// Allows clients to query stored facts of a specific type defined by 
 		// the fact's schema. The clients specify the desired fact plus an 
 		// arbitrary number of entities that play some role in the fact.
@@ -183,6 +181,15 @@
 		// result to be returned in the result set. The "from" part specifies 
 		// the fact type to query and the "where" clause specifies constraints 
 		// to be fulfilled.
+		//**Parameters**:
+		//*{string}* **query**
+		//*{function}* **success** The success callback.  
+		//*{function}* **error** The error callback.  
+		//*{object}* **options** Options, unused here.   
+		//**Throws**:  
+		//*nothing*  
+		//**Returns**:  
+		//*{VIE.StanbolConnector}* : The VIE.StanbolConnector instance itself.
 		queryFact: function(query, success, error, options) {
 			options = (options)? options :  {};
 			var connector = this;
@@ -227,8 +234,8 @@
 				uri: url,
 				body : args.query,
 				headers: {
-					Accept: "application/json",
-					"Content-Type" : "application/json"
+					"Content-Type" : "application/json",
+					"Data-Type": "text"
 				}
 			}, function(err, response, body) {
 				try {

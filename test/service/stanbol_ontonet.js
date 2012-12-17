@@ -26,7 +26,6 @@ test("VIE.js StanbolConnector - OntoNet Scope Manager", function() {
 	stanbol.connector.createScope(
 				scope,
 				function(success) {
-					console.log("01. Created scope " + scope)
 					ok(true, "01. Created scope " + scope);
 					
 					// we can load specific libraries or ontologies into a specific scope
@@ -67,33 +66,24 @@ test("VIE.js StanbolConnector - OntoNet Scope Manager", function() {
 			                // we can get a list of all the registered scopes
 						    stanbol.connector.ontoScopes(function(success) {
 						        ok(true, "04. could retrieve list of all registered scopes");
-						        console.log("04. retrieved list of registered scopes in format text/rdf+n3:")
-						        console.log(success);
-						        
 						        
 						        stanbol.connector.deleteScope(scope, function(success) {
 								       ok(true, "05. deleted scope " + scope + " from the ontonet/ontology.");
-								       console.log("05. deleted scope " + scope)
 								       start();
 								   }, function(err) {	// error callback of deleteScope()
 								       ok(false, "05. Could not delete scope " + scope + " from the ontonet/ontology.");
-								       console.log("05. Could not delete scope " + scope);
 								       start();
 								   }, {});
 						        
 						      
 						    }, function(err) {	// error callback of ontoScopes()
 						        ok(false, "04. Could not retrieve list of all registered scopes");
-						        console.log("04. Could not retrieve list of all registered scopes")
-						        console.log(err)
 						        start();
 						     
 						    }, {
 						    	accept: "text/rdf+n3"
 						    });
-			                    
-			                
-						        
+			                        
 			                    
 			                /* TODO POST/redirect/GET    
 			                   
@@ -143,7 +133,6 @@ test("VIE.js StanbolConnector - OntoNet Scope Manager", function() {
 					
 								
 				}, function(error) {	// error callback of createScope
-					console.log("01. Could not create scope " + scope)
 					ok(false, "01. Could not create scope " + scope);
 					start();
 				});
@@ -248,7 +237,6 @@ test("VIE.js StanbolConnector - OntoNet Session Manager", function() {
 
         function(success) {
         	start();
-            console.log("01. Created session " + session);
             ok(true, "01. Created session " + session);
             
             
@@ -257,14 +245,11 @@ test("VIE.js StanbolConnector - OntoNet Session Manager", function() {
             stanbol.connector.getSession(session, function(success){
             	
             	ok(true, "02. getSession returned a value");
-            	console.log("02. getSession returned a value in text/turtle:");
-            	console.log(success);
             	start();
             	
             }, function(error){
             	
             	ok(false, "02. getSession failed.");
-            	console.log("02. getSession failed with " + error);
             	start();
             });
             
@@ -273,14 +258,10 @@ test("VIE.js StanbolConnector - OntoNet Session Manager", function() {
             stanbol.connector.ontoSessions(
             	function(success){
             		ok(true, "Retrieved list of all registered sessions.")
-            		console.log("Returned list of all registered sessions in format text/owl-functional:")
-            		console.log(success)
             		start();
             	},
             	function(error){
             		ok(false, "Could not retrieve list of all registered sessions.");
-            		console.log("Could not retrieve list of all registered sessions.");
-            		console.log(error);
             		start();
             	},
             	{
@@ -293,19 +274,15 @@ test("VIE.js StanbolConnector - OntoNet Session Manager", function() {
             stop();
             stanbol.connector.createScope(scope, function(success) {
             	start();
-                console.log("03. Created scope " + scope);
                 ok(true, "03. Created scope " + scope);
                 
                 // get this newly-created scope
                 stop();
                 stanbol.connector.getScope(scope, function(success) {
-                    console.log("04. getScope for " + scope + " returned a result in application/rdf+xml:");
-                    console.log(success);
                     ok(true, "04. getScope for " + scope + " returned a result.");
                     start();
                     
                 }, function(error) {	// error callback of getScope
-                    console.log("04. Scope " + scope + " does not exist.");
                     ok(true, "04. Scope " + scope + " does not exist.");
                     start();
                 }, {
@@ -317,22 +294,18 @@ test("VIE.js StanbolConnector - OntoNet Session Manager", function() {
                 stanbol.connector.updateScopes(session, function(success){
                 	
                 	start();
-                	ok(true, "05. Updated session " + session + " with scope " + scope);
-                	console.log("05. Updated session " + session + " with scope " + scope)
-                	
+                	ok(true, "05. Updated session " + session + " with scope " + scope);                	
                 	
                 	// detach the scope again from this session
                 	stop();
                 	stanbol.connector.updateScopes(session, function(success){
                 		
                 		ok(true, "06. Detached all scopes from session " + session);
-                    	console.log("06. Detached all scopes from session " + session)
                     	start();
                     	
                 	}, function(error){
                 		
                 		ok(false, "06. Could not detach all scopes from session " + session);
-                    	console.log("06. Could not detach all scopes from session " + session)
                 		start();
                 	}); // specifying no options will result in an empty POST
                 		// and this again will detach all scopes from our session
@@ -341,8 +314,7 @@ test("VIE.js StanbolConnector - OntoNet Session Manager", function() {
                 	stop();
                     stanbol.connector.deleteScope(scope, function(success){
                     	ok(true, "08. Deleted scope " + scope + " from ontonet.");
-                    	console.log("08. Deleted scope " + scope + " from ontonet.");
-                    	
+                   	
                     	      
                          /* TODO back in as soon as the POST/redirect/GET problem is solved 
                          // load an ontology upon this session
@@ -360,11 +332,9 @@ test("VIE.js StanbolConnector - OntoNet Session Manager", function() {
                              	// delete the session 
                                  stanbol.connector.deleteSession(function(success){
                                  	ok(true, "09. Deleted session " + session + " from ontonet.");
-                                 	console.log("09. Deleted session " + session + " from ontonet.");
                                  	start();
                                  }, function(error){	// error callback of deleteSession
                                  	ok(false, "09. Could not delete session " + session + " from ontonet.");
-                                 	console.log("09. Could not delete session " + session + " from ontonet.");
                                  	start();
                                  }, 
                                  session);
@@ -391,7 +361,6 @@ test("VIE.js StanbolConnector - OntoNet Session Manager", function() {
                     	
                     }, function(error) {
                     	ok(false, "08. Could not delete scope " + scope + " from ontonet.");
-                    	console.log("08. Could not delete scope " + scope + " from ontonet.");
                     	start();
                     });
                     
@@ -400,45 +369,35 @@ test("VIE.js StanbolConnector - OntoNet Session Manager", function() {
                 }, function(error){	// error callback of updateScopes()
                 	
                 	ok(false, "05. Could not update session " + session + " with scope " + scope);
-                	console.log("05. Could not update session " + session + " with scope " + scope)
                 	
                 	 // delete the scope /
                     stanbol.connector.deleteScope(scope, function(success){
                     	ok(true, "08. Deleted scope " + scope + " from ontonet.");
-                    	console.log("08. Deleted scope " + scope + " from ontonet.");
                     	start();
                     }, function(error) {
                     	ok(false, "08. Could not delete scope " + scope + " from ontonet.");
-                    	console.log("08. Could not delete scope " + scope + " from ontonet.");
                     	start();
                     });
                 	
                 } 
-//                ,{	//TODO upload does not work yet, why?
+//                ,{	//TODO upload does not work yet
 //                	scope : scope
 //                }
                 );
                 
-                // load a library upon this session // TODO does not work yet
+                // TODO (not supported yet in Stanbol):
+                // load a library upon this session
                 //  -> appendLibrary()
                 // 	-> detachLibrary()
                 
-               
-                
-
-                
-                
             }, function(error) {	// error callback of createScope
                 ok(false, "03. Could not create new scope " + scope);
-                console.log("03. Could not create new scope " + scope + ": " + error);
                 
                 stanbol.connector.deleteSession(function(success){
                 	ok(true, "09. Deleted session " + session + " from ontonet.");
-                	console.log("09. Deleted session " + session + " from ontonet.");
                 	start();
                 }, function(error){	// error callback of deleteSession
                 	ok(false, "09. Could not delete session " + session + " from ontonet.");
-                	console.log("09. Could not delete session " + session + " from ontonet.");
                 	start();
                 }, 
                 session);
@@ -449,7 +408,6 @@ test("VIE.js StanbolConnector - OntoNet Session Manager", function() {
 
         }, function(error) {	// error callback of createSession
             ok(false, "01. Could not create new session " + session);
-            console.log("01. Could not create new session " + session + ": " + error);
             start();
         }, session
         );
@@ -462,27 +420,21 @@ test("VIE.js StanbolConnector - OntoNet Session Manager", function() {
         stanbol.connector.createSession(
         	function(xml, status, xhr){
         		ok(true, "Created nameless session.");
-        		console.log("Created nameless session with url:");
         		var location = xhr.getResponseHeader('Location');
-        		console.log(location)
         		
         		// we get back something like 
         		// http://dev.iks-project.eu:8081/ontonet/session/1349682593596
         		// -> retrieve from this the id
         		var idx = location.lastIndexOf('/') + 1;
         		var id = location.substring(idx );
-        		console.log("id: " + id)
         		
         		stanbol.connector.deleteSession(
         			function(success){
         				ok(true, "Deleted nameless session.");
-        				console.log("Deleted nameless session " + id);
         				start();
         			},
         			function(error){
         				ok(false, "Could not delete nameless session.");
-        				console.log("Could not delete nameless session " + id);
-        				console.log(error);
         				start();
         			},
         			id
@@ -490,8 +442,6 @@ test("VIE.js StanbolConnector - OntoNet Session Manager", function() {
         		        	},
         	function(error){
         		ok(false, "Could not create nameless session.");
-        		console.log("Could not create nameless session.");
-        		console.log(error);
         		start();
         	}
         );

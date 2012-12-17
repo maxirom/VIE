@@ -13,7 +13,7 @@ test("VIE.js SameAsService - Load", function () {
     } 
     var entity = "<http://dbpedia.org/resource/Barack_Obama>";
     var z = new VIE();
-    ok (z.SameAsService);
+    ok (z.SameAsService, "Checking if the SameAs Service exists.");
     equal(typeof z.SameAsService, "function");
     z.use(new z.SameAsService());
     stop();
@@ -26,10 +26,13 @@ test("VIE.js SameAsService - Load", function () {
         ok(x.isCollection);
         equal(x.size(), 1);
         equal(x.at(0).id, entity);
+        console.log(x)
         start();
     })
     .fail(function(f){
         ok(false, f.statusText);
+        console.log(f.statusText);
+        console.log(f)
         start();
     });
 });
@@ -55,6 +58,7 @@ test("VIE.js SameAsService - Load Multiple Entities", function () {
         ok(x.isCollection);
         equal(x.size(), 1);
         ok (x.at(0).id === entity1 || x.at(0).id === entity2);
+        console.log(x)
         start();
     })
     .fail(function(f){

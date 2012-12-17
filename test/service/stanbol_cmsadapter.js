@@ -14,7 +14,7 @@ var path = (window.CMS_path) ? window.CMS_path : false;
 // @author mere01
 test("VIE.js StanbolConnector - CMS Adapter", function() {
 	
-	if ( (! repo) ) {//|| (repo === "http://lnv-89012.dfki.uni-sb.de:9002/rmi") ) {
+	if ( (! repo) ) {
 		
 		ok(true, "CMS Adapter test is not configured. If you want to run tests for the Stanbol cmsadapter, please specify your settings in VIE/utils/api_keys.js. Also remember to configure your CMS path in Stanbol: at http://lnv-89012.dfki.uni-sb.de:9001/system/console/configMgr, choose \"Apache Stanbol CMS Adapter Default RDF Bridge Configuration\" and add a bridge to your repository.");
 		return;
@@ -36,10 +36,9 @@ test("VIE.js StanbolConnector - CMS Adapter", function() {
 			"admin", "admin", "JCR", function(key){
 		
 		ok(true, "Obtained session key for repository.");
-		console.log("Obtained session key for repository: " + key);
 		start();
 		
-		///* this test is depending on the local file system
+		///* this test depends on the local file system
 		if (rdfFile) {
 			ok(true, "Parameter 'rdfFile' is set to " + rdfFile);
 		stop();
@@ -48,13 +47,11 @@ test("VIE.js StanbolConnector - CMS Adapter", function() {
 				   function(success) {
 					   
 					 ok(true, "Mapped local RDF data to repository.");
-					 console.log("Mapped RDF from file " + rdfFile + " to repo at " + repo);
 					 start();
 					
 				}, function(error){
 					
 					ok(false, "Could not map local RDF data to repository.");
-					console.log("Could not map RDF from File " + rdfFile + " to repo at " + repo);
 					start();
 				}, 
 						{rdfFile : rdfFile}
@@ -73,13 +70,11 @@ test("VIE.js StanbolConnector - CMS Adapter", function() {
 				   function(success) {
 					   
 					 ok(true, "Mapped RDF string data to repository.");
-					 console.log("Mapped RDF to repo at " + repo);
 					 start();
 					 
 				}, function(error){
 					
 					ok(false, "Could not map RDF string data to repository.");
-					console.log("Could not map RDF to repo at " + repo);
 					start();
 				}, 
 						{rdf : escape(rdf)}
@@ -97,13 +92,11 @@ test("VIE.js StanbolConnector - CMS Adapter", function() {
 		   function(success) {
 			   
 			 ok(true, "Mapped remote RDF file to repository.");
-			 console.log("Mapped RDF at " + rdfURL + " to repo at " + repo);
 			 start();
 			
 		}, function(error){
 			
 			ok(false, "Could not map remote RDF file to repository. Make sure that '" + rdfURL + "' is accessible.");
-			console.log("Could not map RDF at " + rdfURL + " to repo at " + repo);
 			start();
 			
 		}, 
@@ -124,21 +117,15 @@ test("VIE.js StanbolConnector - CMS Adapter", function() {
 				function(success){
 					
 					ok(true, "Submitted repository item at '/test' to contenthub.");
-					console.log("Submitted repository item at '/test' to contenthub.");
-					console.log(success);
-
+					
 					// delete the item again
 					stanbol.connector.deleteRepositoryItem(
 						key,
 						function(success){
 							ok(true, "Deleted repository item at '/test' from contenthub.");
-							console.log("Deleted repository item at '/test' from contenthub.")
-							console.log(success)
 							start();						
 					}, function(error) {
 							ok(false, "Could not delete repository item at '/test' from contenthub.");
-							console.log("Could not delete repository item at '/test' from contenthub.")
-							console.log(error)
 							start();
 					}, {
 						path : path,
@@ -149,8 +136,6 @@ test("VIE.js StanbolConnector - CMS Adapter", function() {
 				function(error){
 					
 					ok(false, "Could not submit repository item at '/test' to contenthub.");
-					console.log( "Could not submit repository item at '/test' to contenthub.");
-					console.log(error);
 					start();
 				},
 				{
@@ -167,15 +152,11 @@ test("VIE.js StanbolConnector - CMS Adapter", function() {
 				function(success){
 					
 					ok(false, "Submitted repository item at '/test' to contenthub, using an illegal session key.");
-					console.log("Submitted repository item at '/test' to contenthub, using an illegal session key.");
-					console.log(success);
 					start();
 				},
 				function(error){
 					
 					ok(true, "Could not submit repository item at '/test' to contenthub with an illegal session key.");
-					console.log( "Could not submit repository item at '/test' to contenthub with an illegal session key.");
-					console.log(error);
 					start();
 				},
 				{
@@ -197,14 +178,10 @@ test("VIE.js StanbolConnector - CMS Adapter", function() {
 				"http://www.apache.org/stanbol/cms",
 				function(success){
 					ok(true, "Mapped repository path " + path + " to RDF.");
-					console.log("Mapped repository path " + path + " to RDF.")
-					console.log(success)
 					start();
 				},
 				function(error){
 					ok(false, "Could not map repository path " + path + " to RDF.");
-					console.log("Could not map repository path " + path + " to RDF.");
-					console.log(error);
 					start();
 				}, {
 					store : true,
@@ -214,8 +191,6 @@ test("VIE.js StanbolConnector - CMS Adapter", function() {
 	}, function(error){
 		
 		ok(false, "Could not obtain session key.");
-		console.log('Could not obtain session key')
-		console.log(error)
 		start();
 	});
 	
