@@ -23,10 +23,9 @@ test("VIE.js SameAsService - Load", function () {
     .execute()
     .done(function(x) {
         ok(x, "Something returned");
-        ok(x.isCollection);
-        equal(x.size(), 1);
-        equal(x.at(0).id, entity);
-        console.log(x)
+        equal(x.length, 1);
+		ok(x[0].isEntity);
+        equal(x[0].id, entity);
         start();
     })
     .fail(function(f){
@@ -55,10 +54,10 @@ test("VIE.js SameAsService - Load Multiple Entities", function () {
     .execute()
     .done(function(x) {
         ok(x, "In the current implementation, this is called twice!");
-        ok(x.isCollection);
-        equal(x.size(), 1);
-        ok (x.at(0).id === entity1 || x.at(0).id === entity2);
-        console.log(x)
+        equal(x.length, 1);
+		ok(x[0].isEntity);
+        ok (x[0].id === entity1 || x[0].id === entity2);
+
         start();
     })
     .fail(function(f){
