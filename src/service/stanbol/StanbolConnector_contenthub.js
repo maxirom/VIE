@@ -35,12 +35,9 @@
 		// If none is specified, the item will be stored to the default index 
 		// (contenthub).
 		// Specify id: '<id>' as the ID under which your content item will be
-		// stored on the contenthub. (if you specify a form element parameter, 
-		// - fe - , then this option will be ignored.
+		// stored on the contenthub.
 		// Specify 'fe : {}' as the form elements to be used in uploading the
 		// content. As embedded keys of fe are possible: 
-		// fe.id: the id for the new item. NOTE: If an item with this ID already
-		//		exists, it will be overridden. 
 		// fe.url: URL where the actual content resides. If this parameter is 
 		// 		supplied (and content is null), then the content is retrieved 
 		//		from this url
@@ -71,7 +68,7 @@
 				formEl.title = (options.fe.title) ? options.fe.title : false;
 				formEl.constraints = (options.fe.constraints) ? options.fe.constraints : false;
 				formEl.url = (options.fe.url) ? options.fe.url : false;
-				formEl.id = (options.fe.id) ? options.fe.id : false;
+//				formEl.id = (options.fe.id) ? options.fe.id : false;
 				
 			}
 			
@@ -87,7 +84,7 @@
 //			} else {
 				
 				if (options.fe) {
-			
+					
 					content = "content=" + c;
 					
 					if (formEl.url) {
@@ -106,6 +103,8 @@
 						content += "&id=" + formEl.id;
 					}
 				}
+				
+				console.log("content is: " + content)
 //			}
 			
 
@@ -124,11 +123,9 @@
 					u += "/" + index.replace(/\/$/, '');
 					u += "/store";
 
-					// can append uri to the URL only if we're not dealing with
-					// form elements
-					if (!(options.fe))
+					if (options.id)
 					{
-						var id = (opts.id) ? "/" + opts.id : '';
+						var id = (opts.id) ? "?uri=" + opts.id : '';
 						u += id;
 					}
 					
@@ -497,8 +494,9 @@
 			r.end();
 		},	// end of _downloadContentNode
 		
-
+/**
 		// ### editContent(id, success, error)
+		// seems to have vanished from Stanbol again.
 		// @author mere01
 		// Creates the JSON string of a content item (to be edited) to display 
 		// it in the HTML view. The JSON string is returned in the success
@@ -578,7 +576,7 @@
 			});
 			r.end();
 		},	// end of _editContentNode
-		
+**/		
 		
 		
 		// ### getTextContentByID(id, success, error, options)
