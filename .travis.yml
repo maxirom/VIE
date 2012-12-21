@@ -1,18 +1,16 @@
 language: node_js
 node_js:
   - 0.6
-  - 0.7
   - 0.8
 
 before_script:
-  - ./utils/travis.sh
+  - sudo apt-get install -y ant
+  - ant
 
-script: npm test
+script:
+  - ./node_modules/.bin/jshint src/
+  - npm test
+  - phantomjs test/qunit/run.js test/index.html
 
 notifications:
   irc: "irc.freenode.org#iks"
-  email: 
-    recipients:
-      - viejs@googlegroups.com
-    on_success: change
-    on_failure: change

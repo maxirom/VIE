@@ -237,8 +237,8 @@ test("VIE - Type Sorting", function () {
     equal(v.types.sort(["TestType1"]).length, 1);
     equal(v.types.sort(["TestType1"])[0], "TestType1");
 
-});
 
+});
 
 test("VIE - Locking mechanism of types", function() {
     var v = new VIE();
@@ -301,4 +301,85 @@ test("VIE - Type form schema generation", function () {
     equal(schema['published']['type'], 'DateTime');
     var author = new schema['author']['model'];
     ok(author.isEntity);
+});
+
+test("VIE - Type based validation", function () {
+    var v = new VIE();
+    v.namespaces.add("xsd", "http://www.w3.org/2001/XMLSchema#");
+
+    // Define an 'article' type
+    var article = new v.Type("Article");
+    var person = new v.Type("Person");
+
+    // Define some properties
+    var title = new v.Attribute("title", ["xsd:string"], article, 1, 1);
+    var content = new v.Attribute("content", ["xsd:string"], article, 0, 1);
+    var published = new v.Attribute("published", ["xsd:dateTime"], article, 0, 1);
+    var author = new v.Attribute("author", [person], article, 1, 1);
+    article.attributes.add([title, content, published, author]);
+
+    // Tell VIE about the types
+    v.types.add([person, article]);
+
+    // Create an entity with the type
+    var entity = new v.Entity({'@type': 'Article'});
+    ok(entity);
+
+    // Check validation of required properties
+    equal(entity.isValid(), false);
+    var results = entity.validate(entity.attributes);
+    ok(_.isArray(results));
+    equal(results.length, 2);
+
+    // Ensure that minimum checks also affect empty values
+    entity.set('title', '');
+    var results = entity.validate(entity.attributes);
+    ok(_.isArray(results));
+    equal(results.length, 2);
+    equal(entity.has('title'), false);
+
+    // Make the model valid again by setting the required fields
+    entity.set({
+      'title': 'Hello, world',
+      'author': '<foo>'
+    });
+    ok(entity.isValid());
+
+    // Check validation of max number of items
+    entity.set('content', ['one', 'two']);
+    // Plain set should not work as the model is not valid
+    equal(entity.has('content'), false);
+
+    // Check validation error callback
+    stop();
+    entity.set('content', ['one', 'two'], {
+      error: function (ent, res) {
+          equal(ent, entity, 'Validation errors should return correct entity');
+          ok(_.isArray(res));
+          equal(res.length, 1);
+          start();
+      }
+    });
+
+    // Check validation error event
+    stop();
+    var checkError = function (ent, res) {
+        equal(ent, entity, 'Validation errors should return correct entity');
+        ok(_.isArray(res));
+        equal(res.length, 1);
+        entity.off('error', checkError);
+        start();
+    };
+    entity.on('error', checkError);
+    entity.set('content', ['one', 'two']);
+
+    // Set invalid data without validation
+    entity.set('content', ['one', 'two'], {
+      silent: true 
+    });
+    equal(entity.has('content'), true);
+    equal(entity.isValid(), false);
+    var results = entity.validate(entity.attributes);
+    ok(_.isArray(results));
+    equal(results.length, 1);
 });

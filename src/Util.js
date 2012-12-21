@@ -208,7 +208,7 @@ VIE.Util = {
 	            }
 	            for (var i = 0; i < service.rules.length; i++)if(service.rules.hasOwnProperty(i)) {
 	                var rule = service.rules[i];
-	                rules.add(rule['left'], rule['right']);
+                    rules.add(rule.left, rule.right);
 	            }
 	            rdf = rdf.reason(rules, 10); /* execute the rules only 10 times to avoid looping */
 	        }
@@ -292,12 +292,8 @@ VIE.Util = {
       resArr = [];
       /* Try to find a label in the preferred language
       */
-      preferredFields = (_.isArray(preferredFields))? preferredFields : [ preferredFields ];
-      preferredLanguages = (_.isArray(preferredLanguages))? preferredLanguages : [ preferredLanguages ];
-      for (l = 0, _len = preferredLanguages.length; l < _len; l++) {
-        lang = preferredLanguages[l];
-        for (p = 0, _len2 = preferredFields.length; p < _len2; p++) {
-          property = preferredFields[p];
+      _.each(preferredLanguages, function (lang) {
+        _.each(preferredFields, function (property) {
           labelArr = null;
           /* property can be a string e.g. "skos:prefLabel"
           */
@@ -362,8 +358,8 @@ VIE.Util = {
               value: property.makeLabel(valueArr)
             });
           }
-        }
-      }
+        });
+      });
       /*
               take the result with the best score
       */
@@ -460,15 +456,15 @@ VIE.Util = {
             
             for (var i = 0; i < ancestors.length; i++) {
                 var supertype = (vie.types.get(ancestors[i]))? vie.types.get(ancestors[i]) :
-                    dataTypeHelper.call(vie, SchemaOrg["datatypes"][ancestors[i]].supertypes, ancestors[i]);
+                    dataTypeHelper.call(vie, SchemaOrg.datatypes[ancestors[i]].supertypes, ancestors[i]);
                 type.inherit(supertype);
             }
             return type;
         };
         
-        for (var dt in SchemaOrg["datatypes"]) {
+        for (var dt in SchemaOrg.datatypes) {
             if (!vie.types.get(dt)) {
-                var ancestors = SchemaOrg["datatypes"][dt].supertypes;
+                var ancestors = SchemaOrg.datatypes[dt].supertypes;
                 dataTypeHelper.call(vie, ancestors, dt);
             }
         }
@@ -496,8 +492,8 @@ VIE.Util = {
         
         var typeProps = function (id) {
             var props = [];
-            _.each(SchemaOrg['types'][id]['specific_properties'], function (pId) {
-                var property = SchemaOrg['properties'][pId];
+            _.each(SchemaOrg.types[id].specific_properties, function (pId) {
+                var property = SchemaOrg.properties[pId];
                 props.push({
                     'id'    : property.id,
                     'range' : property.ranges,
@@ -514,7 +510,7 @@ VIE.Util = {
            
             for (var i = 0; i < ancestors.length; i++) {
                 var supertype = (vie.types.get(ancestors[i]))? vie.types.get(ancestors[i]) :
-                    typeHelper.call(vie, SchemaOrg["types"][ancestors[i]].supertypes, ancestors[i], typeProps.call(vie, ancestors[i]));
+                    typeHelper.call(vie, SchemaOrg.types[ancestors[i]].supertypes, ancestors[i], typeProps.call(vie, ancestors[i]));
                 type.inherit(supertype);
             }
             if (id === "Thing" && !type.isof("owl:Thing")) {
@@ -601,7 +597,7 @@ VIE.Util = {
           case 'xsd:string':
             return 'Text';
           case 'xsd:date':
-            return 'Date'
+            return 'Date';
           case 'xsd:dateTime':
             return 'DateTime';
           case 'xsd:boolean':
@@ -687,7 +683,7 @@ VIE.Util = {
         function pad(n) {
             var s = n.toString();
             return s.length < 2 ? '0'+s : s;
-        };
+        }
 
         var yyyy = date.getFullYear();
         var mm1  = pad(date.getMonth()+1);
@@ -715,18 +711,19 @@ VIE.Util = {
 //          var langs = ["en", "de"];
 //          VIE.Util.extractLanguageString(someEntity, attrs, langs);// "Barack Obama";
     extractLanguageString : function(entity, attrs, langs) {
+        var p, attr, name, i, n;
         if (entity && typeof entity !== "string") {
         	attrs = (_.isArray(attrs))? attrs : [ attrs ];
         	langs = (_.isArray(langs))? langs : [ langs ];
-        	for (var p = 0; p < attrs.length; p++) {
+            for (p = 0; p < attrs.length; p++) {
 	            for (var l = 0; l < langs.length; l++) {
 	            	var lang = langs[l];
-	                var attr = attrs[p];
+                    attr = attrs[p];
 	                if (entity.has(attr)) {
-	                    var name = entity.get(attr);
+                        name = entity.get(attr);
 	                    name = (_.isArray(name))? name : [ name ];
-                        for ( var i = 0; i < name.length; i++) {
-                        	var n = name[i];
+                        for (i = 0; i < name.length; i++) {
+                            n = name[i];
                         	if (n.isEntity) {
                         		n = VIE.Util.extractLanguageString(n, attrs, lang);
                         	} else if (typeof n === "string") {
@@ -743,13 +740,13 @@ VIE.Util = {
         	}
         	/* let's do this again in case we haven't found a name but are dealing with
         	broken data where no language is given */
-        	for (var p = 0; p < attrs.length; p++) {
-                var attr = attrs[p];
+            for (p = 0; p < attrs.length; p++) {
+                attr = attrs[p];
                 if (entity.has(attr)) {
-                    var name = entity.get(attr);
+                    name = entity.get(attr);
                     name = (_.isArray(name))? name : [ name ];
-                    for ( var i = 0; i < name.length; i++) {
-                    	var n = name[i];
+                    for (i = 0; i < name.length; i++) {
+                        n = name[i];
                     	if (n.isEntity) {
                     		n = VIE.Util.extractLanguageString(n, attrs, []);
                     	}
@@ -877,7 +874,7 @@ VIE.Util = {
                           ];
                       };
                   }(service.vie.namespaces)
-              },
+              }
         ];
         return res;
     },
@@ -916,11 +913,26 @@ VIE.Util = {
                 'Company'           : 'Organization',
                 'Person'            : 'Person' };
         var additionalRules = new Array();
-        for (var key in mapping) {
-            additionalRules.push(this.createSimpleRule(key, mapping[key], vie));
-        }
+	var additionalRules = [];
+        _.each(mapping, function (map, key) {
+            var tripple = {
+                'left' : [ '?subject a dbpedia:' + key, '?subject rdfs:label ?label' ],
+                'right' : function(ns) {
+                    return function() {
+                        return [ jQuery.rdf.triple(this.subject.toString(), 'a', '<' + ns.base() + map + '>', {
+                            namespaces : ns.toObj()
+                        }), vie.jQuery.rdf.triple(this.subject.toString(), '<' + ns.base() + 'name>', this.label.toString(), {
+                            namespaces : ns.toObj()
+                        }) ];
+                    };
+                }(service.vie.namespaces)
+            };
+            additionalRules.push(tripple);
+        });
         return additionalRules;
     },
+
+
 // ### VIE.Util.createSimpleRule(key, value, vie)
 // Returns a simple rule that only transforms the rdfs:label from dbpedia into VIE entity type.  
 // **Parameters**:
