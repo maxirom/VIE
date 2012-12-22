@@ -19,13 +19,13 @@ VIE.prototype.Collection = Backbone.Collection.extend({
     canAdd: function (type) {
       return true;
     },
-    
+
     get: function(id) {
         if (id === null) {
             return null;
         }
-        
-        id = (id.getSubject)? id.getSubject() : id;        
+
+        id = (id.getSubject)? id.getSubject() : id;
         if (typeof id === "string" && id.indexOf("_:") === 0) {
             if (id.indexOf("bnode") === 2) {
                 //bnode!
@@ -57,9 +57,10 @@ VIE.prototype.Collection = Backbone.Collection.extend({
             throw new Error("No model given");
         }
 
-        if (_.isString(model) && collection.isReference(model)) {
+        if (_.isString(model)) {
           model = {
-            '@subject': model
+            '@subject': model,
+            id: model
           };
         }
 
@@ -80,29 +81,36 @@ VIE.prototype.Collection = Backbone.Collection.extend({
                     newAttribs[attribute] = value;
                     return true;
                 }
-                else if (existing.get(attribute) === value) {
-                    return true;
-                } else {
-                    //merge existing attribute values with new ones!
-                    //not just overwrite 'em!!
-                    var oldVals = existing.attributes[attribute];
-                    var newVals = value;
-                    if (oldVals instanceof collection.vie.Collection) {
-                        // TODO: Merge collections
+
+                if (attribute === '@subject') {
+                    if (model.isNew() && !existing.isNew()) {
+                        // Save order issue, skip
                         return true;
                     }
-                    if (options.overrideAttributes) {
-                       newAttribs[attribute] = value;
-                       return true;
-                    } 
-                    if (attribute === '@context') {
-                        newAttribs[attribute] = jQuery.extend(true, {}, oldVals, newVals);
-                    } else {
-                        oldVals = (jQuery.isArray(oldVals))? oldVals : [ oldVals ];
-                        newVals = (jQuery.isArray(newVals))? newVals : [ newVals ];
-                        newAttribs[attribute] = _.uniq(oldVals.concat(newVals));
-                        newAttribs[attribute] = (newAttribs[attribute].length === 1)? newAttribs[attribute][0] : newAttribs[attribute];
-                    }
+                }
+
+                if (existing.get(attribute) === value) {
+                    return true;
+                }
+                //merge existing attribute values with new ones!
+                //not just overwrite 'em!!
+                var oldVals = existing.attributes[attribute];
+                var newVals = value;
+                if (oldVals instanceof collection.vie.Collection) {
+                    // TODO: Merge collections
+                    return true;
+                }
+                if (options.overrideAttributes) {
+                   newAttribs[attribute] = value;
+                   return true;
+                }
+                if (attribute === '@context') {
+                    newAttribs[attribute] = jQuery.extend(true, {}, oldVals, newVals);
+                } else {
+                    oldVals = (jQuery.isArray(oldVals))? oldVals : [ oldVals ];
+                    newVals = (jQuery.isArray(newVals))? newVals : [ newVals ];
+                    newAttribs[attribute] = _.uniq(oldVals.concat(newVals));
+                    newAttribs[attribute] = (newAttribs[attribute].length === 1)? newAttribs[attribute][0] : newAttribs[attribute];
                 }
             });
 
@@ -122,20 +130,20 @@ VIE.prototype.Collection = Backbone.Collection.extend({
         }
         return false;
     },
-        
+
     toReference: function(uri){
         if (this.isReference(uri)) {
             return uri;
         }
         return '<' + uri + '>';
     },
-        
+
     fromReference: function(uri){
         if (!this.isReference(uri)) {
             return uri;
         }
         return uri.substring(1, uri.length - 1);
     },
-    
+
     isCollection: true
 });

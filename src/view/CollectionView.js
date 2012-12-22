@@ -1,3 +1,4 @@
+/*global VIE:false Backbone:false _:false jQuery:false */
 if (!VIE.prototype.view) {
     VIE.prototype.view = {};
 }
@@ -56,9 +57,20 @@ VIE.prototype.view.Collection = Backbone.View.extend({
         }
 
         var childType = entity.get('@type');
-        var childTypeName = childType.id;
+        var childTypeName;
+        if (_.isArray(childType)) {
+          _.each(childType, function (type) {
+            if (this.canAdd(type.id)) {
+              childTypeName = type.id;
+            }
+          }, this);
+        } else {
+          if (this.canAdd(childType.id)) {
+            childTypeName = childType.id;
+          }
+        }
 
-        if (!this.canAdd(childTypeName)) {
+        if (!childTypeName) {
             return;
         }
 
@@ -88,7 +100,7 @@ VIE.prototype.view.Collection = Backbone.View.extend({
 
             // Update reverse relations, if any
             self.findReverseRelations(entity, entityElement);
-       
+
             // Handle eventing
             self.trigger('add', entityView);
             self.entityViews[entity.cid] = entityView;
@@ -135,13 +147,12 @@ VIE.prototype.view.Collection = Backbone.View.extend({
     },
 
     refreshItems: function(collection) {
-        var view = this;
         _.each(this.entityViews, function(view, cid) {
           jQuery(view.el).remove();
         });
         this.entityViews = {};
         collection.forEach(function(entity) {
-            view.addItem(entity, collection);
-        });
+            this.addItem(entity, collection);
+        }, this);
     }
 });

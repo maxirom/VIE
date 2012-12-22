@@ -487,9 +487,8 @@ VIE.prototype.Types = function () {
         
         if (types.length === 0) return [];
         var copy = [ types[0] ];
-        
-        
-        for (var x = 1, tlen = types.length; x < tlen; x++) {
+        var x, tlen;
+        for (x = 1, tlen = types.length; x < tlen; x++) {
             var insert = types[x];
             var insType = self.get(insert);
             if (insType) {
@@ -505,7 +504,7 @@ VIE.prototype.Types = function () {
         }
         
         //unduplicate
-        for (var x = 0; x < copy.length; x++) {
+        for (x = 0; x < copy.length; x++) {
         	if (copy.lastIndexOf(copy[x]) !== x) {
         		copy.splice(x, 1);
         		x--;
