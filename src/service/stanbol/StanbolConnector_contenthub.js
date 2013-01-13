@@ -15,11 +15,13 @@
 // getIndex()
 // existsIndex()
 // deleteContent()
+// search()
 //
+		
 (function() {
 
 	jQuery.extend(true, VIE.prototype.StanbolConnector.prototype, {
-
+		
 		// ### uploadContent(content, success, error, options)
 		// Stores a content item to an index on the contenthub. If no index is
 		// specified, the default index (contenthub) will be used. It is possible
@@ -68,7 +70,7 @@
 				formEl.title = (options.fe.title) ? options.fe.title : false;
 				formEl.constraints = (options.fe.constraints) ? options.fe.constraints : false;
 				formEl.url = (options.fe.url) ? options.fe.url : false;
-//				formEl.id = (options.fe.id) ? options.fe.id : false;
+				formEl.id = (options.fe.id) ? options.fe.id : false;
 				
 			}
 			
@@ -125,14 +127,17 @@
 
 					if (options.id)
 					{
-						var id = (opts.id) ? "?uri=" + opts.id : '';
+						var id = (opts.id) ? "?uri=" + opts.id : '';	// TODO release pains
 						u += id;
+//						var id = (opts.id);
+//						u += "/" + id;
 					}
 					
 
 					return u;
 				},
 				args : {
+					auth : this.options.auth,
 					content : content,
 					options : options,
 //					file : file,
@@ -149,6 +154,9 @@
 //				console.log("ajax: sending multipart-formdata")
 //			
 //			jQuery.ajax( {
+//			beforeSend : function(req) {
+//				req.setRequestHeader('Authorization', args.auth);
+//			},
 //				success : success,
 //				error : error,
 //				url : url,
@@ -166,8 +174,15 @@
 				if (args.fe) {
 				
 				jQuery.ajax( {
+					beforeSend : function(req) {
+						req.setRequestHeader('Authorization', args.auth);
+					},
 					success : success,
 					error : error,
+					complete : function(xhr, status) {
+						console.log(xhr.status)
+						console.log(xhr.responseText)
+					},
 					url : url,
 					type : "POST",
 					data : args.content,
@@ -177,12 +192,15 @@
 				
 			} else {
 				jQuery.ajax( {
-					success : success,
-					error : error,
-					url : url,
-					type : "POST",
-					data : args.content,
-					contentType : "text/plain"
+					beforeSend : function(req) {
+						req.setRequestHeader('Authorization', args.auth);
+					},
+				success : success,
+				error : error,
+				url : url,
+				type : "POST",
+				data : args.content,
+				contentType : "text/plain"
 				
 			});
 		}
@@ -451,7 +469,8 @@
 					return u;
 				},
 				args : {
-					options : options
+					options : options,
+					auth : this.options.auth
 				},
 				urlIndex : 0
 			});
@@ -460,8 +479,11 @@
 
 		
 		_downloadContent : function(url, args, success, error) {
-		
+					
 				$.ajax( {
+				beforeSend : function(req) {
+					req.setRequestHeader('Authorization', args.auth);
+				},
 				success : success,
 				error : error,
 				url : url,
@@ -628,7 +650,8 @@
 				args : {
 					id : id,
 					format : "text/plain",
-					options : options
+					options : options,
+					auth : this.options.auth
 				},
 				success : success,
 				error : error,
@@ -639,7 +662,9 @@
 		_getTextContentByID : function(url, args, success, error) {
 
 			jQuery.ajax( {
-
+				beforeSend : function(req) {
+					req.setRequestHeader('Authorization', args.auth);
+				},
 				success : success,
 				error : error,
 				url : url + "/" + args.id,
@@ -720,7 +745,8 @@
 					return u;
 				},
 				args : {
-					options : options
+					options : options,
+					auth : this.options.auth
 				},
 				success : success,
 				error : error,
@@ -732,7 +758,9 @@
 		_getMetadataByID : function(url, args, success, error) {
 
 			jQuery.ajax( {
-
+				beforeSend : function(req) {
+					req.setRequestHeader('Authorization', args.auth);
+				},
 				success : success,
 				error : error,
 				url : url,
@@ -811,7 +839,8 @@
 					return u;
 				},
 				args : {
-					data : submit
+					data : submit,
+					auth : this.options.auth
 				},
 				urlIndex : 0
 			});
@@ -820,7 +849,9 @@
 		_createIndex : function(url, args, success, error) {
 
 			jQuery.ajax( {
-
+				beforeSend : function(req) {
+					req.setRequestHeader('Authorization', args.auth);
+				},
 				success : success,
 				error : error,
 				url : url,
@@ -886,7 +917,8 @@
 					return u;
 				},
 				args : {
-					options : {}
+					options : {},
+					auth : this.options.auth
 				},
 				urlIndex : 0
 			});
@@ -895,7 +927,9 @@
 		_deleteIndex : function(url, args, success, error) {
 
 			jQuery.ajax( {
-
+				beforeSend : function(req) {
+					req.setRequestHeader('Authorization', args.auth);
+				},
 				success : success,
 				error : error,
 				url : url,
@@ -1202,7 +1236,8 @@
 					return u;
 				},
 				args : {
-					item : itemURI
+					item : itemURI,
+					auth : this.options.auth
 				},
 				urlIndex : 0
 			});
@@ -1212,6 +1247,9 @@
 
 			jQuery.ajax( {
 
+				beforeSend : function(req) {
+					req.setRequestHeader('Authorization', args.auth);
+				},
 				success : success,
 				error : error,
 				url : url + args.item,
@@ -1236,10 +1274,113 @@
 				}
 			});
 			r.end();
-		} // end of _deleteContentNode
+		}, // end of _deleteContentNode
 
 		
+		// ### search(queryTerm, success, error, options)
+		// @author mere01
+		// This method does a featured search on the Apache Stanbol contenthub for 
+		// content items that contain the specified query term.
+		// **Parameters**:
+		// *{string}* **queryTerm** The term to search for on the contenthub.
+		// *{function}* **success** The success callback.
+		// *{function}* **error** The error callback.
+		// *{object}* **options** The Options, possible options are:
+		// - index: if you want to search on an index other than the default index.
+		// - limit: maximum number of documents to be returned as result
+		// - offset:  offset of the document from which the resultant documents will 
+		//   start as the search result
+		// **Throws**:
+		// *nothing*
+		// **Returns**:
+		// *{VIE.StanbolConnector}* : The VIE.StanbolConnector instance itself.
+		// **Example usage**:
+		//
+		// var stnblConn = new vie.StanbolConnector(opts);
+		// stnblConn.search('Adams',
+		// function (res) { ... },
+		// function (err) { ... },
+		// {
+		// index: 'myIndex'
+		// }); in order to search for content items containing an occurrence of
+		// "Adams" on the index named "myIndex".
+		search : function(queryTerm, success, error, options) {
+
+			options = (options) ? options : {};
+
+			var connector = this;
+
+			connector._iterate( {
+				method : connector._search,
+				methodNode : connector._searchNode,
+
+				url : function(idx, opts) {
+					var u = this.options.url[idx].replace(/\/$/, '');
+					u += this.options.contenthub.urlPostfix.replace(/\/$/, '');
+
+					var index = (opts.index) ? opts.index
+							: this.options.contenthub.index;
+
+					u += "/" + index.replace(/\/$/, '');
+					u += "/search/featured?queryTerm=";
+					u += queryTerm;
+
+					u += (opts.limit) ? "&limit=" + opts.limit : '';
+					u += (opts.offset) ? "&offset=" + opts.offset : '';
+					
+					return u;
+				},
+				args : {
+					options : options
+				},
+				success : success,
+				error : error,
+				urlIndex : 0
+			});
+		}, // end of search
+
+		_search : function(url, args, success, error) {
+
+			// authentication
+			var auth = false;
+			if (args.options.username) {
+				var login = args.options.username + ":" + args.options.password;
+				var hash = btoa(login);
+				var auth = "Basic " + hash;
+				console.log("auth: " + auth)
+			}
+			
+			jQuery.ajax( {
+				beforeSend : function(req) {
+					req.setRequestHeader('Authorization', auth);
+				},
+				success : success,
+				error : error,
+				url : url,
+				type : "GET"
+			});
+
+		}, // end of _search
+
+		_searchNode : function(url, args, success, error) {
+			var request = require('request');
+			var r = request( {
+				method : "GET",
+				uri : url,
+			}, function(err, response, body) {
+				try {
+					success( {
+						results : JSON.parse(body)
+					});
+				} catch (e) {
+					error(e);
+				}
+			});
+			r.end();
+		}, // end of _searchNode
 		
 	});
+	
+
 
 })();

@@ -36,8 +36,7 @@ test(
 				 * stanbol.connector.updateContent( sid, function(xml, status,
 				 * xhr){
 				 * 
-				 * ok(true, "Updated content item with id " + sid); start();
-				 *  },
+				 * ok(true, "Updated content item with id " + sid); start(); },
 				 * 
 				 * function(error){ // error case for updateContent() ok(false,
 				 * "Could not update item " + sid); start(); }, { fe: { content :
@@ -46,8 +45,7 @@ test(
 				 * for updateContent()
 				 */
 
-				stanbol.connector.deleteContent(sid, 
-						function(success) {
+				stanbol.connector.deleteContent(sid, function(success) {
 					ok(true, "Deleted content item " + sid);
 					start();
 				}, function(error) {
@@ -65,10 +63,12 @@ test(
 
 			stop();
 			var url = "http://en.wikipedia.org/wiki/Portal:Middle_East";
-			var uri = "ontos"
+			var uri = "urn:content-item-ontos";
 			// testing of upload content with form elements, using url
-			stanbol.connector.uploadContent(null, function(success) {
+			ok(true, "Loading up content item \"" + uri + "\" from URL " + url);
 
+			stanbol.connector.uploadContent(null, function(success) {
+				
 				ok(true, "Uploaded content item \"" + uri + "\" from URL "
 						+ url);
 
@@ -82,8 +82,17 @@ test(
 
 			}, function(error) {
 
-				ok(false, "Could not upload content item from URL " + url);
-				start();
+//				ok(false, "Could not upload content item from URL " + url);
+				
+				// need to call this in both cases (success or error), because
+				// of redirect 307 from server
+				stanbol.connector.deleteContent(uri, function(success) {
+					ok(true, "Deleted content item " + uri);
+					start();
+				}, function(error) {
+					ok(false, "Could not delete content item " + uri);
+					start();
+				});
 
 			}, {
 
@@ -207,17 +216,13 @@ test(
  * ok(true, "Deleted content item " + id); start(); }, function(error) {
  * 
  * ok(false, "Could not delete content item " + id); start(); } ); // end of
- * delete call
- *  }, function(error){
+ * delete call }, function(error){
  * 
  * ok(false, "Could not retrieve JSON object of content item " + id); start();
  * 
- * }); // end of call for editContent()
+ * }); // end of call for editContent() }, function(error){
  * 
- *  }, function(error){
- * 
- * ok(false, "Could not upload content item " + id);
- *  }, { id : id });
+ * ok(false, "Could not upload content item " + id); }, { id : id });
  * 
  * 
  * }); // end of test for editContent()
@@ -244,27 +249,22 @@ test(
 
 			// first we have to store that item to the contenthub
 			stop();
-			stanbol.connector
-					.uploadContent(
-							content,
+			stanbol.connector.uploadContent(
+				content,
+				function(response) {
+					ok(true, "01. Stored item " + id + " to contenthub.")
+
+					// hold it until we get our results
+					stanbol.connector.getTextContentByID(
+							id,
 							function(response) {
-								ok(true, "01. Stored item " + id
-										+ " to contenthub.")
+								ok(true, "02. contenthub/contenthub/store/raw returned a response. (see log)");
 
-								// hold it until we get our results
+								// delete this content item
 								stanbol.connector
-										.getTextContentByID(
-												id,
-												function(response) {
-													ok(true,
-															"02. contenthub/contenthub/store/raw returned a response. (see log)");
-
-													// delete this content item
-													stanbol.connector
-															.deleteContent(
-																	id,
-																	function(
-																			success) {
+								.deleteContent(
+										id,
+										function(success) {
 																		ok(
 																				true,
 																				"03. deleted item "
@@ -475,7 +475,7 @@ test(
 													// we can now store new
 													// items unto our index
 													var item = "We are talking about huge cities such as Paris or New York, where life is an expensive experience.";
-													var id = 'myOwnIdToUseHere';
+													var id = 'urn:content-item-' + 'myOwnIdToUseHere';
 
 													stanbol.connector
 															.uploadContent(
@@ -490,22 +490,6 @@ test(
 																		// ...
 																		// we
 																		// can
-																		// then
-																		// get
-																		// back
-																		// this
-																		// newly
-																		// created
-																		// item
-																		// by
-																		// its
-																		// id:
-																		var idToRetrieve = "urn:content-item-"
-																				+ id;
-
-																		// ...
-																		// we
-																		// can
 																		// either
 																		// retrieve
 																		// its
@@ -513,7 +497,7 @@ test(
 																		// content
 																		stanbol.connector
 																				.getTextContentByID(
-																						idToRetrieve,
+																						id,
 																						function(
 																								success) {
 																							ok(
@@ -538,7 +522,7 @@ test(
 																		// enhancements
 																		stanbol.connector
 																				.getMetadataByID(
-																						idToRetrieve,
+																						id,
 																						function(
 																								success) {
 																							ok(
@@ -564,9 +548,9 @@ test(
 																											},
 																											function(
 																													err) { // error
-																															// callback
-																															// for
-																															// deleteIndex()
+																												// callback
+																												// for
+																												// deleteIndex()
 																												ok(
 																														false,
 																														"06. Index "
@@ -578,9 +562,9 @@ test(
 																						},
 																						function(
 																								err) { // error
-																										// callback
-																										// for
-																										// getMetadataByID()
+																							// callback
+																							// for
+																							// getMetadataByID()
 																							ok(
 																									false,
 																									"04. could not retrieve content item's metadata.");
@@ -600,9 +584,9 @@ test(
 																	},
 																	function(
 																			err) { // error
-																					// callback
-																					// for
-																					// uploadContent()
+																		// callback
+																		// for
+																		// uploadContent()
 																		ok(
 																				false,
 																				"02. couldn't store item to "
@@ -613,17 +597,17 @@ test(
 																		index : index,
 																		id : id
 																	}); // end
-																		// of
-																		// success
-																		// callback
-																		// for
-																		// createIndex()
+													// of
+													// success
+													// callback
+													// for
+													// createIndex()
 
 												},
 												function(error) { // error
-																	// callback
-																	// for
-																	// createIndex()
+													// callback
+													// for
+													// createIndex()
 
 													ok(false, "error");
 
@@ -648,10 +632,10 @@ test(
 
 								start();
 							}, // end of success callback for
-								// contenthubIndices()
+							// contenthubIndices()
 
 							function(err) { // error callback for
-											// contenthubIndices()
+								// contenthubIndices()
 								ok(false,
 										"00. No contenthub indices have been returned!");
 								start();

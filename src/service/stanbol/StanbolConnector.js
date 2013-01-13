@@ -27,6 +27,12 @@
 	VIE.prototype.StanbolConnector = function(options) {
 
 		var defaults = {
+				
+			// Authentication
+			username : (window.username) ? window.username : 'admin',
+			passwort : (window.password) ? window.password : 'admin',
+			auth : "Basic " + btoa(username + ":" + password),
+				
 			/* you can pass an array of URLs which are then tried sequentially */
 			url : [ "http://dev.iks-project.eu/stanbolfull" ],
 			timeout : 20000 /* 20 seconds timeout */,
