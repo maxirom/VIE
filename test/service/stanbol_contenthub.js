@@ -68,7 +68,7 @@ test(
 			ok(true, "Loading up content item \"" + uri + "\" from URL " + url);
 
 			stanbol.connector.uploadContent(null, function(success) {
-				
+
 				ok(true, "Uploaded content item \"" + uri + "\" from URL "
 						+ url);
 
@@ -82,8 +82,8 @@ test(
 
 			}, function(error) {
 
-//				ok(false, "Could not upload content item from URL " + url);
-				
+				// ok(false, "Could not upload content item from URL " + url);
+
 				// need to call this in both cases (success or error), because
 				// of redirect 307 from server
 				stanbol.connector.deleteContent(uri, function(success) {
@@ -249,22 +249,27 @@ test(
 
 			// first we have to store that item to the contenthub
 			stop();
-			stanbol.connector.uploadContent(
-				content,
-				function(response) {
-					ok(true, "01. Stored item " + id + " to contenthub.")
-
-					// hold it until we get our results
-					stanbol.connector.getTextContentByID(
-							id,
+			stanbol.connector
+					.uploadContent(
+							content,
 							function(response) {
-								ok(true, "02. contenthub/contenthub/store/raw returned a response. (see log)");
+								ok(true, "01. Stored item " + id
+										+ " to contenthub.")
 
-								// delete this content item
+								// hold it until we get our results
 								stanbol.connector
-								.deleteContent(
-										id,
-										function(success) {
+										.getTextContentByID(
+												id,
+												function(response) {
+													ok(true,
+															"02. contenthub/contenthub/store/raw returned a response. (see log)");
+
+													// delete this content item
+													stanbol.connector
+															.deleteContent(
+																	id,
+																	function(
+																			success) {
 																		ok(
 																				true,
 																				"03. deleted item "
@@ -475,7 +480,8 @@ test(
 													// we can now store new
 													// items unto our index
 													var item = "We are talking about huge cities such as Paris or New York, where life is an expensive experience.";
-													var id = 'urn:content-item-' + 'myOwnIdToUseHere';
+													var id = 'urn:content-item-'
+															+ 'myOwnIdToUseHere';
 
 													stanbol.connector
 															.uploadContent(
@@ -643,3 +649,56 @@ test(
 
 		}); // end of test "CRD on contenthub indices"
 
+// ### test for the /contenthub endpoint, checking the ldpath functionality and
+// options in working with own indices on the contenthub
+// @author mere01
+test(
+		"VIE.js StanbolConnector - ContentHub featured search",
+		function() {
+
+			var cont = "The Hitchhiker's Guide to the Galaxy is a science fiction comedy series created by Douglas Adams. Originally a radio comedy broadcast on BBC Radio 4 in 1978, it was later adapted to other formats, and over several years it gradually became an international multi-media phenomenon. Adaptations have included stage shows, a \"trilogy\" of five books published between 1979 and 1992, a sixth novel penned by Eoin Colfer in 2009, a 1981 TV series, a 1984 computer game, and three series of three-part comic book adaptations of the first three novels published by DC Comics between 1993 and 1996. There were also two series of towels, produced by Beer-Davies, that are considered by some fans to be an \"official version\" of The Hitchhiker's Guide to the Galaxy, as they include text from the first novel. A Hollywood-funded film version, produced and filmed in the UK, was released in April 2005, and radio adaptations of the third, fourth, and fifth novels were broadcast from 2004 to 2005.";
+			var id = "urn:content-item-hitchhiker";
+			var term = "Adams";
+
+			var z = new VIE();
+			ok(z.StanbolService);
+			equal(typeof z.StanbolService, "function");
+			var stanbol = new z.StanbolService({
+				url : stanbolRootUrl[0]
+			});
+			z.use(stanbol);
+
+			stop();
+			stanbol.connector.uploadContent(cont, function(succ) {
+				ok(true, "Uploaded content item " + id);
+
+				stanbol.connector.search(term, function(succ) {
+					ok(true, "Found occurrence of search term.");
+					var foundID = succ["documents"][0]["localid"];
+					if (foundID === id) {
+						ok(true, "...in our previously uploaded item.")
+					}
+					
+					stanbol.connector.deleteContent(id, function(succ) {
+						ok(true, "Deleted content item " + id);
+						start();
+					}, function(err) {
+						ok(false, "Could not delete content item " + id);
+						start();
+					});
+					
+				}, function(err) {
+					ok(false, "Could not find occurrence of search term.")
+					start();
+				});
+
+				
+
+			}, function(err) {
+				ok(false, "Failed to upload content item " + id);
+				start();
+			}, {
+				id : id
+			});
+
+		}); // end of test for /contenthub/search/featured

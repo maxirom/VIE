@@ -106,7 +106,7 @@
 					}
 				}
 				
-				console.log("content is: " + content)
+//				console.log("content is: " + content)
 //			}
 			
 
@@ -1331,7 +1331,8 @@
 					return u;
 				},
 				args : {
-					options : options
+					options : options,
+					auth : this.options.auth
 				},
 				success : success,
 				error : error,
@@ -1340,19 +1341,10 @@
 		}, // end of search
 
 		_search : function(url, args, success, error) {
-
-			// authentication
-			var auth = false;
-			if (args.options.username) {
-				var login = args.options.username + ":" + args.options.password;
-				var hash = btoa(login);
-				var auth = "Basic " + hash;
-				console.log("auth: " + auth)
-			}
 			
 			jQuery.ajax( {
 				beforeSend : function(req) {
-					req.setRequestHeader('Authorization', auth);
+					req.setRequestHeader('Authorization', args.auth);
 				},
 				success : success,
 				error : error,
