@@ -30,7 +30,7 @@
 	// @author mere01
 	// creates a scope with the specified name. 
 	// 
-	// TODO: available as soon as POST/redirect/GET problem is solved:
+	// TODO: available at Stanbol in near future
 	// Optionally, an ontology library (or even a list
 	// of libraries), or an ontology (or even a list of 
 	// ontologies) can be loaded on creation into the core 
@@ -110,7 +110,7 @@
 				var counter = 0;
 				for (var key in options) {
 							
-							/* TODO back in as soon as POST/redirect/GET problem is solved
+							/* TODO available at Stanbol in near future
 												if (key === "corereg") {
 													// this might be a list
 													
@@ -191,7 +191,7 @@
 
 											
 						
-	/* TODO back in as soon as the POST/redirect/GET problem is solved
+	// TODO available at Stanbol in near future
 	// ### appendLibrary(destination, libURI, success, error, options)
 	// @author mere01
 	// loads the specified library into the specified destination.
@@ -270,7 +270,7 @@
 			urlIndex : 0
 			});
 		}, // end of appendLibrary
-	*/
+	//*/
 
 	_appendLibrary : function(url, args, success, error) {
 
@@ -1025,7 +1025,7 @@
 		r.end();
 	}, // end of _deleteSessionNode
 
-	/* TODO back in as soon as the POST/redirect/GET problem is solved
+	/* TODO available at Stanbol in near future
 	// ### appendOntology(destination, ontURI, success, error, options)
 	// @author mere01
 	// appends an ontology to the specified destination. This 

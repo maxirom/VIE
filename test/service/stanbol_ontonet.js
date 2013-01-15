@@ -30,7 +30,7 @@ test("VIE.js StanbolConnector - OntoNet Scope Manager", function() {
 					
 					// we can load specific libraries or ontologies into a specific scope
 					
-					/* TODO POST/redirect/GET problem for libraries due to time out for GET
+					/* TODO available at Stanbol in near future
 					stanbol.connector.appendLibrary(scope, lib, function(success){
 						
 						ok(true, "02.A. Loaded library into scope " + scope);
@@ -43,7 +43,7 @@ test("VIE.js StanbolConnector - OntoNet Scope Manager", function() {
 							console.log("03.A. Retrieved library " + lib + " from scope " + scope)
 							
 							
-							// TODO POST/redirect/GET problem for ontologies due to time out for GET
+							// TODO available at Stanbol in near future
 							stanbol.connector.appendOntology(
 								scope,
 								ontology,
@@ -85,7 +85,7 @@ test("VIE.js StanbolConnector - OntoNet Scope Manager", function() {
 						    });
 			                        
 			                    
-			                /* TODO POST/redirect/GET    
+			                /* available at Stanbol in near future
 			                   
 			                }, function(err) {		// error callback of getOntology
 			                    ok(false, "03.B. Could not retrieve ontology " + ontology + " at scope " + scope);
@@ -129,7 +129,7 @@ test("VIE.js StanbolConnector - OntoNet Scope Manager", function() {
 						start();
 					},{
 						loc : 'scope'
-					}); */ // POST/redirect/GET
+					}); */ // available at Stanbol in near future
 					
 								
 				}, function(error) {	// error callback of createScope
@@ -138,7 +138,7 @@ test("VIE.js StanbolConnector - OntoNet Scope Manager", function() {
 				});
 
 	
-	/* TODO: back in as soon as the POST/redirect/GET problem is solved
+	/* TODO: available at Stanbol in near future
 	// testing for parameter options in loading a scope
     var sc = "paramScope";
     stop();
@@ -208,7 +208,7 @@ test("VIE.js StanbolConnector - OntoNet Scope Manager", function() {
                     ],
           foo: 'http://somefoo.com',
           activate: true
-      });	*/ // back in as soon as the POST/redirect/GET problem is solved
+      });	*/ // available at Stanbol in near future
     
 }); // end of test "OntoNet Scope Manager"
 
@@ -316,7 +316,7 @@ test("VIE.js StanbolConnector - OntoNet Session Manager", function() {
                     	ok(true, "08. Deleted scope " + scope + " from ontonet.");
                    	
                     	      
-                         /* TODO back in as soon as the POST/redirect/GET problem is solved 
+                         /* TODO available at Stanbol in near future 
                          // load an ontology upon this session
                          stanbol.connector.appendOntology(session, ont, function(success){
                          	
