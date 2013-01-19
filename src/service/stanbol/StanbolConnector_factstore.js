@@ -53,6 +53,7 @@
 					return u;
 				},
 				args : {
+					auth : this.options.auth,
 					schema : schema,
 					options : options
 				},
@@ -64,6 +65,7 @@
 			jQuery.ajax({
 				beforeSend: function(xhrObj) {
 					xhrObj.setRequestHeader("Content-type", "application/json");
+					xhrObj.setRequestHeader('Authorization', args.auth);
 				},
 				success: success,
 				error: error,
@@ -133,6 +135,7 @@
 					return u;
 				},
 				args : {
+					auth : this.options.auth,
 					fact : fact,
 					options : options
 				},
@@ -142,6 +145,9 @@
 
 		_createFact : function (url, args, success, error) {
 			jQuery.ajax({
+				beforeSend : function(req) {
+		            req.setRequestHeader('Authorization', args.auth);
+		          },
 				success: success,
 				error: error,
 				url: url,
@@ -208,6 +214,7 @@
 					return u;
 				},
 				args : {
+					auth : this.options.auth,
 					query : query,
 					options : options
 				},
@@ -217,6 +224,9 @@
 
 		_queryFact : function (url, args, success, error) {
 			jQuery.ajax({
+				beforeSend : function(req) {
+		            req.setRequestHeader('Authorization', args.auth);
+		          },
 				success: success,
 				error: error,
 				url: url,
@@ -286,6 +296,7 @@
 					return u;
 				},
 				args : {
+					auth : this.options.auth,
 					options : options
 				},
 				success : success,
@@ -297,7 +308,9 @@
 		_getFactData : function(url, args, success, error) {
 
 			jQuery.ajax( {
-
+				beforeSend : function(req) {
+		            req.setRequestHeader('Authorization', args.auth);
+		          },
 				success : success,
 				error : error,
 				url : url,

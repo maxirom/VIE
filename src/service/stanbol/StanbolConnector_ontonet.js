@@ -156,7 +156,8 @@
 											return u.replace('&&', '&');
 										},
 										args : {
-										options : options
+											auth : this.options.auth,
+											options : options
 									},
 									urlIndex : 0
 									});
@@ -164,6 +165,9 @@
 
 	_createScope : function(url, args, success, error) {
 		jQuery.ajax( {
+			beforeSend : function(req) {
+	            req.setRequestHeader('Authorization', args.auth);
+	          },
 			success : success,
 			error : error,
 			url : url,
@@ -191,7 +195,7 @@
 
 											
 						
-	// TODO available at Stanbol in near future
+	/* TODO available at Stanbol in near future
 	// ### appendLibrary(destination, libURI, success, error, options)
 	// @author mere01
 	// loads the specified library into the specified destination.
@@ -263,6 +267,7 @@
 				return u;
 			},
 			args : {
+				auth : this.options.auth,
 				// data : {url: ontologyURI},
 				data : data,
 				options : options
@@ -270,11 +275,14 @@
 			urlIndex : 0
 			});
 		}, // end of appendLibrary
-	//*/
+	*/
 
 	_appendLibrary : function(url, args, success, error) {
 
 		$.ajax( {
+			beforeSend : function(req) {
+	            req.setRequestHeader('Authorization', args.auth);
+	          },
 			success : success,
 			error : error,
 			url : url,
@@ -355,6 +363,7 @@
 				return u;
 			},
 			args : {
+				auth : this.options.auth,
 				options : options,
 				accept : acc
 			},
@@ -366,6 +375,7 @@
 		jQuery.ajax( {
 			beforeSend: function(xhrObj) {
 				xhrObj.setRequestHeader("Accept", args.accept);
+				xhrObj.setRequestHeader('Authorization', args.auth);
 			},
 			success : success,
 			error : error,
@@ -472,6 +482,7 @@
 				return u;
 			},
 			args : {
+				auth : this.options.auth,
 				options : options,
 				accept : acc
 			},
@@ -484,6 +495,7 @@
 		.ajax( {
 			beforeSend: function(xhrObj) {
 				xhrObj.setRequestHeader("Accept", args.accept);
+				xhrObj.setRequestHeader('Authorization', args.auth);
 			},
 			success : success,
 			error : error,
@@ -586,6 +598,7 @@
 				return u;
 			},
 			args : {
+				auth : this.options.auth,
 				options : options,
 				accept : acc
 			},
@@ -597,6 +610,7 @@
 		jQuery.ajax( {
 			beforeSend: function(xhrObj) {
 				xhrObj.setRequestHeader("Accept", args.accept);
+				xhrObj.setRequestHeader('Authorization', args.auth);
 			},
 			success : success,
 			error : error,
@@ -665,6 +679,7 @@
 				return u;
 			},
 			args : {
+				auth : this.options.auth,
 				options : options
 			},
 			urlIndex : 0
@@ -673,6 +688,9 @@
 
 	_deleteScope : function(url, args, success, error) {
 		jQuery.ajax( {
+			beforeSend : function(req) {
+	            req.setRequestHeader('Authorization', args.auth);
+	          },
 			success : success,
 			error : error,
 			url : url,
@@ -755,6 +773,7 @@
 				return u;
 			},
 			args : {
+				auth : this.options.auth,
 				format : acc
 			},
 			urlIndex : 0
@@ -765,6 +784,7 @@
 		jQuery.ajax( {
 			beforeSend: function(xhrObj) {
 				xhrObj.setRequestHeader("Accept", args.format);
+//				xhrObj.setRequestHeader('Authorization', args.auth);
 			},
 			success : success,
 			error : error,
@@ -844,6 +864,7 @@
 				return u;
 			},
 			args : {
+				auth : this.options.auth,
 				format : acc
 			},
 			urlIndex : 0
@@ -854,6 +875,7 @@
 		jQuery.ajax( {
 			beforeSend: function(xhrObj) {
 				xhrObj.setRequestHeader("Accept", args.format);
+				xhrObj.setRequestHeader('Authorization', args.auth);
 			},
 			success : success,
 			error : error,
@@ -924,6 +946,7 @@
 					return u;
 				},
 				args : {
+					auth : this.options.auth,
 					verb : verb
 				},
 				urlIndex : 0
@@ -933,6 +956,9 @@
 	_createSession : function(url, args, success, error) {
 		
 		jQuery.ajax( {
+//			beforeSend : function(req) {
+//	            req.setRequestHeader('Authorization', args.auth);
+//	          },
 			success : success,
 			error : error,
 			url : url,
@@ -993,7 +1019,7 @@
 				return u;
 			},
 			args : {
-				
+				auth : this.options.auth,
 			},
 			urlIndex : 0
 		});
@@ -1001,6 +1027,9 @@
 
 	_deleteSession : function(url, args, success, error) {
 		jQuery.ajax( {
+			beforeSend : function(req) {
+	            req.setRequestHeader('Authorization', args.auth);
+	          },
 			success : success,
 			error : error,
 			url : url,
@@ -1106,6 +1135,7 @@
 				return u;
 			},
 			args : {
+				auth : this.options.auth,
 				// data : {url: ontologyURI},
 				data : data,
 				options : options
@@ -1119,6 +1149,9 @@
 	_appendOntology : function(url, args, success, error) {
 		
 		$.ajax( {
+			beforeSend : function(req) {
+	            req.setRequestHeader('Authorization', args.auth);
+	          },
 			success : success,
 			error : error,
 			url : url,
@@ -1224,6 +1257,7 @@
 				return u;
 			},
 			args : {
+				auth : this.options.auth,
 				data : data,
 				options : options
 			},
@@ -1236,6 +1270,9 @@
 
 		if (args.data) {
 			$.ajax( {
+				beforeSend : function(req) {
+		            req.setRequestHeader('Authorization', args.auth);
+		          },
 				success : success,
 				error : error,
 				url : url,
@@ -1249,6 +1286,9 @@
 		} else {
 			// in case no scopes were specified, we do a simple POST without arguments
 			$.ajax( {
+				beforeSend : function(req) {
+		            req.setRequestHeader('Authorization', args.auth);
+		          },
 				success : success,
 				error : error,
 				url : url,
@@ -1317,6 +1357,7 @@
 				return u;
 			},
 			args : {
+				auth : this.options.auth,
 			},
 			urlIndex : 0
 		});
@@ -1326,6 +1367,9 @@
 	_detachOntology : function(url, args, success, error) {
 
 		$.ajax( {
+			beforeSend : function(req) {
+	            req.setRequestHeader('Authorization', args.auth);
+	          },
 			success : success,
 			error : error,
 			url : url,
@@ -1399,6 +1443,7 @@
 				return u;
 			},
 			args : {
+				auth : this.options.auth,
 				options : options,
 				accept : acc
 			},
@@ -1410,6 +1455,7 @@
 		jQuery.ajax( {
 			beforeSend: function(xhrObj) {
 				xhrObj.setRequestHeader("Accept", args.accept);
+				xhrObj.setRequestHeader('Authorization', args.auth);
 			},
 			success : success,
 			error : error,

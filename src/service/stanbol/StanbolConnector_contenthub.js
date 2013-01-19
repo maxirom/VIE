@@ -338,6 +338,7 @@
 					return u;
 				},
 				args : {
+					auth : this.options.auth,
 					content : content,
 					options : options,
 //					file : file,
@@ -356,6 +357,9 @@
 //				console.log("ajax: sending multipart-formdata")
 //			
 //			$.ajax( {
+//				beforeSend : function(req) {
+//	            	req.setRequestHeader('Authorization', args.auth);
+//	          	},
 //				success : success,
 //				error : error,
 //				url : url,
@@ -372,6 +376,9 @@
 				if (args.fe) {
 				
 				$.ajax( {
+					beforeSend : function(req) {
+			            req.setRequestHeader('Authorization', args.auth);
+			          },
 					success : success,
 					error : error,
 					url : url,
@@ -384,6 +391,9 @@
 			} else {
 				
 				$.ajax( {
+					beforeSend : function(req) {
+			            req.setRequestHeader('Authorization', args.auth);
+			          },
 					success : success,
 					error : error,
 					url : url,
@@ -557,6 +567,7 @@
 					return u;
 				},
 				args : {
+					auth : this.options.auth,
 					options : {}
 				},
 				urlIndex : 0
@@ -568,6 +579,9 @@
 		_editContent : function(url, args, success, error) {
 		
 				$.ajax( {
+				beforeSend : function(req) {
+            		req.setRequestHeader('Authorization', args.auth);
+          		},
 				success : success,
 				error : error,
 				url : url,
@@ -1003,6 +1017,7 @@
 					return u;
 				},
 				args : {
+					auth : this.options.auth,
 					options : options
 				},
 				urlIndex : 0
@@ -1011,6 +1026,9 @@
 
 		_contenthubIndices : function(url, args, success, error) {
 			jQuery.ajax( {
+				beforeSend : function(req) {
+		            req.setRequestHeader('Authorization', args.auth);
+		          },
 				success : success,
 				error : error,
 				url : url,
@@ -1079,6 +1097,7 @@
 					return u;
 				},
 				args : {
+					auth : this.options.auth,
 					options : {}
 				},
 				urlIndex : 0
@@ -1087,6 +1106,9 @@
 
 		_getIndex : function(url, args, success, error) {
 			jQuery.ajax( {
+				beforeSend : function(req) {
+		            req.setRequestHeader('Authorization', args.auth);
+		          },
 				success : success,
 				error : error,
 				url : url,
@@ -1155,6 +1177,7 @@
 					return u;
 				},
 				args : {
+					auth : this.options.auth,
 					options : {}
 				},
 				urlIndex : 0
@@ -1163,6 +1186,9 @@
 
 		_existsIndex : function(url, args, success, error) {
 			jQuery.ajax( {
+				beforeSend : function(req) {
+		            req.setRequestHeader('Authorization', args.auth);
+		          },
 				success : success,
 				error : error,
 				url : url,

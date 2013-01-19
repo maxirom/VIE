@@ -82,6 +82,7 @@
 	        		return u.replace(/\/$/, '');
 	        	},
 	        	args : {
+	        		auth : this.options.auth,
 	        		text : text,
 	        		format : options.format,
 	        		accept : options.accept,
@@ -100,6 +101,7 @@
 	    	  beforeSend: function(xhrObj) {
 	    		xhrObj.setRequestHeader("Accept", args.accept);
 				xhrObj.setRequestHeader("Content-type", args.contentType);
+				xhrObj.setRequestHeader('Authorization', args.auth);
 			  },
 	            success: success,
 	            error: error,
@@ -183,6 +185,7 @@
 	        		return u;
 	        	},
 	        	args : {
+	        		auth : this.options.auth,
 	        		format : options.format || 'application/rdf+xml'
 	        	},
 	        	success : success,
@@ -195,6 +198,7 @@
 	    	jQuery.ajax({
 	    		beforeSend: function(xhrObj) {
 				xhrObj.setRequestHeader("Accept", args.format);
+				xhrObj.setRequestHeader('Authorization', args.auth);
 			},
 	            success: success,
 	            error: error,
@@ -266,6 +270,7 @@
 	        		return u;
 	        	},
 	        	args : {
+	        		auth : this.options.auth,
 	        		format : options.format || 'application/rdf+xml'
 	        	},
 	        	success : success,
@@ -278,6 +283,7 @@
 	    	jQuery.ajax({
 	    		beforeSend: function(xhrObj) {
 				xhrObj.setRequestHeader("Accept", args.format);
+				xhrObj.setRequestHeader('Authorization', args.auth);
 			},
 	            success: success,
 	            error: error,

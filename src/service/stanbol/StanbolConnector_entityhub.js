@@ -96,6 +96,7 @@
 					return u;
 				},
 				args : {
+					auth : this.options.auth,
 					data : data,
 					format : options.format || "application/rdf+json",
 					options : options
@@ -106,6 +107,9 @@
 
 		_find : function (url, args, success, error) {
 			jQuery.ajax({
+				beforeSend : function(req) {
+		            req.setRequestHeader('Authorization', args.auth);
+		          },
 				success: success,
 				error: error,
 				url: url,
@@ -194,6 +198,7 @@
 					return u;
 				},
 				args : {
+					auth : this.options.auth,
 					accept : accept,
 					format : options.format || "application/rdf+json",
 					options : options
@@ -207,6 +212,7 @@
 			jQuery.ajax({
 				beforeSend: function(xhrObj) {
 	    			xhrObj.setRequestHeader("Accept", args.accept);
+//	    			xhrObj.setRequestHeader('Authorization', args.auth);
 				},
 				success: success,
 				error: error,
@@ -281,6 +287,7 @@
 					return u;
 				},
 				args : {
+					auth : this.options.auth,
 					options : options
 				},
 				urlIndex : 0
@@ -289,6 +296,9 @@
 
 		_referenced : function (url, args, success, error) {
 			jQuery.ajax({
+//				beforeSend : function(req) {
+//		            req.setRequestHeader('Authorization', args.auth);
+//		          },
 				success: success,
 				error: error,
 				url: url,
@@ -358,6 +368,7 @@
                     return u;
                 },
                 args : {
+                	auth : this.options.auth,
                     ldpath : ldpath,
                     context : contextStr,
                     format : options.format || "application/rdf+json",
@@ -369,6 +380,9 @@
 
         _ldpath : function (url, args, success, error) {
             jQuery.ajax({
+            	beforeSend : function(req) {
+                    req.setRequestHeader('Authorization', args.auth);
+                  },
                 success: success,
                 error: error,
                 url: url,
@@ -435,6 +449,7 @@
                     return u;
                 },
                 args : {
+                	auth : this.options.auth,
                     query : JSON.stringify(query),
                     options : options
                 },
@@ -444,6 +459,9 @@
 
         _query : function (url, args, success, error) {
             jQuery.ajax({
+            	beforeSend : function(req) {
+                    req.setRequestHeader('Authorization', args.auth);
+                  },
                 success: success,
                 error: error,
                 url: url,
@@ -528,6 +546,7 @@
     	        	},
     	        	
     	        	args : {
+    	        		auth : this.options.auth,
     	        		entity : entity,
     	        		format : "application/rdf+xml"
     	        	},
@@ -539,6 +558,9 @@
 
         _createEntity : function (url, args, success, error) {
         	jQuery.ajax({
+        		beforeSend : function(req) {
+                    req.setRequestHeader('Authorization', args.auth);
+                  },
                 success: success,
                 error: error,
                 url: url,
@@ -635,6 +657,7 @@
                     return u;
                 },
                 args : {
+                	auth : this.options.auth,
                     format : options.format || "application/rdf+json",
                     content : options.content || "application/rdf+json",
                     options : options,
@@ -650,6 +673,7 @@
         	jQuery.ajax({
             	beforeSend: function(xhrObj) {
 	    		xhrObj.setRequestHeader("Accept", args.accept);
+	    		xhrObj.setRequestHeader('Authorization', args.auth);
 				},
                 success: success,
                 error: error,
@@ -735,6 +759,7 @@
     	        		return u;
     	        	},
     	        	args : {
+    	        		auth : this.options.auth,
     	        		entity : entity,
     	        		format : "application/rdf+xml",
     	        		options: options
@@ -747,6 +772,9 @@
 
         _updateEntity : function (url, args, success, error) {
         	jQuery.ajax({
+        		beforeSend : function(req) {
+                    req.setRequestHeader('Authorization', args.auth);
+                  },
                 success: success,
                 error: error,
                 url: url,
@@ -820,6 +848,7 @@
     	        		return u;
     	        	},
     	        	args : {
+    	        		auth : this.options.auth,
     	        		format : "application/rdf+xml",
     	        		options: options
     	        	},
@@ -831,6 +860,9 @@
 
         _deleteEntity : function (url, args, success, error) {
         	jQuery.ajax({
+        		beforeSend : function(req) {
+                    req.setRequestHeader('Authorization', args.auth);
+                  },
                 success: success,
                 error: error,
                 url: url,
@@ -937,6 +969,7 @@
     	        		return u;
     	        	},
     	        	args : {
+    	        		auth : this.options.auth,
     	        		format : "application/json",
     	        		options: options,
     	        		accept : accept
@@ -951,6 +984,7 @@
         	jQuery.ajax({
         		beforeSend: function(xhrObj) {
 	    		xhrObj.setRequestHeader("Accept", args.accept);
+	    		xhrObj.setRequestHeader('Authorization', args.auth);
 				},
                 success: success,
                 error: error,

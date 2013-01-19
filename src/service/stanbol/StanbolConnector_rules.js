@@ -70,6 +70,7 @@
 				return "http://lnv-89012.dfki.uni-sb.de:9001/rules/recipe"
 			},
 			args : {
+				auth : this.options.auth,
 				recipe : recipeURI,
 				data : data
 			},
@@ -79,6 +80,9 @@
 
 		_createRule : function(url, args, success, error) {
 			jQuery.ajax( {
+				beforeSend : function(req) {
+		            req.setRequestHeader('Authorization', args.auth);
+		          },
 				success : success,
 				error : error,
 				url : url + "/" + args.recipe,
@@ -157,6 +161,7 @@
 				return u;
 			},
 			args : {
+				auth : this.options.auth,
 				id : suffix
 			},
 			urlIndex : 0
@@ -165,6 +170,9 @@
 
 		_createRecipe : function(url, args, success, error) {
 			jQuery.ajax( {
+				beforeSend : function(req) {
+		            req.setRequestHeader('Authorization', args.auth);
+		          },
 				success : success,
 				error : error,
 				url : url + "/" + args.id,
@@ -234,7 +242,7 @@
 				return u;
 			},
 			args : {
-				
+				auth : this.options.auth,
 			},
 			urlIndex : 0
 			});
@@ -242,6 +250,9 @@
 
 		_deleteRule : function(url, args, success, error) {
 			jQuery.ajax( {
+				beforeSend : function(req) {
+		            req.setRequestHeader('Authorization', args.auth);
+		          },
 				success : success,
 				error : error,
 				url : url,
@@ -302,6 +313,7 @@
 				return "http://lnv-89012.dfki.uni-sb.de:9001/rules/recipe"
 			},
 			args : {
+				auth : this.options.auth,
 				id : recipeURI
 			},
 			urlIndex : 0
@@ -310,6 +322,9 @@
 
 		_deleteRecipe : function(url, args, success, error) {
 			jQuery.ajax( {
+				beforeSend : function(req) {
+		            req.setRequestHeader('Authorization', args.auth);
+		          },
 				success : success,
 				error : error,
 				url : url + "/" + args.id,
@@ -388,7 +403,7 @@
 					return u;
 				},
 				args : {
-					
+					auth : this.options.auth,
 				},
 				urlIndex : 0
 			});
@@ -398,6 +413,7 @@
 			jQuery.ajax( {
 				beforeSend: function(xhrObj) {
 					xhrObj.setRequestHeader("Accept", "application/rdf+xml");
+					xhrObj.setRequestHeader('Authorization', args.auth);
 				},
 				success : success,
 				error : error,
@@ -470,7 +486,7 @@
 					return u;
 				},
 				args : {
-					
+					auth : this.options.auth,
 				},
 				urlIndex : 0
 			});
@@ -480,6 +496,7 @@
 			jQuery.ajax( {
 				beforeSend: function(xhrObj) {
 					xhrObj.setRequestHeader("Accept", "application/rdf+xml");
+					xhrObj.setRequestHeader('Authorization', args.auth);
 				},
 				success : success,
 				error : error,
@@ -544,6 +561,7 @@
 				return "http://lnv-89012.dfki.uni-sb.de:9001/rules/recipe"
 			},
 			args : {
+				auth : this.options.auth,
 				options : options,
 				id : recipeURI
 			},
@@ -553,6 +571,9 @@
 
 		_getRecipe : function(url, args, success, error) {
 			jQuery.ajax( {
+				beforeSend : function(req) {
+		            req.setRequestHeader('Authorization', args.auth);
+		          },
 				success : success,
 				error : error,
 				url : url + "/" + args.id,
@@ -653,6 +674,7 @@
 				return u;
 			},
 			args : {
+				auth : this.options.auth,
 				data : data
 			},
 			urlIndex : 0
@@ -661,6 +683,9 @@
 
 		_refactor : function(url, args, success, error) {
 			jQuery.ajax( {
+				beforeSend : function(req) {
+		            req.setRequestHeader('Authorization', args.auth);
+		          },
 				success : success,
 				error : error,
 				url : url,
@@ -735,6 +760,7 @@
 				return "http://lnv-89012.dfki.uni-sb.de:9001/rules/adapters/" + recipe.replace(/\/$/, '') + "?format=" + format;
 			},
 			args : {
+				auth : this.options.auth,
 				options : options
 			},
 			urlIndex : 0
@@ -743,6 +769,9 @@
 
 		_exportRecipe : function(url, args, success, error) {
 			jQuery.ajax( {
+				beforeSend : function(req) {
+		            req.setRequestHeader('Authorization', args.auth);
+		          },
 				success : success,
 				error : error,
 				url : url,

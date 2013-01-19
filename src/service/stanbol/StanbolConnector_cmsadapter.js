@@ -66,6 +66,7 @@
 
 		},
 		args : {
+			auth : this.options.auth
 		},
 		urlIndex : 0
 		});
@@ -75,6 +76,7 @@
 		jQuery.ajax( {
 			beforeSend: function(xhrObj) {
 				xhrObj.setRequestHeader("Accept", "text/plain");
+				xhrObj.setRequestHeader('Authorization', args.auth);
 			},
 			success : success,
 			error : error,
@@ -217,6 +219,7 @@
 				return u;
 			},
 			args : {
+				auth : this.options.auth,
 				local : local,
 				data : data
 			},
@@ -229,6 +232,9 @@
 
 		if (args.local) {
 		$.ajax( {
+			beforeSend : function(req) {
+	            req.setRequestHeader('Authorization', args.auth);
+	          },
 			success : success,
 			error : error,
 			url : url,
@@ -242,6 +248,9 @@
 		} else {
 		
 			$.ajax( {
+				beforeSend : function(req) {
+		            req.setRequestHeader('Authorization', args.auth);
+		          },
 				success : success,
 				error : error,
 				url : url,
@@ -339,6 +348,7 @@
 				return u;
 			},
 			args : {
+				auth : this.options.auth,
 				data : data
 			},
 			urlIndex : 0
@@ -349,6 +359,9 @@
 	_mapRepositoryToRDF : function(url, args, success, error) {
 	
 			$.ajax( {
+				beforeSend : function(req) {
+		            req.setRequestHeader('Authorization', args.auth);
+		          },
 				success : success,
 				error : error,
 				url : url,
@@ -477,6 +490,7 @@
 				return u;
 			},
 			args : {
+				auth : this.options.auth,
 				data : data
 			},
 			urlIndex : 0
@@ -487,6 +501,9 @@
 	_submitRepositoryItem : function(url, args, success, error) {
 	
 			$.ajax( {
+				beforeSend : function(req) {
+		            req.setRequestHeader('Authorization', args.auth);
+		          },
 				success : success,
 				error : error,
 				url : url,
@@ -605,6 +622,7 @@
 				return u;
 			},
 			args : {
+				auth : this.options.auth,
 				data : data
 			},
 			urlIndex : 0
@@ -615,6 +633,9 @@
 	_deleteRepositoryItem : function(url, args, success, error) {
 	
 			$.ajax( {
+				beforeSend : function(req) {
+		            req.setRequestHeader('Authorization', args.auth);
+		          },
 				success : success,
 				error : error,
 				url : url,
