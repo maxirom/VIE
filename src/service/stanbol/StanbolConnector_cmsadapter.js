@@ -1,16 +1,3 @@
-//     VIE - Vienna IKS Editables
-//     (c) 2011 Henri Bergius, IKS Consortium
-//     (c) 2011 Sebastian Germesin, IKS Consortium
-//     (c) 2011 Szaby Grünwald, IKS Consortium
-//     VIE may be freely distributed under the MIT license.
-//     For all details and documentation:
-//     http://viejs.org/
-
-// ## VIE - DBPedia service
-// The DBPedia service allows a VIE developer to directly query
-// the DBPedia database for entities and their properties. Obviously,
-// the service does not allow for saving, removing or analyzing methods.
-//
 // getReposSessionKey()
 // mapRDFtoRepository()		(**upload of local files is not supported yet**)
 // mapRepositoryToRDF()
@@ -35,11 +22,12 @@
 		// *{function}* **success** The success callback.
 		// *{function}* **error** The error callback.
 		// *{object}* **options** Options, optionally specify
-		// 'workspaceName': For JCR repositories this parameter determines the 
-		// workspace to be connected. On the other hand for CMIS repositories 
-		// repository ID should be set to this parameter. In case of not setting 
-		// this parameter, for JCR default workspace is selected, for CMIS the 
-		// first repository obtained through the session object is selected. 
+		// 'workspaceName': For JCR repositories; this parameter determines the 
+		// workspace to be connected. For CMIS repositories, the repository ID 
+		// should be set to this parameter. In case of not setting 
+		// this parameter, for JCR the default workspace is selected, for CMIS 
+		// the first repository obtained through the session object is selected.
+		// (cf. http://dev.iks-project.eu:8081/cmsadapter/session#)
 		// **Throws**:
 		// *nothing*
 		// **Returns**:
@@ -78,6 +66,7 @@
 
 		},
 		args : {
+			auth : this.options.auth
 		},
 		urlIndex : 0
 		});
@@ -87,6 +76,7 @@
 		jQuery.ajax( {
 			beforeSend: function(xhrObj) {
 				xhrObj.setRequestHeader("Accept", "text/plain");
+				xhrObj.setRequestHeader('Authorization', args.auth);
 			},
 			success : success,
 			error : error,
@@ -121,6 +111,7 @@
 	// in a first step, the given raw RDF data is annotated with standard terms 
 	// from the CMS vocabulary. In a second step, annotated RDF is processed and
 	// the content repository is updated accordingly.
+	// (cf. http://dev.iks-project.eu:8081/cmsadapter/map#)
 	// **Parameters**:
 	// *{string}* **sessionKey** the session key that provides interaction with
 	//		the content repository. A session key can be obtained by calling 
@@ -177,12 +168,8 @@
 		
 		if (rdfFile) {
 			
-			console.log("got as rdfFile: ")
-			console.log(rdfFile)
 			var info = (options.rdfFileInfo) ? options.rdfFileInfo : false;
 		}
-		
-		
 		
 		var connector = this;
 
@@ -198,7 +185,6 @@
 			
 			data = "sessionKey=" + sessionKey;
 			data += "&url=" + rdfURL;
-			
 			
 		} else {
 			
@@ -233,6 +219,7 @@
 				return u;
 			},
 			args : {
+				auth : this.options.auth,
 				local : local,
 				data : data
 			},
@@ -245,6 +232,9 @@
 
 		if (args.local) {
 		$.ajax( {
+			beforeSend : function(req) {
+	            req.setRequestHeader('Authorization', args.auth);
+	          },
 			success : success,
 			error : error,
 			url : url,
@@ -254,20 +244,13 @@
 			processData : false,
 			cache : false
 		});
-			
-			// try something else:
-//			var xhr = new XMLHttpRequest();
-//			xhr.open("POST", url);
-//			xhr.onload = function() {
-//				console.log("in onload function");
-////				JSON.parse(xhr.responseText);
-//			}
-			
-//			xhr.send(args.data);
 		
 		} else {
 		
 			$.ajax( {
+				beforeSend : function(req) {
+		            req.setRequestHeader('Authorization', args.auth);
+		          },
 				success : success,
 				error : error,
 				url : url,
@@ -284,12 +267,7 @@
 		var r = request( {
 			method : "POST",
 			data : args.data,
-			uri : url,
-			body : args.content,
-			headers : {
-				Accept : "application/rdf+xml",
-				"Content-Type" : "text/plain"
-			}
+			uri : url
 		}, function(err, response, body) {
 			try {
 				success( {
@@ -340,7 +318,6 @@
 			}
 		}
 		
-		
 		var connector = this;
 
 		var data = false;
@@ -371,6 +348,7 @@
 				return u;
 			},
 			args : {
+				auth : this.options.auth,
 				data : data
 			},
 			urlIndex : 0
@@ -381,13 +359,15 @@
 	_mapRepositoryToRDF : function(url, args, success, error) {
 	
 			$.ajax( {
+				beforeSend : function(req) {
+		            req.setRequestHeader('Authorization', args.auth);
+		          },
 				success : success,
 				error : error,
 				url : url,
 				type : "POST",
 				data : args.data
 			});
-			
 		
 	}, // end of _mapRepositoryToRDF
 
@@ -397,12 +377,7 @@
 		var r = request( {
 			method : "POST",
 			data : args.data,
-			uri : url,
-			body : args.content,
-			headers : {
-				Accept : "application/rdf+xml",
-				"Content-Type" : "text/plain"
-			}
+			uri : url
 		}, function(err, response, body) {
 			try {
 				success( {
@@ -423,6 +398,7 @@
 	// either their IDs or paths in the content repository. Enhancements of 
 	// content items are obtained through Stanbol Enhancer before submitting 
 	// them to Contenthub.
+	// (cf. http://dev.iks-project.eu:8081/cmsadapter/contenthubfeed)
 	// **Parameters**:
 	// *{string}* **sessionKey** the session key that provides interaction with
 	//		the content repository. A session key can be obtained by calling 
@@ -491,9 +467,6 @@
 				params.contentProperties = contentProperties;
 			}
 		
-		console.log("the params object is:")
-		console.log(params)
-		
 		var connector = this;
 
 		var data = "";
@@ -501,7 +474,6 @@
 		for (var key in params) {
 			data += key + "=" + params[key] + "&";
 		}
-		
 
 		connector._iterate( {
 			method : connector._submitRepositoryItem,
@@ -518,6 +490,7 @@
 				return u;
 			},
 			args : {
+				auth : this.options.auth,
 				data : data
 			},
 			urlIndex : 0
@@ -528,6 +501,9 @@
 	_submitRepositoryItem : function(url, args, success, error) {
 	
 			$.ajax( {
+				beforeSend : function(req) {
+		            req.setRequestHeader('Authorization', args.auth);
+		          },
 				success : success,
 				error : error,
 				url : url,
@@ -535,7 +511,6 @@
 				data : args.data
 			});
 			
-		
 	}, // end of _submitRepositoryItem
 
 	_submitRepositoryItemNode : function(url, args, success,
@@ -544,8 +519,7 @@
 		var r = request( {
 			method : "POST",
 			data : args.data,
-			uri : url,
-			body : args.content
+			uri : url
 
 		}, function(err, response, body) {
 			try {
@@ -563,6 +537,7 @@
 	// @author mere01
 	// deletes content items from the contenthub through either their IDs or 
 	// paths in the content repository.
+	// (cf. http://dev.iks-project.eu:8081/cmsadapter/contenthubfeed)
 	// **Parameters**:
 	// *{string}* **sessionKey** the session key that provides interaction with
 	//		the content repository. A session key can be obtained by calling 
@@ -570,11 +545,11 @@
 	// *{function}* **success** The success callback.
 	// *{function}* **error** The error callback.
 	// *{object}* **options** Options. Available parameters:
-	//	@FormParam id: Content repository ID of the content item to be submitted
-	//	@FormParam path: Content repository path of the content item to be submitted
+	//	@FormParam id: Content repository ID of the content item to be deleted
+	//	@FormParam path: Content repository path of the content item to be deleted
 	//	@FormParam recursive: This parameter is used together with path parameter. 
 	//		Its default value is false. If it is set as true, all content repository 
-	//		objects under the specified path are processed.
+	//		objects under the specified path are processed (deleted).
 	//	@FormParam indexName: Name of the Solr index managed by Contenthub. 
 	//		Specified index will be used to submit the content items.
 	// Mandatory parameters are the session key and one of id and path.
@@ -624,7 +599,6 @@
 				params.indexName = indexName;
 			}
 		
-		
 		var connector = this;
 
 		var data = "";
@@ -632,7 +606,6 @@
 		for (var key in params) {
 			data += key + "=" + params[key] + "&";
 		}
-		
 
 		connector._iterate( {
 			method : connector._deleteRepositoryItem,
@@ -649,6 +622,7 @@
 				return u;
 			},
 			args : {
+				auth : this.options.auth,
 				data : data
 			},
 			urlIndex : 0
@@ -659,6 +633,9 @@
 	_deleteRepositoryItem : function(url, args, success, error) {
 	
 			$.ajax( {
+				beforeSend : function(req) {
+		            req.setRequestHeader('Authorization', args.auth);
+		          },
 				success : success,
 				error : error,
 				url : url,
@@ -666,7 +643,6 @@
 				data : args.data
 			});
 			
-		
 	}, // end of _deleteRepositoryItem
 
 	_deleteRepositoryItemNode : function(url, args, success,
@@ -676,11 +652,6 @@
 			method : "DELETE",
 			data : args.data,
 			uri : url,
-			body : args.content,
-			headers : {
-				Accept : "application/rdf+xml",
-				"Content-Type" : "text/plain"
-			}
 		}, function(err, response, body) {
 			try {
 				success( {
@@ -692,7 +663,6 @@
 		});
 		r.end();
 	}	// end of _deleteRepositoryItemNode
-	
 	
 	});
 	

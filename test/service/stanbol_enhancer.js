@@ -26,18 +26,12 @@ test("VIE.js StanbolConnector - Retrieve info on enhancer", function(){
 		  
 		  ok(true, "Retrieved information on available enhancement chains " +
 		  		"and engines.");
-		  console.log("Retrieved information on available enhancement chains " +
-		  		"and engines:")
-		  console.log(success)
 		  start();
 		    			
 	  }, function(error){
 		  
 		  ok(false, "Could not retrieve information on available enhancement " +
 		  		"chains and engines.");
-		  console.log("Could not retrieve information on available " +
-		  		"enhancement chains and engines.")
-		  console.log(error)
 		  start();
 		    			
 	  }, {
@@ -49,15 +43,11 @@ test("VIE.js StanbolConnector - Retrieve info on enhancer", function(){
 	  function(success){
 		  
 		  ok(true, "Retrieved ExecutionPlan of enhancer.");
-		  console.log("Retrieved ExecutionPlan of enhancer:")
-		  console.log(success)
 		  start();
 		    			
 	  }, function(error){
 		  
 		  ok(false, "Could not retrieve ExecutionPlan of enhancer.");
-		  console.log("Could not retrieve ExecutionPlan of enhancer.")
-		  console.log(error)
 		  start();
 		    			
 	  }, {
@@ -90,7 +80,6 @@ test(
         .execute()
         .done(function(entities) {
 
-          console.log(entities[0])
           ok(entities);
           ok(entities instanceof Array);
           ok(entities.length > 0, "At least one entity returned");
@@ -160,11 +149,6 @@ test(
                 ok(false,
                   "VIE.js StanbolService - Analyze: Entity is not a " +
                   "Backbone model!");
-                console
-                .error(
-                  "VIE.js StanbolService - Analyze: ",
-                  entity,
-                  "is not a Backbone model!");
               }
             }
             ok(allEntities);
@@ -235,11 +219,6 @@ test(
                 var entity = entities[i];
                 if (!(entity instanceof Backbone.Model)) {
                  allEntities = false;
-                 console
-                 .error(
-                   "VIE.js StanbolService - Analyze: ",
-                   entity,
-                   "is not a Backbone model!");
                }
              }
              ok(allEntities);
@@ -311,9 +290,6 @@ test(
 		        .using('stanbol')
 		        .execute()
 		        .done(function(entities) {
-		          console.log("in success callback of param set 1.")
-		          console.log(entities);
-		          console.log(entities[0])
 		          ok(entities, "parameter set 1");
 		          ok(entities instanceof Array);
 		          ok(entities.length > 0, "At least one entity returned");
@@ -340,8 +316,6 @@ test(
 		      }
 		      start();
 		    }).fail(function(f) {
-		      console.log("in error callback of param set 1")
-		      console.log(f)
 		      ok(false, f.statusText)
 		      ok(false, "for param set 1");
 		      start();
@@ -355,9 +329,6 @@ test(
 		        .using('stanbol')
 		        .execute()
 		        .done(function(entities) {
-		          console.log("in success callback of param set 2.")
-		          console.log(entities);
-		          console.log(entities[0])
 		          ok(entities, "parameter set 2");
 		          ok(entities instanceof Array);
 		          ok(entities.length > 0, "At least one entity returned");
@@ -384,8 +355,6 @@ test(
 		      }
 		      start();
 		    }).fail(function(f) {
-		      console.log("in error callback of param set 2")
-		      console.log(f)
 		      ok(false, f.statusText)
 		      ok(false, "for param set 2");
 		      start();
@@ -393,21 +362,18 @@ test(
 		        
 		        stop();
 		        z.analyze( {
- 			      accept : "text/plain",		// to be verified
- 			      format : "text",
+ 			      accept : "text/plain",
+ 			      format : "text", // this specifies dataType
 		          element : elem,
 		          params : param3
 		        })
 		        .using('stanbol')
 		        .execute()
 		        .done(function(success) {
-		          console.log("in success callback of param set 3.");
-		          console.log(success);
 		          ok(success, "parameter set 3");
 		      start();
 		    }).fail(function(f) {
-		      console.log("in error callback of param set 3")
-		      console.log(f)
+		      
 		      ok(false, f.statusText)
 		      ok(false, "for param set 3");
 		      start();
@@ -416,7 +382,7 @@ test(
 		        // another test, this time for usage of the MultiPart 
 		    	// ContentItem RESTful API
 		        stop();
-		        console.log("--- here now passing multipart ---")
+		        
 		        z.analyze( {
 //		          accept : "multipart/form-data",
 		          format : "text",
@@ -426,15 +392,12 @@ test(
 		        .using('stanbol')
 		        .execute()
 		        .done(function(entities) {
-		          console.log("in success callback of param set 4.")
-		          console.log(entities);
-		          console.log(entities[0])
+		          
 		          ok(entities, "parameter set 4");
 		          
 		      	  start();
 		    }).fail(function(f) {
-		      console.log("in error callback of param set 4")
-		      console.log(f)
+		      
 		      ok(false, f.statusText)
 		      ok(false, "for param set 4");
 		      start();

@@ -35,43 +35,35 @@ test("VIE.js StanbolConnector - Rules Manager", function() {
 		
     stop();
     
-  
     
       // TODO CORS access problem
-//    stanbol.connector.createRecipe(recipe, function(success) {
-//    	
-//    	ok(true, "01. created recipe: " + recipe);
-//    	console.log("01. created recipe: " + recipe);
-//
-//
-//    	
-//    }, function(error) {
-//    	
-//    	ok(false, "01. could not create recipe: " + recipe);
-//    	console.log("01. could not create recipe: " + recipe);
-//    	start();
-//    }, {
-//  	description : 'Melanie'
-//		});
+    stanbol.connector.createRecipe(recipe, function(success) {
+    	
+    	ok(true, "01. created recipe: " + recipe);
+
+    	
+    }, function(error) {
+    	
+    	ok(false, "01. could not create recipe: " + recipe);
+    	start();
+    }, {
+  	description : 'Melanie'
+		});
     
 
     stanbol.connector.createRule(ruleName, rule, recipe, 
  	       function(success){
  	    	
  	    	ok(true, "02. Created rule " + ruleName + " on recipe " + recipe);
- 	    	console.log("02 Created rule " + ruleName + " on recipe " + recipe)
  	    	
  	    	// search for this rule on the rules endpoint
  	    	stanbol.connector.findRule(function(success){
  	    		
  	    		ok(true, "04. Got rule " + ruleName + " from rules endpoint");
- 	    		console.log("04. Got rule " + ruleName + " from rules endpoint")
- 	    		console.log(success)
  	    		
  	    	}, function(error){
  	    		
  	    		ok(false, "04. Could not get rule " + ruleName + " from rules endpoint");
- 	    		console.log("04. Coudl not get rule " + ruleName + " from rules endpoint")
  	    		
  	    	}, {
  	    		name : 'has_transitive',
@@ -82,25 +74,19 @@ test("VIE.js StanbolConnector - Rules Manager", function() {
  	    	stanbol.connector.getRecipe(recipe, function(success){
  	    		
  	    		ok(true, "03. Got recipe " + recipe + " from rules endpoint");
- 	    		console.log("03. Got recipe " + recipe + " from rules endpoint")
- 	    		console.log(success)
  	    		
  	    	}, function(error){
  	    		ok(false, "03. Could not get recipe " + recipe + " from rules endpoint");
- 	    		console.log("03. Could not get recipe " + recipe + " from rules endpoint")
  	    	});
  	    	
  	    	// get this recipe by searching through recipe descriptions
  	    	stanbol.connector.findRecipe("Melanie", function(success) {
  	    		
  	    		ok(true, "05. Found recipe " + recipe + " by description 'Melanie'");
- 	    		console.log("05. Found recipe " + recipe + " by description 'Melanie'")
- 	    		console.log(success)
  	    		
  	    	}, function(error){
  	    		
  	    		ok(false, "05. Could not find recipe " + recipe + " by description 'Melanie'");
- 	    		console.log("05. Could not find recipe " + recipe + " by description 'Melanie'")
  	    		
  	    	});
  	    	
@@ -108,24 +94,18 @@ test("VIE.js StanbolConnector - Rules Manager", function() {
  	    	stanbol.connector.deleteRule(recipe, ruleName, function(success){
  	    		
  	    		ok(true, "98. deleted rule " + ruleName + " from recipe " + recipe)
- 	    		console.log("98. deleted rule " + ruleName + " from recipe " + recipe)
-// 	    		start();
  	    	}, function(error){
  	    		
  	    		ok(false, "98. could not delete rule " + ruleName + " from recipe " + recipe)
- 	    		console.log("98. could not delete rule " + ruleName + " from recipe " + recipe)
-// 	    		start();
  	    	});
  	    	
  	    	stop();
  	    	stanbol.connector.deleteRecipe(recipe, function(success){
  	    		
  	    		ok(true, "99. deleted recipe " + recipe)
- 	    		console.log("99. deleted recipe " + recipe)
  	    		start();
  	    	}, function(error){
  	    		ok(false, "99. could not delete recipe " + recipe)
- 	    		console.log("99. could not delete recipe " + recipe)
  	    		start();
  	    	});
  	    	
@@ -133,7 +113,6 @@ test("VIE.js StanbolConnector - Rules Manager", function() {
  	    }, function(error){
  	    	
  	    	ok(false, "02. Could not create rule " + ruleName + " on recipe " + recipe);
- 	    	console.log("02. Could not create rule " + ruleName + " on recipe " + recipe)
  	    	start();
  	    }, {
  	    	desc : description
@@ -145,28 +124,20 @@ test("VIE.js StanbolConnector - Rules Manager", function() {
     recipe = "personTypes[is(<http://dbpedia.org/ontology/Person>, ?x) -> is(<http://rdf.data-vocabulary.org/Person>, ?x)]";	
     stop();
 	stanbol.connector.refactor(graph, recipe, function(success){
-		
 		start();
 		
 	}, function(error){
-		
 		start(); 
 		
 	}, { 
 		rec : 'syntax' 
 		});
-	
-	// TODO:
-	// independent testing of /refactor/apply
-	// first create a recipe
-	// then use it to refactor our graph
-
 		
     
 });		// end of test for Rules Manager
 
-//### test for the /rules/adapters service, the component that allows for 
-//exporting of recipes to other formats.
+//### test for the /rules/adapters service, the component that allows exporting 
+// recipes to other formats.
 //
 //@author mere01
 test("VIE.js StanbolConnector - Rules Manager - rules/adapters", 3, function() {
@@ -188,15 +159,10 @@ format = "org.semanticweb.owlapi.model.SWRLRule";
 stanbol.connector.exportRecipe(recipe, format, function(success){
 	
 	ok(true, "Exported recipe to format " + format);
-	console.log("Exported recipe " + recipe + " to format " + format);
-	console.log(success);
-	console.log(success.result)
 	start();
 }, function(error) { 
 
 	ok(false, "Could not export recipe to format " + format);
-	console.log("Could not export recipe " + recipe + " to format " + format);
-	console.log(error);
 	start();
 });
 
@@ -226,13 +192,10 @@ stop();
 	stanbol.connector.findRule(function(success){
 		
 		ok(true, "04. Got rule " + ruleName + " from rules endpoint");
-		console.log("04. Got rule " + ruleName + " from rules endpoint")
-		console.log(success);
 		
 	}, function(error){
 		
 		ok(false, "04. Could not get rule " + ruleName + " from rules endpoint");
-		console.log("04. Could not get rule " + ruleName + " from rules endpoint")
 		
 	}, {
 		name : ruleName,
@@ -245,14 +208,11 @@ stop();
 	stanbol.connector.findRecipe("Melanie", function(success) {
 		
 		ok(true, "05. Found recipe " + recipe + " by description 'Melanie'");
-		console.log("05. Found recipe " + recipe + " by description 'Melanie'")
-		console.log(success)
 		start();
 		
 	}, function(error){
 		
 		ok(false, "05. Could not find recipe " + recipe + " by description 'Melanie'");
-		console.log("05. Could not find recipe " + recipe + " by description 'Melanie'")
 		start();
 	});
 

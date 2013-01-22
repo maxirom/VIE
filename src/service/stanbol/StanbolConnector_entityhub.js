@@ -1,15 +1,5 @@
-//     VIE - Vienna IKS Editables
-//     (c) 2011 Henri Bergius, IKS Consortium
-//     (c) 2011 Sebastian Germesin, IKS Consortium
-//     (c) 2011 Szaby Grünwald, IKS Consortium
-//     VIE may be freely distributed under the MIT license.
-//     For all details and documentation:
-//     http://viejs.org/
-
-// ## VIE - DBPedia service
-// The DBPedia service allows a VIE developer to directly query
-// the DBPedia database for entities and their properties. Obviously,
-// the service does not allow for saving, removing or analyzing methods.
+// for more documentation, 
+// cf. http://dev.iks-project.eu:8081/entityhub#
 // 
 // find()
 // lookup()
@@ -100,13 +90,13 @@
 					if (isLocal) {
 						u += "/find";
 					} else {
-//						u += "/sites/find";						
 						u += "/site" + site + "/find";
 					}
 
 					return u;
 				},
 				args : {
+					auth : this.options.auth,
 					data : data,
 					format : options.format || "application/rdf+json",
 					options : options
@@ -117,6 +107,9 @@
 
 		_find : function (url, args, success, error) {
 			jQuery.ajax({
+				beforeSend : function(req) {
+		            req.setRequestHeader('Authorization', args.auth);
+		          },
 				success: success,
 				error: error,
 				url: url,
@@ -135,7 +128,9 @@
 				uri: url,
 				body : args.data,
 				headers: {
-					Accept: args.format
+					Accept: "application/rdf+json",
+					'Data-Type': args.format,
+					'Content-Type': application/x-www-form-urlencoded
 				}
 			}, function(err, response, body) {
 				try {
@@ -203,6 +198,7 @@
 					return u;
 				},
 				args : {
+					auth : this.options.auth,
 					accept : accept,
 					format : options.format || "application/rdf+json",
 					options : options
@@ -216,6 +212,7 @@
 			jQuery.ajax({
 				beforeSend: function(xhrObj) {
 	    			xhrObj.setRequestHeader("Accept", args.accept);
+//	    			xhrObj.setRequestHeader('Authorization', args.auth);
 				},
 				success: success,
 				error: error,
@@ -232,7 +229,7 @@
 				uri: url,
 				body: args.text,
 				headers: {
-					Accept: args.format
+					Accept: args.accept
 				}
 			}, function(err, response, body) {
 				try {
@@ -290,6 +287,7 @@
 					return u;
 				},
 				args : {
+					auth : this.options.auth,
 					options : options
 				},
 				urlIndex : 0
@@ -298,6 +296,9 @@
 
 		_referenced : function (url, args, success, error) {
 			jQuery.ajax({
+//				beforeSend : function(req) {
+//		            req.setRequestHeader('Authorization', args.auth);
+//		          },
 				success: success,
 				error: error,
 				url: url,
@@ -367,6 +368,7 @@
                     return u;
                 },
                 args : {
+                	auth : this.options.auth,
                     ldpath : ldpath,
                     context : contextStr,
                     format : options.format || "application/rdf+json",
@@ -378,6 +380,9 @@
 
         _ldpath : function (url, args, success, error) {
             jQuery.ajax({
+            	beforeSend : function(req) {
+                    req.setRequestHeader('Authorization', args.auth);
+                  },
                 success: success,
                 error: error,
                 url: url,
@@ -394,9 +399,11 @@
             var r = request({
                 method: "POST",
                 uri: url,
-                body : "ldpath=" + args.ldpath + context,
+                body : "ldpath=" + args.ldpath + args.context,
                 headers: {
-                    Accept: args.format
+                    Accept: "application/rdf+json",
+                    'Content-Type': "application/x-www-form-urlencoded",
+                    'Data-Type': args.format
                 }
             }, function(err, response, body) {
                 try {
@@ -430,9 +437,7 @@
                 error : error,
                 url : function (idx, opts) {
                     var site = (opts.site)? opts.site : this.options.entityhub.site;
-                    console.log("site is " + site)
                     site = (site)? "/" + site : "s";
-                    console.log("site is now " + site)
                     
                     var isLocal = opts.local;
 
@@ -441,12 +446,11 @@
                         u += "/site" + site;
                     u += "/query";
                     
-                    console.log("querying " + u)
                     return u;
                 },
                 args : {
+                	auth : this.options.auth,
                     query : JSON.stringify(query),
-                    format : "application/rdf+json",
                     options : options
                 },
                 urlIndex : 0
@@ -455,6 +459,9 @@
 
         _query : function (url, args, success, error) {
             jQuery.ajax({
+            	beforeSend : function(req) {
+                    req.setRequestHeader('Authorization', args.auth);
+                  },
                 success: success,
                 error: error,
                 url: url,
@@ -469,9 +476,9 @@
             var r = request({
                 method: "POST",
                 uri: url,
-                body : "ldpath=" + args.ldpath + context,
+                body : args.query,
                 headers: {
-                    Accept: args.format
+                    'Content-Type': "application/json"
                 }
             }, function(err, response, body) {
                 try {
@@ -486,10 +493,13 @@
                 
         // ### createEntity(entity, success, error, option) alias save()
     	// @author mere01
-    	// This method creates a new local entity on the Apache Stanbol entityhub endpoint.
-        // If options.update is not set to true, the method fails if the entity is already existing in the entityhub.
+    	// This method creates a new local entity on the Apache Stanbol 
+        // entityhub endpoint.
+        // If options.update is not set to true, the method fails if the entity 
+        // is already existing in the entityhub.
     	// **Parameters**:  
-    	// *{string}* **entity** the rdf xml formatted entity to be sent to the entityhub/entity/
+    	// *{string}* **entity** the rdf xml formatted entity to be sent to the 
+        //	 entityhub/entity/
         // *{function}* **success** The success callback.  
     	// *{function}* **error** The error callback.  
         // *{object}* **options** the options to append to the URL request, e.g. 
@@ -536,6 +546,7 @@
     	        	},
     	        	
     	        	args : {
+    	        		auth : this.options.auth,
     	        		entity : entity,
     	        		format : "application/rdf+xml"
     	        	},
@@ -547,6 +558,9 @@
 
         _createEntity : function (url, args, success, error) {
         	jQuery.ajax({
+        		beforeSend : function(req) {
+                    req.setRequestHeader('Authorization', args.auth);
+                  },
                 success: success,
                 error: error,
                 url: url,
@@ -563,7 +577,6 @@
                 uri: url,
                 body: args.entity,
                 headers: {
-                    Accept: args.format,
                     'Content-Type': args.format
                 }
             }, function(err, response, body) {
@@ -579,9 +592,6 @@
         
         // ### save(id, success, error, option)
         // This is an alias to createEntity
-//        save: function () {
-//            return this.createEntity(arguments[0], arguments[1], arguments[2], arguments[3]);
-
         save: function (entity, success, error, options) {
             return this.createEntity.call(this, entity, success, error, options);
 
@@ -623,10 +633,6 @@
             var connector = this;
             options = (options)? options :  {};
             var accept = (options.accept) ? options.accept : "application/rdf+json";
-
-            console.log("uri:")
-            console.log(uri)
-            console.log(" is of type: " + typeof(uri));
             
             options.uri = uri.replace(/^</, '').replace(/>$/, '');
 
@@ -651,20 +657,23 @@
                     return u;
                 },
                 args : {
-                	accept : accept,
+                	auth : this.options.auth,
                     format : options.format || "application/rdf+json",
                     content : options.content || "application/rdf+json",
-                    options : options
+                    options : options,
+                    accept : accept
                 },
                 urlIndex : 0
             });
         },
 
         _readEntity : function (url, args, success, error) {
-        	console.log("_readEntity says: args.accept is set to: " + args.accept)
-            jQuery.ajax({
+        	console.log("accept is: ")
+        	console.log(args.accept)
+        	jQuery.ajax({
             	beforeSend: function(xhrObj) {
 	    		xhrObj.setRequestHeader("Accept", args.accept);
+	    		xhrObj.setRequestHeader('Authorization', args.auth);
 				},
                 success: success,
                 error: error,
@@ -680,9 +689,9 @@
             var r = request({
                 method: "GET",
                 uri: url,
-                body: args.text,
                 headers: {
-                    Accept: args.accept
+                    'Data-Type': args.format,
+                    'Content-Type': args.content
                 }
             }, function(err, response, body) {
                 try {
@@ -703,16 +712,20 @@
         },
         
         
-        // ### udpateEntity(id, success, error, option)
+        // ### udpateEntity(entity, success, error, options, id)
     	// @author mere01
-    	// This method updates a local entity on the Apache Stanbol entityhub/entity endpoint.
+    	// This method updates a local entity on the Apache Stanbol 
+        // entityhub/entity endpoint.
     	// **Parameters**:  
-    	// *{string}* **entity** the rdf xml formatted entity to be sent to the entityhub/entity/
+    	// *{string}* **entity** the rdf xml formatted entity to be sent to the
+        //	 entityhub/entity
         // *{function}* **success** The success callback.  
     	// *{function}* **error** The error callback.  
-        // *{object}* **options** Options: if e.g. "create: 'true'" is specified, then the method will create
-        //		the entity on the entityhub, if it does not already exist.        		
-        // *{string}* **id** the ID of the entity which is to be updated (optional argument)
+        // *{object}* **options** Options: if e.g. "create: 'true'" is 
+        //	 specified, then the method will create the entity on the entityhub,
+        //	 if it does not already exist.        		
+        // *{string}* **id** the ID of the entity which is to be updated 
+        //	 (optional argument)
     	// **Throws**:  
     	// *nothing*  
     	// **Returns**:  
@@ -746,6 +759,7 @@
     	        		return u;
     	        	},
     	        	args : {
+    	        		auth : this.options.auth,
     	        		entity : entity,
     	        		format : "application/rdf+xml",
     	        		options: options
@@ -758,6 +772,9 @@
 
         _updateEntity : function (url, args, success, error) {
         	jQuery.ajax({
+        		beforeSend : function(req) {
+                    req.setRequestHeader('Authorization', args.auth);
+                  },
                 success: success,
                 error: error,
                 url: url,
@@ -813,7 +830,7 @@
         //    					 id,
         //    	                 function (res) { ... },
         //    	                 function (err) { ... }, 
-        //        				 );						to delete the entity referenced by the specified ID
+        //        	);	to delete the entity referenced by the specified ID
         deleteEntity: function(id, success, error, options) {
     			var connector = this;
     	
@@ -823,13 +840,15 @@
 
     	        	url : function (idx, opts) {
     	        		
-    	                var u = this.options.url[idx].replace(/\/$/, '') + this.options.entityhub.urlPostfix;
+    	                var u = this.options.url[idx].replace(/\/$/, '') 
+    	                	+ this.options.entityhub.urlPostfix;
     	                
     	                u += "/entity?id=" + escape(id);
     	                
     	        		return u;
     	        	},
     	        	args : {
+    	        		auth : this.options.auth,
     	        		format : "application/rdf+xml",
     	        		options: options
     	        	},
@@ -841,6 +860,9 @@
 
         _deleteEntity : function (url, args, success, error) {
         	jQuery.ajax({
+        		beforeSend : function(req) {
+                    req.setRequestHeader('Authorization', args.auth);
+                  },
                 success: success,
                 error: error,
                 url: url,
@@ -855,7 +877,6 @@
                 method: "DELETE",
                 uri: url,
                 headers: {
-                    Accept: "application/json",
                     'Content-Type': args.format
                 }
             }, function(err, response, body) {
@@ -870,17 +891,22 @@
      
      // ### getMapping(id, success, error, options)
     	// @author mere01
-    	// This method looks up mappings from local Entities to Entities managed by a Referenced Site.
+    	// This method looks up mappings from local Entities to Entities managed
+        // by a Referenced Site.
     	// **Parameters**:  
-        // *{string}* **id** the ID of 	(a) the entity ID, when **options** specifies "entity: true"
-        //								(b) the symbol ID, when **options** specified "symbol: true"
-        //								(c) the mapping ID, otherwise
+        // *{string}* **id** is:	
+        //		(a) the entity ID, when **options** specifies "entity: true"
+        //		(b) the symbol ID, when **options** specified "symbol: true"
+        //		(c) the mapping ID, otherwise
         // *{function}* **success** The success callback.  
     	// *{function}* **error** The error callback.  
         // *{object}* **options** Options. 
-        //			If you want to look up the mappings for an entity, specify "entity: true".
-        //			If you want to look up the mappings for a symbol, specify "symbol: true".
-        //			If you want to look up the mappings by the mapping ID itself, specify nothing.
+        //		If you want to look up the mappings for an entity, specify 
+        //		"entity: true".
+        //		If you want to look up the mappings for a symbol, specify 
+        //		"symbol: true".
+        //		If you want to look up the mappings by the mapping ID itself, 
+        //		specify nothing.
         // 		In the **options** parameter, you can specify the ```accept```
 		//		format of the returned data. (default is application/json). 
 		//		Available are:
@@ -905,7 +931,8 @@
         //    	                 function (err) { ... }, 
         //        				 {
         //							entity: true
-    	//							});						to retrieve the mapping for dbpedia entity Paris
+    	//							});						
+        // 			will retrieve the mapping for dbpedia entity Paris
         getMapping: function(id, success, error, options) {
 
     			var connector = this;
@@ -937,11 +964,12 @@
     	                	u += "/symbol";
     	                }
     	                
-    	                u += "?id=" + id;// + escape(id);
+    	                u += "?id=" + id;
     	                
     	        		return u;
     	        	},
     	        	args : {
+    	        		auth : this.options.auth,
     	        		format : "application/json",
     	        		options: options,
     	        		accept : accept
@@ -956,11 +984,13 @@
         	jQuery.ajax({
         		beforeSend: function(xhrObj) {
 	    		xhrObj.setRequestHeader("Accept", args.accept);
+	    		xhrObj.setRequestHeader('Authorization', args.auth);
 				},
                 success: success,
                 error: error,
                 url: url,
                 type: "GET",
+                accepts: args.accept,
                 contentType: args.format             
             });
         }, // end of _getMapping

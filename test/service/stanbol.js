@@ -25,24 +25,23 @@ module("vie.js - Apache Stanbol Service");
 // !!! /entityhub/lookup
 // !!! /entityhub/ldpath
 // 
-// ??? /sparql
+//     /sparql
 // 
-// !!! /contenthub/contenthub/ldpath - createIndex(), deleteIndex() - DELETE
-// access problem
+// !!! /contenthub/contenthub/ldpath - createIndex(), deleteIndex() 
 // !!! /contenthub/contenthub/store - uploadContent()
 // !!! /contenthub/contenthub/store/raw/<contentId> - getTextContentByID()
 // !!! /contenthub/contenthub/store/metadata/<contentId> - getMetadataByID()
 // !!! /contenthub/<coreId>/store - uploadContent()
 // !!! /contenthub/<coreId>/store/raw/<contentId> - getTextContentByID()
 // !!! /contenthub/<coreId>/store/metadata/<contentId> - getMetadataByID()
-// ??? /contenthub/content/<contentId>
+
 // 
 // !!! /factstore/facts
 // !!! /factstore/query
 // 
 // !!! /ontonet/ontology/
 // !!! /ontonet/session/
-// /ontonet/registry/
+
 // 
 // /rules/recipe
 // /rules/recipe/<recipeId>
