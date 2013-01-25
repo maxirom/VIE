@@ -1,15 +1,5 @@
-//     VIE - Vienna IKS Editables
-//     (c) 2011 Henri Bergius, IKS Consortium
-//     (c) 2011 Sebastian Germesin, IKS Consortium
-//     (c) 2011 Szaby Grünwald, IKS Consortium
-//     VIE may be freely distributed under the MIT license.
-//     For all details and documentation:
-//     http://viejs.org/
-
-// ## VIE - DBPedia service
-// The DBPedia service allows a VIE developer to directly query
-// the DBPedia database for entities and their properties. Obviously,
-// the service does not allow for saving, removing or analyzing methods.
+// for more documentation, cf.
+// http://dev.iks-project.eu:8081/enhancer#
 //
 // analyze()
 // enhancers()
@@ -31,16 +21,23 @@
 		//		if no options.contentType is specified, then "text/html; charset=UTF-8" is used.
 		// *{object}* **params** query parameters and/or multipart contentitem 
 		// parameters. Can be one of the following:
-		// - uri={content-item-uri}: By default the URI of the content item being enhanced is a local, non de-referencable URI automatically built out of a hash digest of the binary content. Sometimes it might be helpful to provide the URI of the content-item to be used in the enhancements RDF graph. uri request parameter
-		// - executionmetadata=true/false: Allows the include of execution metadata in the response. Such data include the ExecutionPlan as provided by the enhancement chain as well as information about the actual execution of that plan. The default value is false.
-		// - outputContent=[mediaType]: Allows to specify the Mimetypes of content included within the Response of the Stanbol Enhancer. This parameter supports wild cards (e.g. '*' ... all, 'text/*'' ... all text versions, 'text/plain' ... only the plain text version). This parameter can be used multiple times.
-		// - omitParsed=[true/false]: Makes only sense in combination with the outputContent parameter. This allows to exclude all content included in the request from the response. A typical combination is outputContent=*/*&omitParsed=true. The default value of this parameter is false
-		// - outputContentPart=[uri/'*']: This parameter allows to explicitly include content parts with a specific URI in the response. Currently this only supports ContentParts that are stored as RDF graphs.
-		//   See the developer documentation for ContentItems for more information about ContentParts.
-		//   Responses to requests with this parameter will be encoded as multipart/from-data. If the "Accept" header of the request is not compatible to multipart/from-data it is assumed as a # 400 BAD_REQUEST. The selected content parts will be included as MIME parts. The URI of the part will be used as name. Such parts will be added after the "metadata" and the "content" (if present).
-		// - omitMetadata=[true/false]: This allows to enable/disable the inclusion of the metadata in the response. The default is false.
-		//   Typically omitMetadata=true is used when users want to use the Stanbol Enhancer just to get one or more ContentParts as an response. Note that Requests that use an Accept: {mimeType} header AND omitMetadata=true will directly return the content verison of {mimeType} and NOT wrap the result as multipart/from-data
-		// - rdfFormat=[rdfMimeType]: This allows for requests that result in multipart/from-data encoded responses to specify the used RDF serialization format. Supported formats and defaults are the same as for normal Enhancer Requests.
+		// - uri={content-item-uri}
+		// - executionmetadata=true/false: Allows the include of execution 
+		//	 metadata in the response. The default value is false.
+		// - outputContent=[mediaType]: Allows to specify the Mimetypes of 
+		//	 content included within the Response of the Stanbol Enhancer. 
+		// - omitParsed=[true/false]: Makes only sense in combination with the 
+		//	 outputContent parameter. This allows to exclude all content 
+		//	 included in the request from the response.
+		// - outputContentPart=[uri/'*']: This parameter allows to explicitly 
+		//	 include content parts with a specific URI in the response. 
+		//	 Currently this only supports ContentParts that are stored as RDF 
+		//	 graphs.
+		//   - omitMetadata=[true/false]: This allows to enable/disable the 
+		//	 inclusion of the metadata in the response. The default is false.
+		// - rdfFormat=[rdfMimeType]: This allows for requests that result in 
+		// 	 multipart/from-data encoded responses to specify the used RDF 
+		//	 serialization format.
 		// **Throws**:  
 		// *nothing*  
 		// **Returns**:  
@@ -54,9 +51,6 @@
 	    analyze: function(text, success, error, options, params) {
 	    	options = (options)? options :  {};
 	    	params = (params)? params : false;
-	    	
-	    	console.log("options param for analyze is: ")
-	    	console.log(options)
 	    	
 	    	var connector = this;
 	        
@@ -88,11 +82,12 @@
 	        		return u.replace(/\/$/, '');
 	        	},
 	        	args : {
+	        		auth : this.options.auth,
 	        		text : text,
-	        		format : options.format,// || "application/rdf+json",
-	        		accept : options.accept, //  "application/rdf+json",
+	        		format : options.format,
+	        		accept : options.accept,
 	        		options : options,
-	        		contentType : options.contentType// "text/html; charset=UTF-8"
+	        		contentType : options.contentType
 	        	},
 	        	success : success,
 	        	error : error,
@@ -102,37 +97,30 @@
 	    
 	    _analyze : function (url, args, success, error) {
 	    	
-	    	console.log("analyze() got as accept header: " + args.accept)
-	    	console.log("analyze() got as dataType header: " + args.format)
-	    	console.log("analyze() got as contentType header: " + args.contentType)
-	    	
 	    	jQuery.ajax({
 	    	  beforeSend: function(xhrObj) {
 	    		xhrObj.setRequestHeader("Accept", args.accept);
 				xhrObj.setRequestHeader("Content-type", args.contentType);
+				xhrObj.setRequestHeader('Authorization', args.auth);
 			  },
 	            success: success,
 	            error: error,
 	            
-	            /**/
+	            /**
 	            complete: function (xhr, status) {
-					console.log("status is: " + status)
-	                if (status === 'parsererror' || !xhr.responseText) {
-	                	console.log("in if-case for error")
-	                	console.log("xhr.responseText: " + xhr.responseText)
+					if (status === 'parsererror' || !xhr.responseText) {
 	                    
 	                }
 	                else {
 	                    var data = xhr.responseText;
 	                }
 	            },
-	            /**/
+	            **/
 	            
 	            url: url,
 	            type: "POST",
 	            data: args.text,
 	            dataType: args.format
-//	            contentType: "text/html"
 	        });
 	    },
 	
@@ -144,7 +132,8 @@
 	            body: args.text,
 	            headers: {
 	                Accept: args.accept,
-	                'Content-Type': 'text/plain'
+	                'Content-Type': args.contentType,
+	                'Data-Type' : args.format
 	            }
 	        }, function(err, response, body) {
 	            try {
@@ -158,7 +147,8 @@
 	    
 	    // ### enhancers(success, error, options)
 	    // @author mere01
-		// return information about the available enhancement chains and engines.
+		// returns information about the available enhancement chains and 
+	    // engines.
 		// **Parameters**:    
 		// *{function}* **success** The success callback.  
 		// *{function}* **error** The error callback.  
@@ -195,9 +185,8 @@
 	        		return u;
 	        	},
 	        	args : {
-	        		
+	        		auth : this.options.auth,
 	        		format : options.format || 'application/rdf+xml'
-	        		
 	        	},
 	        	success : success,
 	        	error : error,
@@ -206,10 +195,10 @@
 	    },	// end of enhancers
 	    
 	    _enhancers : function (url, args, success, error) {
-	    	console.log("enhancers() received as format: " + args.format)
 	    	jQuery.ajax({
 	    		beforeSend: function(xhrObj) {
 				xhrObj.setRequestHeader("Accept", args.format);
+				xhrObj.setRequestHeader('Authorization', args.auth);
 			},
 	            success: success,
 	            error: error,
@@ -281,9 +270,8 @@
 	        		return u;
 	        	},
 	        	args : {
-	        		
+	        		auth : this.options.auth,
 	        		format : options.format || 'application/rdf+xml'
-	        		
 	        	},
 	        	success : success,
 	        	error : error,
@@ -292,10 +280,10 @@
 	    },	// end of getExecutionPlan
 	    
 	    _getExecutionPlan : function (url, args, success, error) {
-	    	console.log("getExecutionPlan() received as format: " + args.format)
 	    	jQuery.ajax({
 	    		beforeSend: function(xhrObj) {
 				xhrObj.setRequestHeader("Accept", args.format);
+				xhrObj.setRequestHeader('Authorization', args.auth);
 			},
 	            success: success,
 	            error: error,

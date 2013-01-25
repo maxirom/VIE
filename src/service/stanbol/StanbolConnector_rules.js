@@ -1,15 +1,8 @@
-//     VIE - Vienna IKS Editables
-//     (c) 2011 Henri Bergius, IKS Consortium
-//     (c) 2011 Sebastian Germesin, IKS Consortium
-//     (c) 2011 Szaby Grünwald, IKS Consortium
-//     VIE may be freely distributed under the MIT license.
-//     For all details and documentation:
-//     http://viejs.org/
-
-// ## VIE - DBPedia service
-// The DBPedia service allows a VIE developer to directly query
-// the DBPedia database for entities and their properties. Obviously,
-// the service does not allow for saving, removing or analyzing methods.
+// for more documentation, cf.
+// http://dev.iks-project.eu:8081/rules#
+//
+// NOTE: preliminary version with hardcoded URLs; will have to be revised once
+// Stanbol allows for CORS access on the rules endpoint.
 //
 // createRule()
 // createRecipe()
@@ -18,15 +11,14 @@
 // findRule()
 // findRecipe()
 // getRecipe()
-// refactor()		Uses the specified recipe to transform the specified RDF graph
+// refactor()		uses the specified recipe to transform the specified RDF graph
 // exportRecipe()	export to a specific format
 //
 (function() {
 
 	jQuery.extend(true, VIE.prototype.StanbolConnector.prototype, {
 
-		// ### createRule(ruleSyntax, recipeURI, success, error,
-		// options)
+		// ### createRule(ruleSyntax, recipeURI, success, error, options)
 		// @author mere01
 		// creates a rule on the rules/recipe/ endpoint, and adds it to the
 		// specified recipe.
@@ -42,8 +34,7 @@
 		// **Throws**:
 		// *nothing*
 		// **Returns**:
-		// *{VIE.StanbolConnector}* : The VIE.StanbolConnector
-		// instance itself.
+		// *{VIE.StanbolConnector}* : The VIE.StanbolConnector instance itself.
 		createRule : function(rulename, ruleSyntax, recipeURI, success, error,
 				options) {
 
@@ -79,6 +70,7 @@
 				return "http://lnv-89012.dfki.uni-sb.de:9001/rules/recipe"
 			},
 			args : {
+				auth : this.options.auth,
 				recipe : recipeURI,
 				data : data
 			},
@@ -88,6 +80,9 @@
 
 		_createRule : function(url, args, success, error) {
 			jQuery.ajax( {
+				beforeSend : function(req) {
+		            req.setRequestHeader('Authorization', args.auth);
+		          },
 				success : success,
 				error : error,
 				url : url + "/" + args.recipe,
@@ -103,13 +98,9 @@
 		_createRuleNode : function(url, args, success, error) {
 			var request = require('request');
 			var r = request( {
-				method : args.verb,
-				uri : url,
-				body : args.content,
-				headers : {
-					Accept : "text/plain",
-					"Content-Type" : "text/plain"
-				}
+				method : "POST",
+				uri : url + "/" + args.recipe,
+				body : args.data
 			}, function(err, response, body) {
 				try {
 					success( {
@@ -170,6 +161,7 @@
 				return u;
 			},
 			args : {
+				auth : this.options.auth,
 				id : suffix
 			},
 			urlIndex : 0
@@ -178,6 +170,9 @@
 
 		_createRecipe : function(url, args, success, error) {
 			jQuery.ajax( {
+				beforeSend : function(req) {
+		            req.setRequestHeader('Authorization', args.auth);
+		          },
 				success : success,
 				error : error,
 				url : url + "/" + args.id,
@@ -189,13 +184,8 @@
 		_createRecipeNode : function(url, args, success, error) {
 			var request = require('request');
 			var r = request( {
-				method : args.verb,
-				uri : url,
-				body : args.content,
-				headers : {
-					Accept : "text/plain",
-					"Content-Type" : "text/plain"
-				}
+				method : "PUT",
+				uri : url + "/" + args.id
 			}, function(err, response, body) {
 				try {
 					success( {
@@ -232,8 +222,6 @@
 			// http://dev.iks-project.eu:8081/rules/recipe/http://www.dfki.de/mere01/recipe/r2?rule=transitivity
 			var connector = this;
 
-			console.log(this.options.rules.urlPostfix)
-
 			connector._iterate( {
 				method : connector._deleteRule,
 				methodNode : connector._deleteRuleNode,
@@ -243,17 +231,18 @@
 				// var u = this.options.url[idx].replace(/\/$/, '');
 				// u += this.options.rules.urlPostfix.replace(/\/$/, '');
 				// u += this.options.rules.recipe.replace(/\/$/, '');
+				// u += "/" + recipeURI;
+				// u+= "?rule=" + ruleName;
 
 				// return u;
 				
-				var u = "http://lnv-89012.dfki.uni-sb.de:9001/rules/recipe" + "/" + recipeURI + "?rule=" + ruleName;
-				console.log("sending DELETE request to address:")
-				console.log(u)
+				var u = "http://lnv-89012.dfki.uni-sb.de:9001/rules/recipe" 
+					+ "/" + recipeURI + "?rule=" + ruleName;
+		
 				return u;
 			},
 			args : {
-				id : recipeURI,
-				ruleName : ruleName
+				auth : this.options.auth,
 			},
 			urlIndex : 0
 			});
@@ -261,6 +250,9 @@
 
 		_deleteRule : function(url, args, success, error) {
 			jQuery.ajax( {
+				beforeSend : function(req) {
+		            req.setRequestHeader('Authorization', args.auth);
+		          },
 				success : success,
 				error : error,
 				url : url,
@@ -273,12 +265,7 @@
 			var request = require('request');
 			var r = request( {
 				method : 'DELETE',
-				uri : url,
-				body : args.content,
-				headers : {
-					Accept : "text/plain",
-					"Content-Type" : "text/plain"
-				}
+				uri : url
 			}, function(err, response, body) {
 				try {
 					success( {
@@ -312,9 +299,6 @@
 			// http://lnv-89012.dfki.uni-sb.de:9001/rules/recipe/http://www.dfki.de/mere01/recipe/r1
 			var connector = this;
 
-			console.log("rules endpoint:")
-			console.log(this.options.rules.urlPostfix)
-
 			connector._iterate( {
 				method : connector._deleteRecipe,
 				methodNode : connector._deleteRecipeNode,
@@ -329,6 +313,7 @@
 				return "http://lnv-89012.dfki.uni-sb.de:9001/rules/recipe"
 			},
 			args : {
+				auth : this.options.auth,
 				id : recipeURI
 			},
 			urlIndex : 0
@@ -337,6 +322,9 @@
 
 		_deleteRecipe : function(url, args, success, error) {
 			jQuery.ajax( {
+				beforeSend : function(req) {
+		            req.setRequestHeader('Authorization', args.auth);
+		          },
 				success : success,
 				error : error,
 				url : url + "/" + args.id,
@@ -349,12 +337,7 @@
 			var request = require('request');
 			var r = request( {
 				method : 'DELETE',
-				uri : url,
-				body : args.content,
-				headers : {
-					Accept : "text/plain",
-					"Content-Type" : "text/plain"
-				}
+				uri : url + "/" + args.id
 			}, function(err, response, body) {
 				try {
 					success( {
@@ -367,32 +350,37 @@
 			r.end();
 		}, // end of _deleteRecipeNode
 
-		// TODO old version, evt. to be removed
-		// ### oldfindRule(term, termType, success, error, options)
+		
+		// ### findRule(success, error, options)
 		// @author mere01
-		// searches the /rules/find/rules/ endpoint for a rule that matches the
-		// specified search term, using SPARQL string matching.
+		// retrieves a rule from the /rules/find/ endpoint. The retrieval
+		// can be done using either the name or some description of
+		// the rule. These can be specified in the options parameter
+		// as 'name' or 'description'.
 		// **Parameters**:
-		// *{string}* **term** the search term
-		// *{string]* **termType** the type of the search term, this must be one
-		// of 'name' or 'description' (depending on whether the rule shall
-		// be searched by name or by its description).
 		// *{function}* **success** The success callback.
 		// *{function}* **error** The error callback.
-		// *{object}* **options** Options (not specified here)
+		// *{object}* **options** Options to specify what we're looking
+		//		for. Specify e.g. {name : 'myRule'} if you want to search
+		//		for a rule by its name; specify {description : 'transitive'}
+		//		if you want to search rules by their descriptions.
+		//		If a name is specified, any given description will be
+		//		ignored.
 		// **Throws**:
 		// *nothing*
 		// **Returns**:
 		// *{VIE.StanbolConnector}* : The VIE.StanbolConnector
 		// instance itself.
-		oldfindRule : function(term, termType, success, error, options) {
+		findRule : function(success, error, options) {
 
 			options = (options) ? options : {};
 			var connector = this;
 			// curl -H "Accept: application/rdf+xml" 
-			//		http://lnv-89012.dfki.uni-sb.de:9001/rules/find/rules?name=transitivity
+			// http://http://lnv-89012.dfki.uni-sb.de:9001/rules/find/rules?name=transitivity
+			// or
 			// curl -H "Accept: application/rdf+xml" 
-			//		http://lnv-89012.dfki.uni-sb.de:9001/rules/find/rules?description=has+rule
+			// http://http://lnv-89012.dfki.uni-sb.de:9001/rules/find/rules?description=has+rule
+			
 
 			connector._iterate( {
 				method : connector._findRule,
@@ -400,32 +388,45 @@
 				success : success,
 				error : error,
 				url : function(idx, opts) {
-				// var u = this.options.url[idx].replace(/\/$/, '');
-				// u += this.options.rules.urlPostfix.replace(/\/$/, '');
-				// u += this.options.rules.findRule.replace(/\/$/, '');
-
-				// return u;
-				return "http://lnv-89012.dfki.uni-sb.de:9001/rules/find/rules"
-			},
-			args : {
-				options : options,
-				termType : termType,
-				term : term
-			},
-			urlIndex : 0
+					// var u = this.options.url[idx].replace(/\/$/, '');
+					// u += this.options.rules.urlPostfix.replace(/\/$/, '');
+					// u += this.options.rules.recipe.replace(/\/$/, '');
+					
+					var u = "http://lnv-89012.dfki.uni-sb.de:9001/rules/find/rules";
+					
+					if (options.name) {
+						u += "?name=" +  options.name;
+					} else if (options.description) {
+						u += "?description" + options.description;
+					}
+						
+					return u;
+				},
+				args : {
+					auth : this.options.auth,
+				},
+				urlIndex : 0
 			});
 		}, // end of findRule
 
-		_oldfindRule : function(url, args, success, error) {
+		_findRule : function(url, args, success, error) {
 			jQuery.ajax( {
+				beforeSend: function(xhrObj) {
+					xhrObj.setRequestHeader("Accept", "application/rdf+xml");
+					xhrObj.setRequestHeader('Authorization', args.auth);
+				},
 				success : success,
 				error : error,
-				url : url + "?" + args.termType + "=" + args.term
-
+				url : url,
+				type : "GET",
+				accepts : {
+					"application/rdf+xml" : "application/rdf+xml"
+				}
+				
 			});
 		}, // end of _findRule
-
-		_oldfindRuleNode : function(url, args, success, error) {
+		
+		_findRuleNode : function(url, args, success, error) {
 			var request = require('request');
 			var r = request( {
 				method : "GET",
@@ -444,188 +445,86 @@
 			});
 			r.end();
 		}, // end of _findRuleNode
-
 		
-				// ### findRule(success, error, options)
-				// @author mere01
-				// retrieves a rule from the /rules/find/ endpoint. The retrieval
-				// can be done using either the name or some description of
-				// the rule. These can be specified in the options parameter
-				// as 'name' or 'description'. In the default case, i.e., if no
-				// options are specified, //... TODO
-				// **Parameters**:
-				// *{function}* **success** The success callback.
-				// *{function}* **error** The error callback.
-				// *{object}* **options** Options to specify what we're looking
-				//		for. Specify e.g. {name : 'myRule'} if you want to search
-				//		for a rule by its name; specify {description : 'transitive'}
-				//		if you want to search rules by their descriptions.
-				//		If a name is specified, any given description will be
-				//		ignored.
-				// **Throws**:
-				// *nothing*
-				// **Returns**:
-				// *{VIE.StanbolConnector}* : The VIE.StanbolConnector
-				// instance itself.
-				findRule : function(success, error, options) {
+		// ### findRecipe(success, error, options)
+		// @author mere01
+		// retrieves a recipe from the /rules/find/ endpoint. The retrieval
+		// can be done using the some description of the recipe. This 
+		// description must have been specified at creation of the recipe. 
+		// **Parameters**:
+		// *{function}* **success** The success callback.
+		// *{function}* **error** The error callback.
+		// *{object}* **options** Options to specify what we're looking
+		//		for. Specify e.g. {description : 'transitive'},
+		//		if you want to search a recipe by its description.
+		// **Throws**:
+		// *nothing*
+		// **Returns**:
+		// *{VIE.StanbolConnector}* : The VIE.StanbolConnector
+		// instance itself.
+		findRecipe : function(searchTerm, success, error) {
 
-					options = (options) ? options : {};
-					var connector = this;
-					// curl -H "Accept: application/rdf+xml" 
-					// http://http://lnv-89012.dfki.uni-sb.de:9001/rules/find/rules?name=transitivity
-					// or
-					// curl -H "Accept: application/rdf+xml" 
-					// http://http://lnv-89012.dfki.uni-sb.de:9001/rules/find/rules?description=has+rule
+			var connector = this;
+			// curl -H "Accept: text/turtle" 
+			// http://lnv-89012.dfki.uni-sb.de:9001/rules/find/recipes?description=Test
 
 
-					connector._iterate( {
-						method : connector._findRule,
-						methodNode : connector._findRuleNode,
-						success : success,
-						error : error,
-						url : function(idx, opts) {
-						// var u = this.options.url[idx].replace(/\/$/, '');
-						// u += this.options.rules.urlPostfix.replace(/\/$/, '');
-						// u += this.options.rules.recipe.replace(/\/$/, '');
-
-						// return u;
-						var u = "http://lnv-89012.dfki.uni-sb.de:9001/rules/find/rules";
+			connector._iterate( {
+				method : connector._findRecipe,
+				methodNode : connector._findRecipeNode,
+				success : success,
+				error : error,
+				url : function(idx, opts) {
+					// var u = this.options.url[idx].replace(/\/$/, '');
+					// u += this.options.rules.urlPostfix.replace(/\/$/, '');
+					// u += this.options.rules.recipe.replace(/\/$/, '');
+					
+					var u = "http://lnv-89012.dfki.uni-sb.de:9001/rules/find/recipes";
+					
+					u += "?description=" + searchTerm;
 						
-						if (options.name) {
-							u += "?name=" +  options.name;
-						} else if (options.description) {
-							u += "?description" + options.description;
-						}
-						
-						return u;
-					},
-					args : {
-						
-					},
-					urlIndex : 0
-					});
-				}, // end of findRule
+					return u;
+				},
+				args : {
+					auth : this.options.auth,
+				},
+				urlIndex : 0
+			});
+		}, // end of findRecipe
 
-				_findRule : function(url, args, success, error) {
-					jQuery.ajax( {
-						beforeSend: function(xhrObj) {
-							xhrObj.setRequestHeader("Accept", "application/rdf+xml");
-						},
-						success : success,
-						error : error,
-						url : url,
-						type : "GET",
-						accepts : {
-							"application/rdf+xml" : "application/rdf+xml"
-						}
-
-					});
-				}, // end of _findRule
-
-				_findRuleNode : function(url, args, success, error) {
-					var request = require('request');
-					var r = request( {
-						method : "GET",
-						uri : url,
-						headers : {
-							Accept : "text/turtle"
-						}
-					}, function(err, response, body) {
-						try {
-							success( {
-								results : JSON.parse(body)
-							});
-						} catch (e) {
-							error(e);
-						}
-					});
-					r.end();
-				}, // end of _findRuleNode
+		_findRecipe : function(url, args, success, error) {
+			jQuery.ajax( {
+				beforeSend: function(xhrObj) {
+					xhrObj.setRequestHeader("Accept", "application/rdf+xml");
+					xhrObj.setRequestHeader('Authorization', args.auth);
+				},
+				success : success,
+				error : error,
+				url : url
 				
-				// ### findRecipe(success, error, options)
-				// @author mere01
-				// retrieves a recipe from the /rules/find/ endpoint. The retrieval
-				// can be done using the some description of the recipe. This 
-				// description must have been specified at creation of the recipe. 
-				// **Parameters**:
-				// *{function}* **success** The success callback.
-				// *{function}* **error** The error callback.
-				// *{object}* **options** Options to specify what we're looking
-				//		for. Specify e.g. {name : 'myRecipe'} if you want to search
-				//		for a rule by its name; specify {description : 'transitive'}
-				//		if you want to search a recipe by its description.
-				//		If a name is specified, any given description will be
-				//		ignored.
-				// **Throws**:
-				// *nothing*
-				// **Returns**:
-				// *{VIE.StanbolConnector}* : The VIE.StanbolConnector
-				// instance itself.
-				findRecipe : function(searchTerm, success, error) {
-
-					var connector = this;
-					// curl -H "Accept: text/turtle" 
-					// http://lnv-89012.dfki.uni-sb.de:9001/rules/find/recipes?description=Test
-
-
-					connector._iterate( {
-						method : connector._findRecipe,
-						methodNode : connector._findRecipeNode,
-						success : success,
-						error : error,
-						url : function(idx, opts) {
-						// var u = this.options.url[idx].replace(/\/$/, '');
-						// u += this.options.rules.urlPostfix.replace(/\/$/, '');
-						// u += this.options.rules.recipe.replace(/\/$/, '');
-
-						// return u;
-						var u = "http://lnv-89012.dfki.uni-sb.de:9001/rules/find/recipes";
-						
-						
-						u += "?description=" + searchTerm;
-						
-						
-						return u;
-					},
-					args : {
-						
-					},
-					urlIndex : 0
+			});
+		}, // end of _findRecipe
+		
+		_findRecipeNode : function(url, args, success, error) {
+			var request = require('request');
+			var r = request( {
+				method : "GET",
+				uri : url,
+				headers : {
+					Accept : "application/rdf+xml"
+				}
+			}, function(err, response, body) {
+				try {
+					success( {
+						results : JSON.parse(body)
 					});
-				}, // end of findRecipe
-
-				_findRecipe : function(url, args, success, error) {
-					jQuery.ajax( {
-						beforeSend: function(xhrObj) {
-							xhrObj.setRequestHeader("Accept", "application/rdf+xml");
-						},
-						success : success,
-						error : error,
-						url : url
-
-					});
-				}, // end of _findRecipe
-
-				_findRecipeNode : function(url, args, success, error) {
-					var request = require('request');
-					var r = request( {
-						method : "GET",
-						uri : url,
-						headers : {
-							Accept : "text/turtle"
-						}
-					}, function(err, response, body) {
-						try {
-							success( {
-								results : JSON.parse(body)
-							});
-						} catch (e) {
-							error(e);
-						}
-					});
-					r.end();
-				}, // end of _findRecipeNode	
-				
+				} catch (e) {
+					error(e);
+				}
+			});
+			r.end();
+		}, // end of _findRecipeNode	
+		
 				
 		// ### getRecipe(recipeURI, success, error, options)
 		// @author mere01
@@ -662,6 +561,7 @@
 				return "http://lnv-89012.dfki.uni-sb.de:9001/rules/recipe"
 			},
 			args : {
+				auth : this.options.auth,
 				options : options,
 				id : recipeURI
 			},
@@ -671,6 +571,9 @@
 
 		_getRecipe : function(url, args, success, error) {
 			jQuery.ajax( {
+				beforeSend : function(req) {
+		            req.setRequestHeader('Authorization', args.auth);
+		          },
 				success : success,
 				error : error,
 				url : url + "/" + args.id,
@@ -686,7 +589,7 @@
 			var request = require('request');
 			var r = request( {
 				method : "GET",
-				uri : url,
+				uri : url + args.id,
 				headers : {
 					Accept : "text/turtle"
 				}
@@ -764,7 +667,6 @@
 				// u += this.options.rules.urlPostfix.replace(/\/$/, '');
 				// u += this.options.rules.recipe.replace(/\/$/, '');
 
-				// return u;
 				var u = "http://lnv-89012.dfki.uni-sb.de:9001/refactor";
 				if (rec !== "uri") {
 					u += "/apply";
@@ -772,6 +674,7 @@
 				return u;
 			},
 			args : {
+				auth : this.options.auth,
 				data : data
 			},
 			urlIndex : 0
@@ -780,6 +683,9 @@
 
 		_refactor : function(url, args, success, error) {
 			jQuery.ajax( {
+				beforeSend : function(req) {
+		            req.setRequestHeader('Authorization', args.auth);
+		          },
 				success : success,
 				error : error,
 				url : url,
@@ -795,13 +701,9 @@
 		_refactorNode : function(url, args, success, error) {
 			var request = require('request');
 			var r = request( {
-				method : args.verb,
+				method : "POST",
 				uri : url,
-				body : args.content,
-				headers : {
-					Accept : "text/plain",
-					"Content-Type" : "text/plain"
-				}
+				body : args.data
 			}, function(err, response, body) {
 				try {
 					success( {
@@ -854,11 +756,11 @@
 //					u += this.options.rules.adapters.replace(/\/$/, '');
 //					u += recipe.replace(/\/$/, '');
 //					u += "?format=" + format;
-//
-//					return u;
+
 				return "http://lnv-89012.dfki.uni-sb.de:9001/rules/adapters/" + recipe.replace(/\/$/, '') + "?format=" + format;
 			},
 			args : {
+				auth : this.options.auth,
 				options : options
 			},
 			urlIndex : 0
@@ -867,6 +769,9 @@
 
 		_exportRecipe : function(url, args, success, error) {
 			jQuery.ajax( {
+				beforeSend : function(req) {
+		            req.setRequestHeader('Authorization', args.auth);
+		          },
 				success : success,
 				error : error,
 				url : url,

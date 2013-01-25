@@ -41,6 +41,7 @@
 	      		    return u;
 	          	},
 	          	args : {
+	          		auth : this.options.auth,
 	          		query : query,
 	          		options : options
 	          	},
@@ -50,6 +51,9 @@
 	      
 	      _sparql : function (url, args, success, error) {
 	      	jQuery.ajax({
+	      		beforeSend : function(req) {
+	                req.setRequestHeader('Authorization', args.auth);
+	              },
 	              success: success,
 	              error: error,
 	              url: url,
