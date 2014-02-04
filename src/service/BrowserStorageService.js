@@ -225,15 +225,14 @@ VIE.prototype.BrowserStorageConnector.prototype = {
 										fileWriter.truncate(0);
 										fileWriter.onwriteend = function(e){
 											/*Call the Write method*/
-											var bb = new window.WebKitBlobBuilder();
-											bb.append(saveString);
+											var blob = new Blob([saveString], {type: 'text/plain'});
 											fileWriter.onwriteend = function(e){
 												console.log('Write to ' + fileName + ' completed.');
 												if(success){
 													success();
 												}
 											}
-											fileWriter.write(bb.getBlob('text/plain'));
+											fileWriter.write(blob);
 										}
 									};
 									reader.readAsText(file);
@@ -301,9 +300,8 @@ VIE.prototype.BrowserStorageConnector.prototype = {
 											}
 										}	
 										/*Call the Write method*/
-										var bb = new window.WebKitBlobBuilder();
-										bb.append(saveString);
-										fileWriter.write(bb.getBlob('text/plain'));
+										var blob = new Blob([saveString], {type: 'text/plain'});
+										fileWriter.write(blob);
 									}
 								}
 								catch (e) {
